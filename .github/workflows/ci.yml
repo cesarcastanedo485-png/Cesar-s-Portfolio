@@ -1,10 +1,15 @@
 # Validates production build on Linux (avoids local Windows webpack readlink quirks).
+# If the Actions tab is empty: Repo → Settings → Actions → General → allow Actions for this repository.
 name: CI
 on:
   push:
     branches: [main, master]
   pull_request:
     branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
 
 jobs:
   build:
