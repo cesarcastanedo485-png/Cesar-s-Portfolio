@@ -32,7 +32,7 @@
       },
       {
         "label": "TikTok",
-        "href": "https://www.tiktok.com/@yourhandle",
+        "href": "https://www.tiktok.com/@mortywithtwoeyes_c_137",
         "external": true
       }
     ]
@@ -67,9 +67,9 @@
       },
       {
         "id": 2,
-        "title": "Website One",
-        "role": "Marketing / brochure site",
-        "summary": "Primary landing and story for your product or personal brand — hero, sections, and CTAs wired for analytics and iteration.",
+        "title": "NWI Fun Ball Calm",
+        "role": "Web · brand & landing",
+        "summary": "Site and story for NWI Fun Ball Calm — clear hero, sections, and CTAs tuned for sharing and repeat visits. Add your live domain in links when it’s public.",
         "tags": ["Next.js", "Tailwind CSS", "Vercel"],
         "imageSrc": "/work/website-one.svg",
         "imageAlt": "Placeholder icon — browser window with focus mark",
@@ -77,9 +77,9 @@
       },
       {
         "id": 3,
-        "title": "Linda",
+        "title": "MZ Linda's East Door",
         "role": "App · conversational UI",
-        "summary": "Voice or chat-forward experience named Linda — focused flows, clear states, and hooks for AI or scripted backends when you connect them.",
+        "summary": "MZ Linda's East Door — voice- or chat-led flows with obvious states and room to plug in AI, scripts, or live data when you connect the backend.",
         "tags": ["React", "TypeScript", "Web Speech API", "WebSockets"],
         "imageSrc": "/work/linda.svg",
         "imageAlt": "Placeholder icon — L mark and chat bubble",
@@ -89,7 +89,7 @@
         "id": 4,
         "title": "3D Player",
         "role": "Viewer · WebGL",
-        "summary": "Embeddable 3D player shell — camera-friendly controls, loading states, and a path to glTF/Three.js or R3F when you wire assets.",
+        "summary": "Embeddable 3D viewer for the web — the page or component that loads and plays 3D models (camera controls, loading UI, glTF/Three.js or React Three Fiber). “Shell” just means the outer app frame around the 3D canvas, not a terminal.",
         "tags": ["Three.js", "React Three Fiber", "WebGL", "Vite"],
         "imageSrc": "/work/3d-player.svg",
         "imageAlt": "Placeholder icon — isometric cube",
@@ -106,14 +106,14 @@
     "items": [
       {
         "id": 1,
-        "title": "Cursor Stream Game",
-        "price": "Prototype · stream + play",
-        "summary": "A small game loop built for streaming or Cursor-side demos — quick rounds, readable UI on camera, and room for chat-driven hooks.",
-        "tags": ["Next.js", "Canvas", "WebSockets"],
+        "title": "Tarot stream — chat-controlled",
+        "price": "Live stream · TikTok / OBS",
+        "summary": "Live tarot readings where stream chat drives the experience — votes, prompts, or commands that flip draws, build the spread, and stay legible on camera with a clean overlay-friendly layout.",
+        "tags": ["Stream overlay", "Chat integration", "React", "WebSockets"],
         "sourceAvailable": false,
         "gradient": "from-cyan-600/80 to-slate-900/90",
         "iconSrc": "/games/cursor-stream-game.svg",
-        "iconAlt": "Placeholder icon — cursor mask and stream waves"
+        "iconAlt": "Placeholder icon — stream and ritual vibe (update art when you have a tarot thumbnail)"
       },
       {
         "id": 2,
