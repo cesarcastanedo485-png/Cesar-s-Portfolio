@@ -1,12 +1,9 @@
 import type { NextConfig } from "next";
 
 /**
- * Custom `distDir` can help some Windows setups avoid EPERM on `.next`.
- * Vercel sets `VERCEL=1` during builds — keep the default `.next` output there
- * so the platform can find the build reliably.
+ * Default `.next` output — required for reliable Vercel deploys.
+ * If Windows hits EPERM on `.next`, use Defender exclusions or a short path (see README).
  */
-const nextConfig: NextConfig = {
-  ...(process.env.VERCEL ? {} : { distDir: "build" }),
-};
+const nextConfig: NextConfig = {};
 
 export default nextConfig;
