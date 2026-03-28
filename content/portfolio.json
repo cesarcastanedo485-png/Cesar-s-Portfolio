@@ -135,8 +135,8 @@
         "sourceAvailable": true,
         "sourceHref": "https://github.com/yourusername/dungeon-master-lite",
         "gradient": "from-violet-600/80 to-purple-900/80",
-        "iconSrc": "/games/dungeon-master-lite.svg",
-        "iconAlt": "Dungeon Master Lite — placeholder d20 icon"
+        "iconSrc": "/games/dungeon-master-lite.png",
+        "iconAlt": "Dungeon Master Lite app icon — neon d20 with TikTok motif"
       },
       {
         "id": 4,
