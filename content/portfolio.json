@@ -45,7 +45,7 @@
   },
   "websites": {
     "sectionEyebrow": "Selected work",
-    "sectionIntro": "Apps and sites you’re building — placeholder art lives in public/work/*.svg; swap paths for real screenshots when you have them. Tech stacks below are starter labels: edit content/portfolio.json to match each repo.",
+    "sectionIntro": "Live sites and tools. NWI Fun Ball embeds the production homepage; other entries reflect stacks from your local project folders (Linda, fan player, and this repo).",
     "featuredBadge": "Featured",
     "items": [
       {
@@ -67,30 +67,36 @@
       },
       {
         "id": 2,
-        "title": "NWI Fun Ball Calm",
-        "role": "Web · brand & landing",
-        "summary": "Site and story for NWI Fun Ball Calm — clear hero, sections, and CTAs tuned for sharing and repeat visits. Add your live domain in links when it’s public.",
-        "tags": ["Next.js", "Tailwind CSS", "Vercel"],
-        "imageSrc": "/work/website-one.svg",
-        "imageAlt": "Placeholder icon — browser window with focus mark",
-        "links": []
+        "title": "NWI Fun Ball (nwifunball.com)",
+        "role": "Web · events, tickets & payments",
+        "summary": "Public site for NWI Fun Ball: event storytelling, QR-friendly flows, Stripe payments, transactional email via Resend, and Neon serverless Postgres.",
+        "tags": ["Next.js", "Stripe", "Neon", "Resend", "TypeScript"],
+        "embedUrl": "https://nwifunball.com",
+        "imageAlt": "Live embed of nwifunball.com",
+        "links": [
+          {
+            "label": "Visit nwifunball.com",
+            "href": "https://nwifunball.com",
+            "external": true
+          }
+        ]
       },
       {
         "id": 3,
         "title": "MZ Linda's East Door",
-        "role": "App · conversational UI",
-        "summary": "MZ Linda's East Door — voice- or chat-led flows with obvious states and room to plug in AI, scripts, or live data when you connect the backend.",
-        "tags": ["React", "TypeScript", "Web Speech API", "WebSockets"],
+        "role": "App · brand experience",
+        "summary": "Marketing and experience site (mzdivias-creations) built with Next.js App Router, Framer Motion, Lenis, and Zustand — polished motion and layout for MZ Linda’s East Door.",
+        "tags": ["Next.js", "TypeScript", "Framer Motion", "Tailwind CSS", "Zustand"],
         "imageSrc": "/work/linda.svg",
         "imageAlt": "Placeholder icon — L mark and chat bubble",
         "links": []
       },
       {
         "id": 4,
-        "title": "3D Player",
-        "role": "Viewer · WebGL",
-        "summary": "Embeddable 3D viewer for the web — the page or component that loads and plays 3D models (camera controls, loading UI, glTF/Three.js or React Three Fiber). “Shell” just means the outer app frame around the 3D canvas, not a terminal.",
-        "tags": ["Three.js", "React Three Fiber", "WebGL", "Vite"],
+        "title": "3D Fan Player",
+        "role": "Mobile · holographic LED fan control",
+        "summary": "Flutter app for 3D holographic POV LED fans (3D-PD42-1024-640 class): uploads video or GIF, converts to 1024×640 RGB565 frames at 10 FPS, packages .bin payloads, and streams playlists to the fan over Wi‑Fi (TCP control + upload ports) — the format the hardware expects for persistence-of-vision playback, not a generic glTF web viewer.",
+        "tags": ["Flutter", "Dart", "Riverpod", "Wi-Fi", "Device protocol"],
         "imageSrc": "/work/3d-player.svg",
         "imageAlt": "Placeholder icon — isometric cube",
         "links": []
@@ -102,49 +108,64 @@
   },
   "games": {
     "sectionTitle": "Games",
-    "sectionEyebrow": "Shipped & in progress",
+    "sectionEyebrow": "Stream-first · TikTok Live chat + Twitch placeholders",
     "items": [
       {
         "id": 1,
-        "title": "Tarot stream — chat-controlled",
-        "price": "Live stream · TikTok / OBS",
-        "summary": "Live tarot readings where stream chat drives the experience — votes, prompts, or commands that flip draws, build the spread, and stay legible on camera with a clean overlay-friendly layout.",
-        "tags": ["Stream overlay", "Chat integration", "React", "WebSockets"],
+        "title": "Tarot card reading (stream app)",
+        "price": "Live stream · TikTok Live",
+        "summary": "Stream-friendly tarot overlay: TikTok Live chat drives tips, queues, and draws from the deck you upload — with architecture and UI hooks reserved for Twitch chat integration when you wire it in. OBS-friendly layout stays readable on camera.",
+        "tags": ["Stream overlay", "TikTok Live chat", "Twitch chat (placeholder)", "Tips / monetization", "React", "WebSockets"],
         "sourceAvailable": false,
         "gradient": "from-cyan-600/80 to-slate-900/90",
         "iconSrc": "/games/cursor-stream-game.svg",
-        "iconAlt": "Placeholder icon — stream and ritual vibe (update art when you have a tarot thumbnail)"
+        "iconAlt": "Tarot stream app icon"
       },
       {
         "id": 2,
         "title": "Chatling Ranch",
-        "price": "In development · social sim",
-        "summary": "Ranch-themed chat and progression — think cozy multiplayer energy with lightweight real-time messaging and playful state.",
-        "tags": ["React", "Node.js", "WebSockets"],
+        "price": "Flagship · stream + ranch sim",
+        "featured": true,
+        "summary": "Pokémon-style social sim built for live audiences: TikTok Live chat (and Twitch chat placeholders) can feed votes, gifts, and commands into the ranch while players raise Chatlings and grow the economy metagame.",
+        "detail": "Chatling Ranch is the largest world in your lineup — a creature ranch sim where players raise collectible Chatlings, socialize in real time, and push deep progression systems. Streams extend that loop: TikTok Live chat is the primary integration path today, with clear placeholders in the stack for Twitch chat so viewers on either platform can eventually steer events, gifts, or minigames. Core gameplay is built around generations: pairing, marriage-style bonds, and offspring so families grow into babies and grandbabies with inherited traits. The economy ties into land ownership (buy and expand your plot), housing upgrades that change what you can host and how fast you progress, and a cosmetics layer for both ranch flair and creature presentation. Each Chatling lives on a roughly two-week lifecycle, so care schedules, breeding windows, and social events stay meaningful. Art and trainer concepts also live in your Chatlings asset folder on the backup drive; the full gameplay codebase is slated to sync from the repo you add next.",
+        "highlights": [
+          "Creature collection and ranch life in a Pokémon-inspired social loop.",
+          "Breeding and lineages across generations — babies, grandbabies, and marriage / pairing for family trees.",
+          "Buy land, expand the ranch, and upgrade housing to unlock higher-tier play.",
+          "Cosmetic shop for ranch and creature customization.",
+          "~Two-week lifespan per Chatling so timing, care, and breeding decisions matter.",
+          "Live layer: TikTok Live chat integrations plus Twitch chat placeholders for a unified stream stack.",
+          "Real-time multiplayer energy with chat-forward systems (React, Node.js, WebSockets)."
+        ],
+        "tags": ["React", "Node.js", "WebSockets", "TikTok Live chat", "Twitch chat (placeholder)", "Social sim", "Economy"],
         "sourceAvailable": false,
         "gradient": "from-amber-600/80 to-orange-900/80",
         "iconSrc": "/games/chatling-ranch.svg",
-        "iconAlt": "Placeholder icon — barn and chat bubble"
+        "iconAlt": "Chatling Ranch official icon"
       },
       {
         "id": 3,
         "title": "Dungeon Master Lite",
-        "price": "Web · TikTok chat",
-        "summary": "Tabletop helper for DMs — chat-forward UX, dice-friendly flows, and a path to ship on TikTok or the open web.",
-        "tags": ["React", "Chat UI", "TikTok"],
-        "sourceAvailable": true,
-        "sourceHref": "https://github.com/yourusername/dungeon-master-lite",
+        "price": "Live stream · TikTok Live",
+        "summary": "Lightweight dungeon master companion for interactive streams: chat-first UI wired for TikTok Live, with Twitch chat integration placeholders beside it. Dice-friendly flows plus AI-assisted narration once you supply an API key so prompts and story beats stay reactive to what chat does on air.",
+        "tags": ["React", "Chat UI", "TikTok Live chat", "Twitch chat (placeholder)", "AI API key"],
+        "sourceAvailable": false,
         "gradient": "from-violet-600/80 to-purple-900/80",
-        "iconSrc": "/games/dungeon-master-lite.png",
+        "iconSrc": "/games/dungeon-master-lite.svg",
         "iconAlt": "Dungeon Master Lite app icon — neon d20 with TikTok motif"
       },
       {
         "id": 4,
-        "title": "More soon",
-        "price": "Coming soon",
-        "summary": "Reserve this slot for the next ship — add iconSrc and copy when the project is ready.",
+        "title": "Choose your own adventure",
+        "price": "Live stream · TikTok Live",
+        "summary": "Choose-your-own-adventure built for live streaming: TikTok Live chat carries votes and branch picks on-air, Twitch chat hooks are scaffolded for parity, and an AI API key generates the next beat from the path the audience selects — same interaction model as Dungeon Master Lite, tuned for branching fiction.",
+        "tags": ["React", "TikTok Live chat", "Twitch chat (placeholder)", "AI API key", "Interactive fiction", "Stream overlay"],
+        "demoEnabled": true,
+        "demoSlug": "cyoa-pilot",
+        "demoTitle": "CYOA mini demo (Godot Web)",
+        "demoNotes": "Pilot scene: click a choice to branch. Replace files in public/demos/cyoa-pilot/ with your Godot Web export.",
         "sourceAvailable": false,
-        "gradient": "from-cyan-600/80 to-blue-900/80"
+        "gradient": "from-emerald-600/80 to-teal-900/90"
       }
     ]
   },
