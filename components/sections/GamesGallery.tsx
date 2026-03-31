@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { Card, CardFooter } from "@/components/ui/card";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -109,13 +108,13 @@ function getAltIconSrc(src: string): string | null {
 function GameIconImage({
   src,
   alt,
-  sizes,
   className,
   priority = false,
 }: {
   src: string;
   alt: string;
-  sizes: string;
+  /** @deprecated kept for call-site compatibility; sizes only applied to next/image */
+  sizes?: string;
   className?: string;
   priority?: boolean;
 }) {
@@ -130,14 +129,14 @@ function GameIconImage({
   const fallbackSrc = useMemo(() => getAltIconSrc(src), [src]);
 
   return (
-    <Image
+    // Local assets under /public — plain <img> avoids Next/Image + SVG/fill edge cases (blank tiles on some setups).
+    <img
       src={currentSrc}
       alt={alt}
-      fill
-      sizes={sizes}
-      className={className}
-      priority={priority}
-      unoptimized
+      decoding="async"
+      loading={priority ? "eager" : "lazy"}
+      fetchPriority={priority ? "high" : "auto"}
+      className={cn("absolute inset-0 size-full object-contain object-center", className)}
       onError={() => {
         if (!triedAlt && fallbackSrc) {
           setCurrentSrc(fallbackSrc);
@@ -164,7 +163,6 @@ function FeaturedGameSpotlight({ game }: { game: GameItem }) {
             <GameIconImage
               src={game.iconSrc}
               alt={game.iconAlt ?? game.title}
-              sizes="(max-width: 768px) 100vw, 420px"
               className="object-contain object-center"
               priority
             />
@@ -228,7 +226,6 @@ function GameCard({ game }: { game: GameItem }) {
           <GameIconImage
             src={game.iconSrc}
             alt={game.iconAlt ?? game.title}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 25vw"
             className="box-border object-contain object-center p-0"
           />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/75 to-transparent px-3 pb-3 pt-16 sm:px-4 sm:pb-4 sm:pt-20">

@@ -37,3 +37,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local / oversized (do not deploy)
+BrokenSource/
+node_modules._trash_*/
+debug-*.log
+.cursor/

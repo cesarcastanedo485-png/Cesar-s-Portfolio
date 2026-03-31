@@ -1,13 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
   <defs>
-    <linearGradient id="pf" x1="16" y1="16" x2="112" y2="112" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#0891b2"/>
-      <stop offset="1" stop-color="#0f172a"/>
+    <linearGradient id="pf-bg" x1="12" y1="10" x2="116" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0b1022" />
+      <stop offset="1" stop-color="#05080f" />
+    </linearGradient>
+    <linearGradient id="pf-line" x1="24" y1="26" x2="104" y2="102" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22d3ee" />
+      <stop offset="0.55" stop-color="#60a5fa" />
+      <stop offset="1" stop-color="#a78bfa" />
     </linearGradient>
   </defs>
-  <rect width="128" height="128" rx="24" fill="#020617"/>
-  <rect x="20" y="24" width="88" height="72" rx="12" stroke="url(#pf)" stroke-width="3" fill="#0c1220"/>
-  <path d="M36 44h56M36 56h40M36 68h48" stroke="#67e8f9" stroke-width="3" stroke-linecap="round" opacity="0.85"/>
-  <circle cx="88" cy="88" r="18" fill="#06b6d4" opacity="0.35"/>
-  <path d="M82 88l6 6 12-14" stroke="#ecfeff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect width="128" height="128" rx="24" fill="url(#pf-bg)" />
+  <rect x="18" y="22" width="92" height="68" rx="12" fill="#0f1730" stroke="url(#pf-line)" stroke-width="2.5" />
+  <rect x="18" y="22" width="92" height="14" rx="12" fill="#1b2752" />
+  <circle cx="29" cy="29" r="2.4" fill="#f472b6" />
+  <circle cx="37" cy="29" r="2.4" fill="#fbbf24" />
+  <circle cx="45" cy="29" r="2.4" fill="#34d399" />
+  <path d="M31 48h41M31 58h53M31 68h36" stroke="#67e8f9" stroke-width="2.6" stroke-linecap="round" opacity="0.85" />
+  <circle cx="90" cy="88" r="17" fill="#103b52" stroke="#22d3ee" stroke-width="2.2" />
+  <path d="M83 88l5 5 10-11" stroke="#d9fafe" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
 </svg>

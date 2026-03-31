@@ -22,6 +22,17 @@ export type WorkItem = {
   featured?: boolean;
   imageSrc?: string;
   imageAlt?: string;
+  /** Optional Godot Web mini-demo config */
+  demoEnabled?: boolean;
+  /** Slug that maps to `/demos/<slug>/index.html` */
+  demoSlug?: string;
+  demoTitle?: string;
+  /** Optional controls/help text shown near the demo */
+  demoNotes?: string;
+  /** Optional fallback for opening demo outside the card */
+  demoFallbackHref?: string;
+  /** When set, the work card media area shows this URL in an iframe (live site preview). */
+  embedUrl?: string;
   /** Used when `imageSrc` is omitted — Tailwind utilities after `bg-gradient-to-br`, e.g. `from-cyan-600/90 to-slate-950` */
   gradient?: string;
   links: WorkLink[];
@@ -33,16 +44,47 @@ export type GameItem = {
   price: string;
   /** Short blurb under the status line */
   summary?: string;
+  /** Full-width spotlight card: long intro copy */
+  detail?: string;
+  /** Optional bullet list (featured games) */
+  highlights?: string[];
   tags?: string[];
+  /** Renders as a full-width row above the standard games grid */
+  featured?: boolean;
   sourceAvailable: boolean;
   /** When set with sourceAvailable, "Source Available" is a real link */
   sourceHref?: string;
   gradient: string;
   iconSrc?: string;
   iconAlt?: string;
+  /** Optional Godot Web mini-demo config */
+  demoEnabled?: boolean;
+  /** Slug that maps to `/demos/<slug>/index.html` */
+  demoSlug?: string;
+  demoTitle?: string;
+  /** Optional controls/help text shown near the demo */
+  demoNotes?: string;
+  /** Optional fallback for opening demo outside the card */
+  demoFallbackHref?: string;
 };
 
-export const site = portfolio.site;
+export type AudioReactiveBackgroundConfig = {
+  enabled?: boolean;
+  /** Path under `public/`, e.g. `/backgrounds/art.png` */
+  imageSrc?: string;
+  /** Path under `public/` or absolute URL */
+  audioSrc?: string;
+  showControls?: boolean;
+  /** Empty string uses decorative `alt=""` */
+  imageAlt?: string;
+};
+
+export const site = portfolio.site as typeof portfolio.site & {
+  /** Optional looping MP4 under the page (path under `public/`, e.g. `/video/loop.mp4`). */
+  backgroundVideo?: { src?: string; poster?: string };
+  /** Full-bleed image + Web Audio analyser pulse (fixed assets). */
+  audioReactiveBackground?: AudioReactiveBackgroundConfig;
+};
 export const nav = portfolio.nav as {
   brandLabel: string;
   links: NavLink[];

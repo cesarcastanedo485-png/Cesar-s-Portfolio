@@ -1,13 +1,19 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
-  <rect width="128" height="128" rx="24" fill="#020617"/>
   <defs>
-    <linearGradient id="d3" x1="28" y1="88" x2="100" y2="32" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#22d3ee"/>
-      <stop offset="1" stop-color="#6366f1"/>
+    <linearGradient id="d3-bg" x1="18" y1="6" x2="110" y2="122" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0b1024" />
+      <stop offset="1" stop-color="#060912" />
+    </linearGradient>
+    <linearGradient id="d3-line" x1="28" y1="92" x2="100" y2="34" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22d3ee" />
+      <stop offset="0.55" stop-color="#60a5fa" />
+      <stop offset="1" stop-color="#6366f1" />
     </linearGradient>
   </defs>
-  <path d="M64 28l36 20v40L64 108 28 88V48l36-20z" stroke="url(#d3)" stroke-width="2.5" fill="#0f172a" opacity="0.9"/>
-  <path d="M64 48l22 12v24L64 96 42 84V60l22-12z" fill="#164e63" opacity="0.85"/>
-  <path d="M52 72l12-8 12 8v12l-12 8-12-8V72z" fill="#67e8f9" opacity="0.45"/>
-  <polygon points="58,78 70,70 82,78 70,86" fill="#e0f2fe" opacity="0.9"/>
+  <rect width="128" height="128" rx="24" fill="url(#d3-bg)" />
+  <path d="M64 26l36 20v42L64 108 28 88V46l36-20z" fill="#111936" stroke="url(#d3-line)" stroke-width="2.4" />
+  <path d="M64 46l22 12v26L64 96 42 84V58l22-12z" fill="#17355f" stroke="#67e8f9" stroke-opacity="0.42" />
+  <path d="M64 26v20m36 0-36 20-36-20m36 62V66" stroke="#8be9ff" stroke-opacity="0.38" stroke-width="2" />
+  <circle cx="64" cy="66" r="10" fill="#67e8f9" fill-opacity="0.2" />
+  <path d="M58 66l6-4 6 4v6l-6 4-6-4v-6z" fill="#d8f7ff" />
 </svg>

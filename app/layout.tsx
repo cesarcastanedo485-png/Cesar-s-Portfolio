@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import type { ReactNode } from "react";
 import {
   Orbitron,
@@ -36,6 +36,13 @@ const orbitron = Orbitron({
 });
 
 const canonical = new URL(site.canonicalBase);
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#0a0e17",
+};
 
 export const metadata: Metadata = {
   metadataBase: canonical,

@@ -5,20 +5,44 @@ import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { websitesSection, type WorkItem } from "@/lib/content";
+import { GodotDemoEmbed } from "@/components/sections/GodotDemoEmbed";
+
+function workMediaShellClass(item: WorkItem, isEmbed: boolean) {
+  if (item.featured) {
+    return cn(
+      "relative isolate bg-[#06080f]",
+      isEmbed
+        ? "aspect-[16/10] min-h-[min(52vh,420px)] md:aspect-auto md:min-h-[280px] md:w-1/2 md:shrink-0 md:self-stretch"
+        : "aspect-[16/10] min-h-[200px] md:aspect-auto md:min-h-[280px] md:w-1/2 md:shrink-0 md:self-stretch"
+    );
+  }
+  return cn(
+    "relative isolate bg-[#06080f]",
+    isEmbed ? "aspect-[16/10] min-h-[min(42vh,300px)]" : "aspect-[16/10]"
+  );
+}
+
+/** Permissions + payments (Stripe, etc.) for live site previews; no sandbox so mobile Safari shows nested apps reliably. */
+const LIVE_SITE_IFRAME_ALLOW =
+  "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen; payment *";
 
 function WorkMedia({ item, badge }: { item: WorkItem; badge?: string }) {
   const hasImage = Boolean(item.imageSrc);
+  const embedUrl = item.embedUrl?.trim();
+  const isEmbed = Boolean(embedUrl);
 
   return (
-    <div
-      className={cn(
-        "relative bg-[#06080f]",
-        item.featured
-          ? "aspect-[16/10] min-h-[200px] md:aspect-auto md:min-h-[280px] md:w-1/2 md:shrink-0 md:self-stretch"
-          : "aspect-[16/10]"
-      )}
-    >
-      {hasImage && item.imageSrc ? (
+    <div className={workMediaShellClass(item, isEmbed)}>
+      {embedUrl ? (
+        <iframe
+          title={item.imageAlt ?? `${item.title} live preview`}
+          src={embedUrl}
+          className="absolute inset-0 size-full touch-manipulation border-0 [transform:translateZ(0)]"
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          allow={LIVE_SITE_IFRAME_ALLOW}
+        />
+      ) : hasImage && item.imageSrc ? (
         <Image
           src={item.imageSrc}
           alt={item.imageAlt ?? item.title}
@@ -172,6 +196,13 @@ export function WebsitesGallery() {
                       ))}
                     </ul>
                   ) : null}
+                  <GodotDemoEmbed
+                    demoEnabled={item.demoEnabled}
+                    demoSlug={item.demoSlug}
+                    demoTitle={item.demoTitle}
+                    demoNotes={item.demoNotes}
+                    demoFallbackHref={item.demoFallbackHref}
+                  />
                   <WorkLinks links={item.links} />
                 </div>
               </div>

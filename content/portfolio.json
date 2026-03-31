@@ -3,6 +3,17 @@
     "title": "Cesar | Portfolio",
     "description": "Websites, apps, and games — selected work and experiments by Cesar.",
     "author": "Cesar",
+    "backgroundVideo": {
+      "src": "",
+      "poster": ""
+    },
+    "audioReactiveBackground": {
+      "enabled": true,
+      "imageSrc": "",
+      "audioSrc": "/audio/background.mp3",
+      "showControls": true,
+      "imageAlt": ""
+    },
     "keywords": [
       "portfolio",
       "web developer",
@@ -45,7 +56,7 @@
   },
   "websites": {
     "sectionEyebrow": "Selected work",
-    "sectionIntro": "Live sites and tools. NWI Fun Ball embeds the production homepage; other entries reflect stacks from your local project folders (Linda, fan player, and this repo).",
+    "sectionIntro": "Live sites and tools. NWI Fun Ball embeds the production homepage; other entries reflect stacks from your local project folders (Mordecaius Maximus, fan player, and this repo).",
     "featuredBadge": "Featured",
     "items": [
       {
@@ -56,7 +67,7 @@
         "tags": ["Next.js", "TypeScript", "Tailwind CSS", "Framer Motion"],
         "featured": true,
         "imageSrc": "/work/portfolio.svg",
-        "imageAlt": "Placeholder icon — browser window with check mark",
+        "imageAlt": "Portfolio app icon with browser frame and neon check",
         "links": [
           {
             "label": "GitHub",
@@ -83,12 +94,12 @@
       },
       {
         "id": 3,
-        "title": "MZ Linda's East Door",
-        "role": "App · brand experience",
-        "summary": "Marketing and experience site (mzdivias-creations) built with Next.js App Router, Framer Motion, Lenis, and Zustand — polished motion and layout for MZ Linda’s East Door.",
-        "tags": ["Next.js", "TypeScript", "Framer Motion", "Tailwind CSS", "Zustand"],
+        "title": "Mordecaius Maximus",
+        "role": "Brand · stream & creative",
+        "summary": "Home for the Mordecaius Maximus persona and live-audience experiments — the creative lane replacing the shelved East Door concept, aligned with stream-first games and TikTok-forward storytelling.",
+        "tags": ["Stream-first", "Brand", "Live audience", "Creative direction"],
         "imageSrc": "/work/linda.svg",
-        "imageAlt": "Placeholder icon — L mark and chat bubble",
+        "imageAlt": "Mordecaius Maximus project icon",
         "links": []
       },
       {
@@ -98,7 +109,7 @@
         "summary": "Flutter app for 3D holographic POV LED fans (3D-PD42-1024-640 class): uploads video or GIF, converts to 1024×640 RGB565 frames at 10 FPS, packages .bin payloads, and streams playlists to the fan over Wi‑Fi (TCP control + upload ports) — the format the hardware expects for persistence-of-vision playback, not a generic glTF web viewer.",
         "tags": ["Flutter", "Dart", "Riverpod", "Wi-Fi", "Device protocol"],
         "imageSrc": "/work/3d-player.svg",
-        "imageAlt": "Placeholder icon — isometric cube",
+        "imageAlt": "3D Fan Player icon with layered hologram cube",
         "links": []
       }
     ]
@@ -141,7 +152,7 @@
         "sourceAvailable": false,
         "gradient": "from-amber-600/80 to-orange-900/80",
         "iconSrc": "/games/chatling-ranch.png",
-        "iconAlt": "Chatling Ranch official icon"
+        "iconAlt": "Chatling Ranch — pixel pasture, tree with lantern, chat bubbles"
       },
       {
         "id": 3,
@@ -152,7 +163,7 @@
         "sourceAvailable": false,
         "gradient": "from-violet-600/80 to-purple-900/80",
         "iconSrc": "/games/dungeon-master-lite.png",
-        "iconAlt": "Dungeon Master Lite app icon — neon d20 with TikTok motif"
+        "iconAlt": "Dungeon Master Lite — neon TikTok note in a glitchy crystal frame"
       },
       {
         "id": 4,
@@ -165,7 +176,7 @@
         "demoTitle": "CYOA mini demo (Godot Web)",
         "demoNotes": "Pilot scene: click a choice to branch. Replace files in public/demos/cyoa-pilot/ with your Godot Web export.",
         "iconSrc": "/games/choose-your-destiny.png",
-        "iconAlt": "Choose Your Destiny app icon",
+        "iconAlt": "Choose Your Destiny — rainy neon city, branching arrows, synthwave title",
         "sourceAvailable": false,
         "gradient": "from-emerald-600/80 to-teal-900/90"
       }

@@ -1,16 +1,23 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
   <defs>
-    <linearGradient id="w1" x1="24" y1="20" x2="104" y2="108" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#8b5cf6"/>
-      <stop offset="1" stop-color="#312e81"/>
+    <linearGradient id="w1-bg" x1="10" y1="8" x2="118" y2="120" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#12142d" />
+      <stop offset="1" stop-color="#080b19" />
+    </linearGradient>
+    <linearGradient id="w1-line" x1="22" y1="26" x2="104" y2="100" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#a78bfa" />
+      <stop offset="0.55" stop-color="#8b5cf6" />
+      <stop offset="1" stop-color="#4c1d95" />
     </linearGradient>
   </defs>
-  <rect width="128" height="128" rx="24" fill="#0b0f1a"/>
-  <rect x="22" y="28" width="84" height="64" rx="10" stroke="url(#w1)" stroke-width="2.5" fill="#12182a"/>
-  <rect x="22" y="28" width="84" height="14" rx="10" fill="#1e1b4b"/>
-  <circle cx="32" cy="35" r="3" fill="#f472b6"/>
-  <circle cx="42" cy="35" r="3" fill="#fbbf24"/>
-  <circle cx="52" cy="35" r="3" fill="#34d399"/>
-  <path d="M52 52h24v24H52V52zm8 8v8h8v-8h-8z" fill="#c4b5fd" opacity="0.9"/>
-  <path d="M64 44v-6M64 92v-6M44 64h-6M92 64h-6" stroke="#a78bfa" stroke-width="3" stroke-linecap="round" opacity="0.6"/>
+  <rect width="128" height="128" rx="24" fill="url(#w1-bg)" />
+  <rect x="20" y="24" width="88" height="72" rx="12" fill="#141938" stroke="url(#w1-line)" stroke-width="2.2" />
+  <rect x="20" y="24" width="88" height="14" rx="12" fill="#262268" />
+  <circle cx="31" cy="31" r="2.4" fill="#f472b6" />
+  <circle cx="39" cy="31" r="2.4" fill="#fbbf24" />
+  <circle cx="47" cy="31" r="2.4" fill="#34d399" />
+  <rect x="32" y="48" width="28" height="18" rx="4" fill="#2f3a7d" />
+  <rect x="64" y="48" width="30" height="6" rx="3" fill="#c4b5fd" fill-opacity="0.8" />
+  <rect x="64" y="58" width="22" height="6" rx="3" fill="#c4b5fd" fill-opacity="0.55" />
+  <rect x="32" y="72" width="62" height="12" rx="4" fill="#7c3aed" fill-opacity="0.3" />
 </svg>

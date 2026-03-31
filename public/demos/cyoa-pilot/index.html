@@ -1,0 +1,78 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CYOA Pilot Demo</title>
+    <style>
+      :root {
+        color-scheme: dark;
+      }
+      body {
+        margin: 0;
+        font-family: system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
+        background: #070b14;
+        color: #e6edf7;
+      }
+      .wrap {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 24px;
+      }
+      .card {
+        max-width: 720px;
+        width: 100%;
+        border: 1px solid #25344d;
+        border-radius: 12px;
+        padding: 20px;
+        background: linear-gradient(180deg, #0e1525, #0a101b);
+      }
+      .btns {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+      }
+      button {
+        border: 1px solid #335074;
+        background: #102038;
+        color: #d7e7ff;
+        border-radius: 8px;
+        padding: 8px 12px;
+        cursor: pointer;
+      }
+      #out {
+        margin-top: 14px;
+        padding: 10px;
+        border-radius: 8px;
+        background: #0a1729;
+        border: 1px solid #1e324d;
+        min-height: 42px;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap">
+      <section class="card">
+        <h1>CYOA Pilot Placeholder</h1>
+        <p>
+          This is a placeholder shell for your Godot Web export. Replace this folder with the
+          real exported files from Godot while keeping this path:
+          <code>/public/demos/cyoa-pilot/</code>.
+        </p>
+        <div class="btns">
+          <button onclick="choose('Left path: enter the neon ruins.')">Left path</button>
+          <button onclick="choose('Right path: follow the whispering stream.')">Right path</button>
+          <button onclick="choose('Wait: ask chat for a vote.')">Ask chat</button>
+        </div>
+        <div id="out">Choose a branch to simulate a CYOA decision.</div>
+      </section>
+    </main>
+    <script>
+      function choose(text) {
+        document.getElementById("out").textContent = text;
+      }
+    </script>
+  </body>
+</html>

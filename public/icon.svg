@@ -1,12 +1,15 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
-  <rect width="32" height="32" rx="8" fill="#0a0e17"/>
-  <text
-    x="16"
-    y="22"
-    text-anchor="middle"
-    font-family="system-ui, sans-serif"
-    font-size="16"
-    font-weight="700"
-    fill="#00d4ff"
-  >C</text>
+  <defs>
+    <linearGradient id="ci-bg" x1="3" y1="2" x2="29" y2="30" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0f1430" />
+      <stop offset="1" stop-color="#070b18" />
+    </linearGradient>
+    <linearGradient id="ci-line" x1="7" y1="6" x2="25" y2="26" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22d3ee" />
+      <stop offset="1" stop-color="#a78bfa" />
+    </linearGradient>
+  </defs>
+  <rect width="32" height="32" rx="8" fill="url(#ci-bg)" />
+  <path d="M21 10.5c-1.2-1.2-2.8-1.8-4.8-1.8-3.7 0-6.3 2.5-6.3 6.3s2.6 6.3 6.3 6.3c2 0 3.6-.7 4.8-1.9" stroke="url(#ci-line)" stroke-width="2.2" stroke-linecap="round" />
+  <circle cx="22.5" cy="21.5" r="3" fill="#103b52" stroke="#22d3ee" stroke-width="1.2" />
 </svg>

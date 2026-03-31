@@ -2,13 +2,16 @@
 
 import { motion, useReducedMotion } from "framer-motion";
 import type { HeroContentProps } from "@/lib/content";
+import { useHydrated } from "@/lib/use-hydrated";
 
 type HeroProps = {
   content: HeroContentProps;
 };
 
 export function Hero({ content }: HeroProps) {
+  const hydrated = useHydrated();
   const reduceMotion = useReducedMotion();
+  const allowMotion = hydrated && reduceMotion === false;
 
   return (
     <section className="relative py-24 text-center" aria-labelledby="hero-heading">
@@ -17,12 +20,12 @@ export function Hero({ content }: HeroProps) {
           id="hero-heading"
           className="mb-4 flex w-full flex-col items-center justify-center"
           animate={
-            reduceMotion
-              ? undefined
-              : {
+            allowMotion
+              ? {
                   scale: [1, 1.008, 1],
                   opacity: [0.98, 1, 0.98],
                 }
+              : undefined
           }
           transition={{
             duration: 3.6,
@@ -53,16 +56,18 @@ export function Hero({ content }: HeroProps) {
 }
 
 function PortfolioO() {
+  const hydrated = useHydrated();
   const reduceMotion = useReducedMotion();
+  const allowMotion = hydrated && reduceMotion === false;
 
   return (
     <motion.span
       className="relative inline-flex shrink-0 items-center justify-center self-center"
-      animate={reduceMotion ? undefined : { rotate: 360 }}
+      animate={allowMotion ? { rotate: 360 } : undefined}
       transition={
-        reduceMotion
-          ? undefined
-          : { duration: 20, repeat: Infinity, ease: "linear" }
+        allowMotion
+          ? { duration: 20, repeat: Infinity, ease: "linear" }
+          : undefined
       }
     >
       <svg
