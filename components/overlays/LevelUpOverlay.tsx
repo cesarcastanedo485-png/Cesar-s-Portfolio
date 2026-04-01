@@ -1,12 +1,8 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ChevronDown, ChevronUp, Download, Sparkles } from "lucide-react";
-import {
-  STORAGE_KEY,
-  useProgression,
-  ORACLE_UNLOCK_LEVEL,
-} from "@/lib/progression";
+import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
+import { useProgression, ORACLE_UNLOCK_LEVEL } from "@/lib/progression";
 
 export function LevelUpOverlay() {
   const {
@@ -22,7 +18,6 @@ export function LevelUpOverlay() {
     collapseOverlay,
     openOverlay,
     submitDiscountClaim,
-    exportLeadsCsv,
     discountClaim,
     eligibleDiscountPercent,
   } = useProgression();
@@ -161,34 +156,6 @@ export function LevelUpOverlay() {
                   )}
                 </div>
               ) : null}
-
-              <div className="rounded-xl border border-cyan-500/20 bg-cyan-950/15 p-4">
-                <p className="text-sm font-medium text-cyan-100/90">
-                  Where sign-ups are stored
-                </p>
-                <p className="mt-1 text-xs leading-relaxed text-white/60">
-                  Emails from the claim form are saved only in{" "}
-                  <strong className="font-medium text-white/80">this browser’s</strong>{" "}
-                  <code className="rounded bg-black/40 px-1 py-0.5 text-[10px] text-cyan-200/90">
-                    localStorage
-                  </code>{" "}
-                  under key{" "}
-                  <code className="rounded bg-black/40 px-1 py-0.5 text-[10px] text-cyan-200/90">
-                    {STORAGE_KEY}
-                  </code>
-                  . Nothing is sent to a server unless you add an API route or form backend
-                  later. On your machine, open DevTools → Application → Local Storage → your
-                  site origin, or use the export below.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => exportLeadsCsv()}
-                  className="mt-3 inline-flex h-10 w-full items-center justify-center gap-2 rounded-full border border-cyan-400/40 bg-cyan-950/35 text-sm font-medium text-cyan-100 transition hover:bg-cyan-900/40 sm:w-auto sm:px-5"
-                >
-                  <Download className="h-4 w-4 shrink-0" aria-hidden />
-                  Download leads as CSV
-                </button>
-              </div>
 
               {!levelOneComplete ? (
                 <button

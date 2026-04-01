@@ -1,6 +1,6 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
+import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -42,6 +42,51 @@ function workMediaShellClass(item: WorkItem, isEmbed: boolean) {
 const LIVE_SITE_IFRAME_ALLOW =
   "accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share; fullscreen; payment *";
 
+function WorkCoverImage({
+  src,
+  alt,
+  priority,
+  gradient,
+}: {
+  src: string;
+  alt: string;
+  priority?: boolean;
+  /** Tailwind stops after `bg-gradient-to-br`, e.g. `from-cyan-600/90 to-slate-950` */
+  gradient?: string;
+}) {
+  const [broken, setBroken] = useState(false);
+
+  useEffect(() => {
+    setBroken(false);
+  }, [src]);
+
+  if (broken) {
+    return (
+      <div
+        className={cn(
+          "absolute inset-0 bg-gradient-to-br",
+          gradient ?? "from-white/12 to-white/5",
+        )}
+        role="img"
+        aria-label={alt}
+      />
+    );
+  }
+
+  return (
+    <img
+      src={src}
+      alt={alt}
+      width={1200}
+      height={750}
+      decoding="async"
+      loading={priority ? "eager" : "lazy"}
+      className="absolute inset-0 size-full object-cover brightness-[0.96] contrast-110"
+      onError={() => setBroken(true)}
+    />
+  );
+}
+
 function WorkMedia({ item, badge }: { item: WorkItem; badge?: string }) {
   const hasImage = Boolean(item.imageSrc);
   const embedUrl = item.embedUrl?.trim();
@@ -59,18 +104,12 @@ function WorkMedia({ item, badge }: { item: WorkItem; badge?: string }) {
           allow={LIVE_SITE_IFRAME_ALLOW}
         />
       ) : hasImage && item.imageSrc ? (
-        <div className="absolute inset-0 bg-[#030508]">
-          <Image
+        <div className="absolute inset-0 bg-black">
+          <WorkCoverImage
             src={item.imageSrc}
             alt={item.imageAlt ?? item.title}
-            fill
-            sizes={
-              item.featured
-                ? "(max-width: 768px) 100vw, 55vw"
-                : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-            }
-            className="object-cover brightness-[0.96] contrast-110"
             priority={item.featured}
+            gradient={item.gradient}
           />
         </div>
       ) : (
@@ -140,8 +179,14 @@ function WorkLinks({ links }: { links: WorkItem["links"] }) {
 }
 
 export function WebsitesGallery() {
-  const { sectionEyebrow, sectionIntro, featuredBadge, items, builderTeaser } =
-    websitesSection;
+  const {
+    sectionEyebrow,
+    sectionIntro,
+    featuredBadge,
+    items,
+    builderTeaser,
+    appPackagesTeaser,
+  } = websitesSection;
   const vaultCopy = websitesSection.vault ?? DEFAULT_WORK_VAULT;
   const ordered = [...items].sort(
     (a, b) => Number(!!b.featured) - Number(!!a.featured)
@@ -176,6 +221,18 @@ export function WebsitesGallery() {
               className="font-medium text-cyan-200 underline decoration-cyan-500/45 underline-offset-2 hover:text-cyan-50 hover:decoration-cyan-400/70 focus-visible:outline focus-visible:ring-2 focus-visible:ring-cyan-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]"
             >
               {builderTeaser.label}
+            </Link>
+            .
+          </p>
+        ) : null}
+        {appPackagesTeaser?.href?.trim() && appPackagesTeaser.label?.trim() ? (
+          <p className="mb-6 max-w-2xl text-sm leading-relaxed text-emerald-100/85">
+            {appPackagesTeaser.text}{" "}
+            <Link
+              href={appPackagesTeaser.href}
+              className="font-medium text-emerald-200 underline decoration-emerald-500/45 underline-offset-2 hover:text-emerald-50 hover:decoration-emerald-400/70 focus-visible:outline focus-visible:ring-2 focus-visible:ring-emerald-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]"
+            >
+              {appPackagesTeaser.label}
             </Link>
             .
           </p>

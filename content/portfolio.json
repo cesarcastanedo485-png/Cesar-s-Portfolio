@@ -9,8 +9,8 @@
     },
     "audioReactiveBackground": {
       "enabled": true,
-      "imageSrc": "/backgrounds/alice-parallax.png",
-      "audioSrc": "/audio/background.mp3",
+      "imageSrc": "",
+      "audioSrc": "",
       "showControls": true,
       "imageAlt": "Cyberpunk Wonderland city: Alice on the glowing Cheshire tail, rain and neon; left billboard Mad Hatter in the creator’s likeness with teacup, White Rabbit and pocket watch on the right"
     },
@@ -39,6 +39,7 @@
       { "label": "Dream Now (3D)", "href": "/oracle-3d", "navGroup": "page" },
       { "label": "À la carte (website)", "href": "/build", "navGroup": "page" },
       { "label": "À la carte (social)", "href": "/social", "navGroup": "page" },
+      { "label": "À la carte (app)", "href": "/apps", "navGroup": "page" },
       { "label": "Contact", "href": "#contact", "navGroup": "anchor" },
       {
         "label": "GitHub",
@@ -69,6 +70,10 @@
     "socialPackagesLink": {
       "label": "À la carte (social media)",
       "href": "/social"
+    },
+    "appPackagesLink": {
+      "label": "À la carte (mobile app)",
+      "href": "/apps"
     }
   },
   "websites": {
@@ -79,6 +84,11 @@
       "text": "Prefer to line-item what you need before we talk?",
       "label": "Open à la carte (website)",
       "href": "/build"
+    },
+    "appPackagesTeaser": {
+      "text": "Shipping Flutter, React Native, or a store build instead?",
+      "label": "Open à la carte (app)",
+      "href": "/apps"
     },
     "vault": {
       "teaserTitle": "The architect’s folio",
@@ -156,6 +166,11 @@
       "label": "See game options (website à la carte)",
       "href": "/build"
     },
+    "appPackagesTeaser": {
+      "text": "Need native shells, stores, or ASO for a game app?",
+      "label": "See app line items",
+      "href": "/apps"
+    },
     "vault": {
       "teaserTitle": "Down the rabbit hole",
       "teaserBody": "",
@@ -207,7 +222,11 @@
         "sourceAvailable": false,
         "gradient": "from-violet-600/80 to-purple-900/80",
         "iconSrc": "/games/dungeon-master-lite.svg",
-        "iconAlt": "Dungeon Master Lite — neon TikTok note in a glitchy crystal frame"
+        "iconAlt": "Dungeon Master Lite — neon TikTok note in a glitchy crystal frame",
+        "demoEnabled": true,
+        "demoSlug": "dungeon-master-lite",
+        "demoTitle": "Dungeon Master Lite (Godot Web)",
+        "demoNotes": "Godot HTML5 export: copy the entire export folder into public/demos/dungeon-master-lite/ so index.html, .js, .wasm, and .pck stay together. Replace this placeholder when your export is ready."
       },
       {
         "id": 4,
@@ -242,6 +261,10 @@
       {
         "label": "À la carte (social media)",
         "href": "/social"
+      },
+      {
+        "label": "À la carte (mobile app)",
+        "href": "/apps"
       }
     ]
   },
@@ -257,6 +280,11 @@
       "line": "Social scope: posts, platforms, cadence — same rules (indicative only).",
       "label": "À la carte (social media)",
       "href": "/social"
+    },
+    "appPackagesLink": {
+      "line": "App scope: stacks, auth, stores, ASO — same rules (indicative only).",
+      "label": "À la carte (mobile app)",
+      "href": "/apps"
     }
   }
 }

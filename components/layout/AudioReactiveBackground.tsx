@@ -22,7 +22,7 @@ import { useProgression } from "@/lib/progression";
 import { cn } from "@/lib/utils";
 
 type AudioReactiveBackgroundProps = {
-  /** Empty: violet/indigo gradient pulse (add `/backgrounds/your.png` when ready). */
+  /** Empty or failed load: black base + pulse (set `/backgrounds/...` when the file is committed under `public/`). */
   imageSrc: string;
   audioSrc: string;
   showControls?: boolean;
@@ -38,7 +38,6 @@ export function AudioReactiveBackground({
   showControls = true,
   imageAlt = "",
 }: AudioReactiveBackgroundProps) {
-  const hasImage = Boolean(imageSrc?.trim());
   const hydrated = useHydrated();
   const reduceMotion = useReducedMotion();
   const audioRef = useRef<HTMLAudioElement>(null);
@@ -46,7 +45,13 @@ export function AudioReactiveBackground({
   const [playing, setPlaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dockOpen, setDockOpen] = useState(true);
+  const [imageFailed, setImageFailed] = useState(false);
   const { awardLevelEvent } = useProgression();
+  const hasImage = Boolean(imageSrc?.trim()) && !imageFailed;
+
+  useEffect(() => {
+    setImageFailed(false);
+  }, [imageSrc]);
 
   /** Only dampen when OS explicitly requests reduced motion — never block analyser on `null`. */
   const pulseDampen = reduceMotion === true ? 0.32 : 1;
@@ -152,12 +157,13 @@ export function AudioReactiveBackground({
                   filter:
                     "brightness(calc(0.9 + var(--arp-pulse, 0) * 0.22 * var(--arp-visual-mul, 1))) contrast(calc(1 + var(--arp-pulse, 0) * 0.09 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.26 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 9deg))",
                 }}
+                onError={() => setImageFailed(true)}
               />
             </>
           ) : (
             <div
               aria-hidden
-              className="absolute inset-0 bg-gradient-to-b from-violet-950 via-indigo-950 to-[#050810] will-change-transform"
+              className="absolute inset-0 bg-black will-change-transform"
               style={{
                 transform:
                   "translate3d(var(--arp-scroll-x, 0vw), 0, 0) scale(calc(1 + var(--arp-pulse, 0) * 0.1 * var(--arp-visual-mul, 1))) translateZ(0)",
@@ -166,55 +172,63 @@ export function AudioReactiveBackground({
               }}
             />
           )}
-          {/* Edge bloom only (no center hotspot) */}
+          {/* Edge bloom — kept tight to top/bottom so it doesn’t read as a center spotlight */}
           <div
             aria-hidden
-            className="absolute inset-0 mix-blend-screen blur-[8px] sm:blur-[12px] md:blur-[18px]"
+            className="absolute inset-0 mix-blend-screen blur-[6px] sm:blur-[10px] md:blur-[14px]"
             style={{
               backgroundImage: `
-                radial-gradient(ellipse 72% 34% at 50% 8%, rgba(255, 120, 255, 0.24) 0%, rgba(236, 72, 153, 0.1) 48%, transparent 72%),
-                radial-gradient(ellipse 88% 30% at 50% 94%, rgba(192, 132, 252, 0.2) 0%, transparent 70%)
+                radial-gradient(ellipse 58% 22% at 50% 4%, rgba(255, 120, 255, 0.14) 0%, transparent 78%),
+                radial-gradient(ellipse 62% 20% at 50% 98%, rgba(192, 132, 252, 0.12) 0%, transparent 78%)
               `,
               opacity:
-                "calc(0.34 + var(--arp-pulse, 0) * 0.2 + var(--arp-pulse-spike, 0) * 0.1)",
+                "calc(0.2 + var(--arp-pulse, 0) * 0.14 + var(--arp-pulse-spike, 0) * 0.08)",
             }}
           />
-          {/* Subtle side fog for depth without central bloom */}
+          {/* Side fog — depth without a bright core */}
           <div
             aria-hidden
             className="absolute inset-0 mix-blend-soft-light"
             style={{
               backgroundImage: `
-                radial-gradient(ellipse 42% 66% at 8% 58%, rgba(167, 139, 250, 0.18) 0%, transparent 68%),
-                radial-gradient(ellipse 42% 66% at 92% 58%, rgba(251, 207, 232, 0.16) 0%, transparent 68%)
+                radial-gradient(ellipse 38% 70% at 6% 56%, rgba(167, 139, 250, 0.12) 0%, transparent 70%),
+                radial-gradient(ellipse 38% 70% at 94% 56%, rgba(251, 207, 232, 0.1) 0%, transparent 70%)
               `,
               opacity:
-                "calc(0.22 + var(--arp-pulse, 0) * 0.32 + var(--arp-pulse-spike, 0) * 0.2)",
+                "calc(0.16 + var(--arp-pulse, 0) * 0.22 + var(--arp-pulse-spike, 0) * 0.12)",
             }}
           />
-          {/* Mist / smoke — mid-canvas band grazes Cheshire tail zone; scroll + pulse make it read */}
+          {/* Mist — offset from viewport center + mask keeps hero column calmer; scroll amp ↑ for visible parallax */}
           <div
             aria-hidden
             className="portfolio-smoke-parallax pointer-events-none absolute inset-0 mix-blend-screen opacity-95 max-md:opacity-[0.84]"
             style={{
+              WebkitMaskImage:
+                "radial-gradient(ellipse 74% 70% at 50% 44%, transparent 0%, transparent 26%, rgba(0,0,0,0.55) 52%, black 88%)",
+              maskImage:
+                "radial-gradient(ellipse 74% 70% at 50% 44%, transparent 0%, transparent 26%, rgba(0,0,0,0.55) 52%, black 88%)",
               backgroundImage: `
-                radial-gradient(ellipse 92% 46% at calc(50% + var(--arp-scroll-x, 0vw) * 0.09) 54%, rgba(255,255,255,0.56) 0%, rgba(226,232,240,0.36) 28%, rgba(186,230,253,0.2) 46%, transparent 68%),
-                radial-gradient(ellipse 38% 32% at calc(50% + var(--arp-scroll-x, 0vw) * 0.06) 51%, rgba(255,255,255,0.44) 0%, rgba(255,250,255,0.17) 44%, transparent 60%)
+                radial-gradient(ellipse 88% 42% at calc(36% + var(--arp-scroll-x, 0vw) * 0.42) 52%, rgba(255,255,255,0.34) 0%, rgba(226,232,240,0.22) 30%, rgba(186,230,253,0.14) 48%, transparent 70%),
+                radial-gradient(ellipse 40% 30% at calc(64% + var(--arp-scroll-x, 0vw) * 0.28) 48%, rgba(255,250,255,0.22) 0%, rgba(255,255,255,0.1) 42%, transparent 62%)
               `,
               opacity:
-                "calc(0.5 + var(--arp-pulse, 0) * 0.3 + var(--arp-pulse-spike, 0) * 0.2)",
+                "calc(0.38 + var(--arp-pulse, 0) * 0.24 + var(--arp-pulse-spike, 0) * 0.16)",
             }}
           />
           <div
             aria-hidden
             className="portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-screen max-md:opacity-[0.92]"
             style={{
+              WebkitMaskImage:
+                "radial-gradient(ellipse 78% 72% at 48% 50%, transparent 0%, transparent 22%, rgba(0,0,0,0.5) 50%, black 86%)",
+              maskImage:
+                "radial-gradient(ellipse 78% 72% at 48% 50%, transparent 0%, transparent 22%, rgba(0,0,0,0.5) 50%, black 86%)",
               backgroundImage: `
-                radial-gradient(ellipse 80% 60% at calc(52% - var(--arp-scroll-x, 0vw) * 0.17) 58%, rgba(244,232,255,0.48) 0%, rgba(196,181,253,0.3) 42%, transparent 68%),
-                radial-gradient(ellipse 56% 42% at calc(48% - var(--arp-scroll-x, 0vw) * 0.14) 62%, rgba(255,255,255,0.26) 0%, transparent 56%)
+                radial-gradient(ellipse 82% 58% at calc(72% - var(--arp-scroll-x, 0vw) * 0.38) 58%, rgba(244,232,255,0.34) 0%, rgba(196,181,253,0.22) 44%, transparent 70%),
+                radial-gradient(ellipse 52% 40% at calc(28% - var(--arp-scroll-x, 0vw) * 0.32) 60%, rgba(255,255,255,0.18) 0%, transparent 58%)
               `,
               opacity:
-                "calc(0.62 + var(--arp-pulse, 0) * 0.24)",
+                "calc(0.48 + var(--arp-pulse, 0) * 0.2)",
             }}
           />
           {FORCE_CENTER_SMOKE_DEBUG ? (

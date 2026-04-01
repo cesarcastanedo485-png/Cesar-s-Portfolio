@@ -63,7 +63,8 @@ export function Hero({ content }: HeroProps) {
             {content.tagline}
           </p>
           {(content.builderLink?.href?.trim() && content.builderLink.label?.trim()) ||
-          (content.socialPackagesLink?.href?.trim() && content.socialPackagesLink.label?.trim()) ? (
+          (content.socialPackagesLink?.href?.trim() && content.socialPackagesLink.label?.trim()) ||
+          (content.appPackagesLink?.href?.trim() && content.appPackagesLink.label?.trim()) ? (
             <div className="mt-5 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
               {content.builderLink?.href?.trim() && content.builderLink.label?.trim() ? (
                 <Link
@@ -79,6 +80,14 @@ export function Hero({ content }: HeroProps) {
                   className="inline-flex rounded-full border border-pink-500/35 bg-pink-950/25 px-4 py-2 text-sm font-medium text-pink-100/90 transition hover:border-pink-400/45 hover:bg-pink-900/35 focus-visible:outline focus-visible:ring-2 focus-visible:ring-pink-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]"
                 >
                   {content.socialPackagesLink.label}
+                </Link>
+              ) : null}
+              {content.appPackagesLink?.href?.trim() && content.appPackagesLink.label?.trim() ? (
+                <Link
+                  href={content.appPackagesLink.href}
+                  className="inline-flex rounded-full border border-emerald-500/35 bg-emerald-950/25 px-4 py-2 text-sm font-medium text-emerald-100/90 transition hover:border-emerald-400/45 hover:bg-emerald-900/35 focus-visible:outline focus-visible:ring-2 focus-visible:ring-emerald-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]"
+                >
+                  {content.appPackagesLink.label}
                 </Link>
               ) : null}
             </div>

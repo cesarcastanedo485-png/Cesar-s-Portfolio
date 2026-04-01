@@ -55,6 +55,18 @@ export function Footer() {
           </Link>
         </p>
       ) : null}
+      {footerContent.appPackagesLink?.href?.trim() &&
+      footerContent.appPackagesLink.label?.trim() ? (
+        <p className="mt-2 max-w-xl mx-auto text-xs text-emerald-100/80">
+          {footerContent.appPackagesLink.line}{" "}
+          <Link
+            href={footerContent.appPackagesLink.href}
+            className="font-medium text-emerald-200 underline decoration-emerald-500/45 underline-offset-2 hover:text-emerald-50"
+          >
+            {footerContent.appPackagesLink.label}
+          </Link>
+        </p>
+      ) : null}
     </footer>
   );
 }

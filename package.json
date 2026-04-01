@@ -7,7 +7,8 @@
     "reinstall:swc": "node ./scripts/reinstall-swc.cjs",
     "dev": "node ./node_modules/next/dist/bin/next dev --webpack",
     "dev:fresh": "node ./scripts/clean-next-cache.cjs && node ./node_modules/next/dist/bin/next dev --webpack",
-    "build": "node ./node_modules/next/dist/bin/next build",
+    "verify:assets": "node ./scripts/verify-public-assets.cjs",
+    "build": "node ./scripts/verify-public-assets.cjs && node ./node_modules/next/dist/bin/next build",
     "start": "node ./node_modules/next/dist/bin/next start",
     "lint": "tsc --noEmit",
     "lint:eslint": "eslint ."

@@ -26,6 +26,8 @@ export function HomePageContent() {
   const atmosphereOn =
     !isMatrixMode && (useAudioReactive || Boolean(bgVideoSrc));
   const atmosphereLayerOn = atmosphereOn || isMatrixMode;
+  const showFixedBlackBackdrop =
+    !isMatrixMode && !bgVideoSrc?.trim() && !useAudioReactive;
 
   return (
     <div className="relative min-h-screen">
@@ -47,7 +49,17 @@ export function HomePageContent() {
           posterSrc={site.backgroundVideo?.poster}
         />
       )}
-      <BackgroundAtmosphere enabled={atmosphereLayerOn} matrixCalm={isMatrixMode} />
+      {showFixedBlackBackdrop ? (
+        <div
+          className="pointer-events-none fixed inset-0 -z-20 bg-black"
+          aria-hidden
+        />
+      ) : null}
+      <BackgroundAtmosphere
+        enabled={atmosphereLayerOn}
+        matrixCalm={isMatrixMode}
+        mistLayers={!useAudioReactive}
+      />
       <div className="relative z-10 min-h-screen">
         <SectionSparkles>
           <Header />
@@ -65,7 +77,7 @@ export function HomePageContent() {
               "max-md:pb-[calc(6.75rem+env(safe-area-inset-bottom,0px))]",
             atmosphereOn || isMatrixMode
               ? "bg-transparent"
-              : "bg-gradient-to-b from-[#0a0e17] to-[#000]",
+              : "bg-black",
           )}
         >
           <SectionSparkles>

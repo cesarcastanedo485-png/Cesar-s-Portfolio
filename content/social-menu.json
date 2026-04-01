@@ -196,6 +196,54 @@
       ]
     },
     {
+      "id": "discoverability",
+      "label": "Discoverability & social SEO",
+      "description": "Help profiles and posts surface in search, For You, and recommendations—without promising viral outcomes.",
+      "selectionMode": "multi",
+      "items": [
+        {
+          "id": "soc-seo-profile-bio",
+          "label": "Profile & bio discoverability pass",
+          "description": "Keyword-aware bios and display-name patterns (still human), CTA clarity, link-in-bio hierarchy, highlights / pinned / featured layouts that match how people actually search your niche.",
+          "tags": ["Bio", "Link in bio"],
+          "priceHint": {
+            "display": "From ~$320",
+            "basis": "Per platform bundle; heavy rebrands or many languages add time."
+          }
+        },
+        {
+          "id": "soc-seo-video-packaging",
+          "label": "Title, hook & metadata for short + long video",
+          "description": "Repeatable title and first-line patterns, description templates, chapter / key-moment notes where the platform supports it, and caption structure that helps search and suggested feeds—not keyword stuffing.",
+          "tags": ["YouTube", "TikTok", "Reels"],
+          "priceHint": {
+            "display": "From ~$380",
+            "basis": "Scales with formats and whether you need locale variants."
+          }
+        },
+        {
+          "id": "soc-seo-hashtag-topic",
+          "label": "Hashtag & topic lane map",
+          "description": "A scoped playbook: topic pillars, hashtag clusters to rotate, banned/overused lists for your lane, and platform caps—delivered as a doc you can reuse, not daily hashtag spam as a service.",
+          "tags": ["Strategy", "SEO"],
+          "priceHint": {
+            "display": "From ~$260",
+            "basis": "More platforms or a competitive tear-down adds scope."
+          }
+        },
+        {
+          "id": "soc-seo-site-bridge",
+          "label": "Social → site measurement bridge",
+          "description": "UTM naming conventions for campaigns and creators, link landing checks so social traffic doesn’t hit dead ends, and a short handoff so web analytics (e.g. GA4) can segment social—does not include full technical site SEO (see website à la carte).",
+          "tags": ["UTM", "Analytics"],
+          "priceHint": {
+            "display": "From ~$240",
+            "basis": "Complex funnels or many domains need a custom quote."
+          }
+        }
+      ]
+    },
+    {
       "id": "extras",
       "label": "Add-ons",
       "items": [

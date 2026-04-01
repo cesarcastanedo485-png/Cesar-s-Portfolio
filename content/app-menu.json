@@ -1,0 +1,351 @@
+{
+  "meta": {
+    "pageTitle": "App à la carte",
+    "pageDescription": "Scope a mobile or installable app build—stacks, auth, stores, and ASO. Indicative pricing only; final quotes after discovery.",
+    "heroTitle": "Underland Build Spore Terminal",
+    "heroSubtitle": "Bioluminescent ticket lane for app builds: stack the caps you need on one glowing stem—still not a final quote, just spore-print hints until discovery locks the forest map.",
+    "stickyDisclaimer": "Indicative pricing only. Final quotes depend on platforms, backend, compliance, and store timelines. Prices change; this page may lag.",
+    "longDisclaimer": "Totals on this page are not binding. Developer program fees, store review outcomes, third-party SDKs, and infra are usually billed to you directly unless we agree otherwise in writing. Selecting items does not create an obligation for either party.",
+    "ticketStation": "SEED",
+    "ticketDestination": "STORE",
+    "mailSubject": "À la carte app build — scope from portfolio"
+  },
+  "questionnaire": {
+    "title": "Phase 1 — app context",
+    "description": "Optional, but helps the first call land in the right biome.",
+    "steps": [
+      {
+        "id": "app-audience",
+        "question": "Who is the primary user?",
+        "options": [
+          { "id": "aud-consumer", "label": "Consumer / fans", "description": "Public app stores or sideload trials." },
+          { "id": "aud-internal", "label": "Internal ops / field", "description": "MDM, enterprise tracks, or private distribution." },
+          { "id": "aud-b2b", "label": "B2B clients", "description": "Accounts, roles, and rollout matter." }
+        ]
+      },
+      {
+        "id": "app-stores",
+        "question": "Target distribution?",
+        "options": [
+          { "id": "dist-plan-both", "label": "iOS + Android stores", "description": "Full dual-store path." },
+          { "id": "dist-plan-ios", "label": "iOS first", "description": "Android later or not in v1." },
+          { "id": "dist-plan-android", "label": "Android first", "description": "Play or sideload focus." },
+          { "id": "dist-plan-internal", "label": "Internal / enterprise only", "description": "No public store in v1." }
+        ]
+      },
+      {
+        "id": "app-offline",
+        "question": "Offline expectations?",
+        "options": [
+          { "id": "off-must", "label": "Must work offline", "description": "Cache, sync, or local-first is central." },
+          { "id": "off-nice", "label": "Nice to degrade offline", "description": "Read-only or queued actions." },
+          { "id": "off-online", "label": "Online-only is fine", "description": "Simpler data story." }
+        ]
+      },
+      {
+        "id": "app-timeline",
+        "question": "Timeline",
+        "options": [
+          { "id": "t-asap", "label": "ASAP prototype", "description": "Cut scope to ship a slice." },
+          { "id": "t-weeks", "label": "Several weeks", "description": "Normal pacing with reviews." },
+          { "id": "t-flex", "label": "Flexible / phased", "description": "Milestones after discovery." }
+        ]
+      }
+    ]
+  },
+  "categories": [
+    {
+      "id": "app-foundation",
+      "label": "Foundation / stack",
+      "description": "Pick one primary client stack.",
+      "selectionMode": "one",
+      "items": [
+        {
+          "id": "app-stack-flutter",
+          "label": "Flutter (Dart)",
+          "description": "Cross-platform UI with Material/Cupertino; one codebase for mobile (+ web/desktop if scoped).",
+          "tags": ["Flutter", "Dart"],
+          "excludes": ["app-stack-rn", "app-stack-pwa", "app-stack-webview"],
+          "priceHint": { "display": "From ~$5,200", "basis": "Scales with screens, state, and plugin depth." }
+        },
+        {
+          "id": "app-stack-rn",
+          "label": "React Native / Expo",
+          "description": "JavaScript/TypeScript mobile app with native modules when needed; Expo workflow when it fits.",
+          "tags": ["React Native", "Expo"],
+          "excludes": ["app-stack-flutter", "app-stack-pwa", "app-stack-webview"],
+          "priceHint": { "display": "From ~$4,800", "basis": "Native bridges and complex nav add time." }
+        },
+        {
+          "id": "app-stack-pwa",
+          "label": "PWA + native shell (Capacitor-class)",
+          "description": "Web app wrapped for store listing with plugins for push, camera, etc.—not a substitute for heavy native UI.",
+          "tags": ["PWA", "Capacitor"],
+          "excludes": ["app-stack-flutter", "app-stack-rn", "app-stack-webview"],
+          "priceHint": { "display": "From ~$3,600", "basis": "Store compliance and plugin gaps move the quote." }
+        },
+        {
+          "id": "app-stack-webview",
+          "label": "Thin native shell + WebView",
+          "description": "Loads your existing responsive web inside a minimal app for store presence—fastest when the web app is already strong.",
+          "tags": ["WebView", "Shell"],
+          "excludes": ["app-stack-flutter", "app-stack-rn", "app-stack-pwa"],
+          "priceHint": { "display": "From ~$2,400", "basis": "Deep integrations still need native code." }
+        }
+      ]
+    },
+    {
+      "id": "app-architecture",
+      "label": "Architecture",
+      "description": "How the client handles connectivity and data locally.",
+      "selectionMode": "one",
+      "items": [
+        {
+          "id": "app-arch-online",
+          "label": "Online-first",
+          "description": "Standard network calls; friendly errors when offline.",
+          "tags": ["Network"],
+          "excludes": ["app-arch-offline-sketch", "app-arch-local-proto"],
+          "priceHint": { "display": "Baseline", "basis": "Included in stack estimate unless you add heavy caching." }
+        },
+        {
+          "id": "app-arch-offline-sketch",
+          "label": "Offline & sync sketch",
+          "description": "Local persistence outline, conflict strategy notes, background sync hooks—discovery locks the real model.",
+          "tags": ["Offline", "Sync"],
+          "excludes": ["app-arch-online", "app-arch-local-proto"],
+          "priceHint": { "display": "From ~$1,800", "basis": "CRDTs and multi-device sync are custom." }
+        },
+        {
+          "id": "app-arch-local-proto",
+          "label": "Local-only prototype",
+          "description": "No backend in v1: on-device data, export/import, or fixture-driven demos.",
+          "tags": ["Prototype"],
+          "excludes": ["app-arch-online", "app-arch-offline-sketch"],
+          "priceHint": { "display": "From ~$950", "basis": "Promotion to production backend is a new phase." }
+        }
+      ]
+    },
+    {
+      "id": "app-backend",
+      "label": "Backend & data",
+      "description": "Pick how the app talks to data.",
+      "selectionMode": "one",
+      "items": [
+        {
+          "id": "app-be-none",
+          "label": "No backend in scope",
+          "description": "Static config, local storage, or bundled assets only.",
+          "tags": ["Client-only"],
+          "excludes": ["app-be-rest", "app-be-firebase", "app-be-supabase"],
+          "priceHint": { "display": "From $0", "basis": "Shifts when you add APIs later." }
+        },
+        {
+          "id": "app-be-rest",
+          "label": "REST / GraphQL to your API",
+          "description": "Typed client, auth headers, error handling, and generated or hand models as agreed.",
+          "tags": ["API"],
+          "excludes": ["app-be-none", "app-be-firebase", "app-be-supabase"],
+          "priceHint": { "display": "From ~$1,400", "basis": "Endpoint count and pagination complexity matter." }
+        },
+        {
+          "id": "app-be-firebase",
+          "label": "Firebase (Auth, Firestore, or similar)",
+          "description": "Google Firebase-shaped client: rules awareness, offline cache where applicable.",
+          "tags": ["Firebase"],
+          "excludes": ["app-be-none", "app-be-rest", "app-be-supabase"],
+          "priceHint": { "display": "From ~$1,650", "basis": "Blaze plans and third-party quotas pass through." }
+        },
+        {
+          "id": "app-be-supabase",
+          "label": "Supabase (Auth + Postgres client)",
+          "description": "Supabase-flavored auth and data access with RLS-friendly patterns in the app.",
+          "tags": ["Supabase"],
+          "excludes": ["app-be-none", "app-be-rest", "app-be-firebase"],
+          "priceHint": { "display": "From ~$1,650", "basis": "Edge functions and heavy realtime add scope." }
+        }
+      ]
+    },
+    {
+      "id": "app-auth",
+      "label": "Authentication",
+      "description": "Pick one sign-in posture.",
+      "selectionMode": "one",
+      "items": [
+        {
+          "id": "app-auth-none",
+          "label": "No auth (guest / local)",
+          "description": "No accounts; optional device-only IDs.",
+          "tags": ["Guest"],
+          "excludes": ["app-auth-email", "app-auth-oauth", "app-auth-apple-google"],
+          "priceHint": { "display": "From $0", "basis": "Revisit when you need accounts." }
+        },
+        {
+          "id": "app-auth-email",
+          "label": "Email magic link / password",
+          "description": "Classic email flows with your provider or Firebase/Supabase auth.",
+          "tags": ["Email"],
+          "excludes": ["app-auth-none", "app-auth-oauth", "app-auth-apple-google"],
+          "priceHint": { "display": "From ~$900", "basis": "MFA and risky flows add review time." }
+        },
+        {
+          "id": "app-auth-oauth",
+          "label": "OAuth (social login)",
+          "description": "One or more IdPs (e.g. Google, GitHub) via your stack’s OAuth patterns.",
+          "tags": ["OAuth"],
+          "excludes": ["app-auth-none", "app-auth-email", "app-auth-apple-google"],
+          "priceHint": { "display": "From ~$1,100", "basis": "Each extra provider adds config and QA." }
+        },
+        {
+          "id": "app-auth-apple-google",
+          "label": "Apple + Google sign-in (store-friendly)",
+          "description": "The usual App Store pairing: Sign in with Apple plus Google where policy allows.",
+          "tags": ["Apple", "Google"],
+          "excludes": ["app-auth-none", "app-auth-email", "app-auth-oauth"],
+          "priceHint": { "display": "From ~$1,450", "basis": "Account linking and edge cases add scope." }
+        }
+      ]
+    },
+    {
+      "id": "app-distribution",
+      "label": "Distribution & stores",
+      "description": "Ship lanes and submission help.",
+      "items": [
+        {
+          "id": "app-dist-ios-internal",
+          "label": "iOS internal / TestFlight wiring",
+          "description": "Certs, profiles, build flavor, and first TestFlight upload notes—Apple dev account on you.",
+          "tags": ["iOS", "TestFlight"],
+          "priceHint": { "display": "From ~$520", "basis": "$99/yr Apple program billed to you." }
+        },
+        {
+          "id": "app-dist-android-internal",
+          "label": "Android internal / Play tracks",
+          "description": "Signing config, internal testing track, and rollout checklist—Play account on you.",
+          "tags": ["Android", "Play"],
+          "priceHint": { "display": "From ~$480", "basis": "Play fees and policy changes pass through." }
+        },
+        {
+          "id": "app-dist-store-prep",
+          "label": "Store listing prep (both platforms)",
+          "description": "Screenshots template alignment, description drafts, content rating questionnaires outline—graphics finalization may be separate.",
+          "tags": ["ASO", "Listing"],
+          "priceHint": { "display": "From ~$620", "basis": "Per store if split; localization extra." }
+        }
+      ]
+    },
+    {
+      "id": "app-quality",
+      "label": "Quality & ops",
+      "description": "Observability and engagement plumbing.",
+      "items": [
+        {
+          "id": "app-q-crash",
+          "label": "Crash reporting (e.g. Sentry-style)",
+          "description": "SDK wiring, release mapping, and symbol upload notes—vendor subscription on you.",
+          "tags": ["Sentry", "Stability"],
+          "priceHint": { "display": "From ~$320", "basis": "Multi-flavor builds add setup." }
+        },
+        {
+          "id": "app-q-analytics",
+          "label": "Product analytics events",
+          "description": "Event taxonomy doc, client hooks, and privacy-minded defaults—vendor choice in discovery.",
+          "tags": ["Analytics"],
+          "priceHint": { "display": "From ~$380", "basis": "Attribution / MMP integration is separate." }
+        },
+        {
+          "id": "app-q-push",
+          "label": "Push notifications sketch",
+          "description": "FCM/APNs wiring outline, permission UX, and payload patterns—backend worker scope may be extra.",
+          "tags": ["Push"],
+          "priceHint": { "display": "From ~$550", "basis": "Rich media and topic fan-out add time." }
+        },
+        {
+          "id": "app-q-deeplink",
+          "label": "Deep links / app links",
+          "description": "Universal links and Android App Links verification checklist with your domains.",
+          "tags": ["Deeplink"],
+          "priceHint": { "display": "From ~$420", "basis": "Multi-domain or deferred deep links custom." }
+        }
+      ]
+    },
+    {
+      "id": "app-compliance",
+      "label": "Compliance & privacy",
+      "description": "Store and user-trust scaffolding—not legal advice.",
+      "items": [
+        {
+          "id": "app-c-privacy-labels",
+          "label": "Privacy labels & data inventory assist",
+          "description": "Questionnaire walkthrough aligned to App Store / Play privacy forms from the implemented SDK list.",
+          "tags": ["Privacy"],
+          "priceHint": { "display": "From ~$380", "basis": "Lawyer review still recommended for regulated data." }
+        },
+        {
+          "id": "app-c-permissions-ux",
+          "label": "Permissions UX copy & flows",
+          "description": "Pre-permission screens, settings deep links, and rationale strings tuned for review.",
+          "tags": ["UX", "Review"],
+          "priceHint": { "display": "From ~$260", "basis": "Sensitive APIs (health, location bg) add scope." }
+        }
+      ]
+    },
+    {
+      "id": "app-tooling",
+      "label": "Tooling & CI",
+      "description": "Automation for builds—not open-ended devops.",
+      "items": [
+        {
+          "id": "app-t-fastlane",
+          "label": "Fastlane-style lane sketch",
+          "description": "Lanes for beta vs release, env files, and match/cert notes as fits your stack.",
+          "tags": ["Fastlane"],
+          "priceHint": { "display": "From ~$520", "basis": "Monorepos and signing chaos add hours." }
+        },
+        {
+          "id": "app-t-ci",
+          "label": "CI build (lint + assemble)",
+          "description": "GitHub Actions (or similar) to build PRs and artifacts—no full device farm.",
+          "tags": ["CI"],
+          "priceHint": { "display": "From ~$420", "basis": "iOS runners or self-hosted Mac adds cost." }
+        },
+        {
+          "id": "app-t-e2e",
+          "label": "E2E smoke harness",
+          "description": "A handful of critical-path flows (e.g. login, checkout) with Maestro/Detox-class tooling—bounded count.",
+          "tags": ["E2E", "QA"],
+          "priceHint": { "display": "From ~$680", "basis": "Flaky tests mean timeboxed stabilization." }
+        }
+      ]
+    },
+    {
+      "id": "app-aso",
+      "label": "ASO & discovery (apps)",
+      "description": "Store search and conversion—not web SEO (see website à la carte for that).",
+      "selectionMode": "multi",
+      "items": [
+        {
+          "id": "app-aso-keywords",
+          "label": "Keyword & subtitle strategy",
+          "description": "Competitor-aware keyword map, subtitle options, and avoidance of obvious policy traps.",
+          "tags": ["ASO", "Keywords"],
+          "priceHint": { "display": "From ~$340", "basis": "Per locale bundle adds time." }
+        },
+        {
+          "id": "app-aso-screenshots",
+          "label": "Screenshot narrative & feature order",
+          "description": "Wireframe of the first five slides, value prop ordering, and caption beats—design execution can be separate.",
+          "tags": ["Creative", "ASO"],
+          "priceHint": { "display": "From ~$280", "basis": "Full visual design or 3D mockups extra." }
+        },
+        {
+          "id": "app-aso-localization",
+          "label": "Store localization pass (1–2 locales)",
+          "description": "Translate-ready strings pack + store metadata checklist for an extra market—translation vendor optional.",
+          "tags": ["i18n", "ASO"],
+          "priceHint": { "display": "From ~$420", "basis": "Each extra language adds review." }
+        }
+      ]
+    }
+  ]
+}

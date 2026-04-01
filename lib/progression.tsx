@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { submitLeadToBackend } from "@/lib/submit-lead-remote";
 
 export const STORAGE_KEY = "cesar-portfolio-progression-v1";
 export const MAX_LEVEL = 5;
@@ -363,6 +364,7 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
       }));
       setOverlayCollapsed(true);
       setPlayMode(false);
+      submitLeadToBackend(nextLead);
     },
     [],
   );
@@ -374,6 +376,7 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
     if (!simple) return false;
 
     let ok = false;
+    let capturedLead: LeadRecord | null = null;
     setState((prev) => {
       if (prev.experienceMode === "matrix") return prev;
       if (prev.discountClaim) return prev;
@@ -389,6 +392,7 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
         createdAt,
       };
       ok = true;
+      capturedLead = nextLead;
       return {
         ...prev,
         version: 4,
@@ -398,6 +402,10 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
         leads: [nextLead, ...prev.leads],
       };
     });
+    if (ok) {
+      setOverlayCollapsed(true);
+      if (capturedLead) submitLeadToBackend(capturedLead);
+    }
     return ok;
   }, []);
 

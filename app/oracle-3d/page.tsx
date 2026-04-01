@@ -10,8 +10,9 @@ import {
   safeParseProgression,
 } from "@/lib/progression";
 
-const MODEL_SRC = "/models/mad-hatter-oracle.glb";
-const POSTER_SRC = "/backgrounds/alice-parallax.png";
+/** Drop `public/models/mad-hatter-oracle.glb` (and optional poster) when ready — avoids 404s on live. */
+const MODEL_SRC = "";
+const POSTER_SRC = "";
 
 export default function Oracle3DPage() {
   const router = useRouter();
@@ -90,34 +91,49 @@ export default function Oracle3DPage() {
           </Link>
         </div>
 
-        <section className="overflow-hidden rounded-2xl border border-white/12 bg-black/30 shadow-[0_20px_80px_rgba(0,0,0,0.45)]">
+        <section className="overflow-hidden rounded-2xl border border-white/12 bg-black shadow-[0_20px_80px_rgba(0,0,0,0.45)]">
           <div className="relative aspect-[9/14] min-h-[68svh] w-full sm:aspect-[16/10]">
-            {createElement("model-viewer", {
-              src: MODEL_SRC,
-              poster: POSTER_SRC,
-              cameraControls: true,
-              touchAction: "pan-y",
-              autoRotate: true,
-              "auto-rotate-delay": "1200",
-              "rotation-per-second": "22deg",
-              exposure: "1",
-              shadowIntensity: "1",
-              ar: true,
-              "ar-modes": "scene-viewer webxr quick-look",
-              style: {
-                width: "100%",
-                height: "100%",
-                background:
-                  "radial-gradient(circle at 50% 22%, rgba(172, 85, 247, 0.25), rgba(8, 12, 20, 0.95) 58%)",
-              },
-            })}
+            {MODEL_SRC.trim() ? (
+              createElement("model-viewer", {
+                src: MODEL_SRC,
+                ...(POSTER_SRC.trim() ? { poster: POSTER_SRC } : {}),
+                cameraControls: true,
+                touchAction: "pan-y",
+                autoRotate: true,
+                "auto-rotate-delay": "1200",
+                "rotation-per-second": "22deg",
+                exposure: "1",
+                shadowIntensity: "1",
+                ar: true,
+                "ar-modes": "scene-viewer webxr quick-look",
+                style: {
+                  width: "100%",
+                  height: "100%",
+                  background:
+                    "radial-gradient(circle at 50% 22%, rgba(172, 85, 247, 0.25), #000 58%)",
+                },
+              })
+            ) : (
+              <div className="flex size-full min-h-[68svh] flex-col items-center justify-center gap-3 bg-black px-6 text-center text-sm text-white/75 sm:min-h-[320px]">
+                <p className="max-w-md leading-relaxed">
+                  3D model not bundled in this repo yet. Add{" "}
+                  <code className="rounded bg-white/10 px-1.5 py-0.5 text-white/90">
+                    public/models/mad-hatter-oracle.glb
+                  </code>{" "}
+                  and set <code className="rounded bg-white/10 px-1.5 py-0.5">MODEL_SRC</code> in{" "}
+                  <code className="rounded bg-white/10 px-1.5 py-0.5">app/oracle-3d/page.tsx</code>.
+                </p>
+              </div>
+            )}
           </div>
         </section>
 
-        <p className="vault-neon-instruction text-xs leading-relaxed">
-          Note: this model is currently high-resolution and may load slowly on
-          cellular/mobile. I can add compressed LOD versions next.
-        </p>
+        {MODEL_SRC.trim() ? (
+          <p className="vault-neon-instruction text-xs leading-relaxed">
+            Note: this model is currently high-resolution and may load slowly on cellular/mobile.
+            Compressed LOD versions can be added next.
+          </p>
+        ) : null}
       </div>
     </main>
   );

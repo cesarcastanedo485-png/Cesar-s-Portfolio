@@ -1,7 +1,7 @@
 @import "tailwindcss";
 
 :root {
-  --background: #0a0e17;
+  --background: #000000;
   --foreground: #ededed;
   --muted: #94a3b8;
   --muted-foreground: #64748b;
@@ -100,10 +100,10 @@ body {
     transform: translate3d(0, 0, 0) scale(1);
   }
   33% {
-    transform: translate3d(2.2%, -1.2%, 0) scale(1.045);
+    transform: translate3d(4.2%, -2.4%, 0) scale(1.07);
   }
   66% {
-    transform: translate3d(-1.8%, 0.9%, 0) scale(1.03);
+    transform: translate3d(-3.6%, 2%, 0) scale(1.05);
   }
 }
 
@@ -113,7 +113,17 @@ body {
     transform: translate3d(0, 0, 0) scale(1.04);
   }
   50% {
-    transform: translate3d(-2.8%, 1.8%, 0) scale(1.1);
+    transform: translate3d(-5.2%, 3.2%, 0) scale(1.12);
+  }
+}
+
+@keyframes portfolio-smoke-drift-gentle {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  50% {
+    transform: translate3d(1.4%, -0.9%, 0) scale(1.02);
   }
 }
 
@@ -130,12 +140,12 @@ body {
 }
 
 .portfolio-smoke-parallax {
-  animation: portfolio-smoke-drift 22s ease-in-out infinite;
+  animation: portfolio-smoke-drift 18s ease-in-out infinite;
   will-change: transform;
 }
 
 .portfolio-smoke-parallax-slow {
-  animation: portfolio-smoke-drift-slow 31s ease-in-out infinite;
+  animation: portfolio-smoke-drift-slow 26s ease-in-out infinite;
   will-change: transform;
 }
 
@@ -190,9 +200,12 @@ body {
     opacity: 0.35;
   }
 
-  .portfolio-smoke-parallax,
+  .portfolio-smoke-parallax {
+    animation: portfolio-smoke-drift-gentle 44s ease-in-out infinite;
+  }
+
   .portfolio-smoke-parallax-slow {
-    animation: none;
+    animation: portfolio-smoke-drift-gentle 58s ease-in-out infinite reverse;
   }
 
   .hero-neon-glow {
@@ -459,4 +472,20 @@ html.matrix-mode .build-rabbit-hole .build-alice-muted {
 
 html.matrix-mode .build-rabbit-hole .build-alice-copy {
   color: rgba(250, 245, 255, 0.94);
+}
+
+/* /apps — Underland mushroom lane (emerald + violet grid, softer fuchsia) */
+.build-app-mushroom::before {
+  background-image:
+    linear-gradient(rgba(52, 211, 153, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(139, 92, 246, 0.06) 1px, transparent 1px);
+  mask-image: radial-gradient(ellipse 82% 72% at 50% 18%, black 12%, transparent 78%);
+}
+
+html.matrix-mode .build-app-mushroom .build-alice-muted {
+  color: rgba(167, 243, 208, 0.82);
+}
+
+html.matrix-mode .build-app-mushroom .build-alice-copy {
+  color: rgba(236, 253, 245, 0.94);
 }

@@ -184,6 +184,44 @@
       ]
     },
     {
+      "id": "seo",
+      "label": "SEO & discoverability",
+      "description": "How the build shows up in search and previews—stack-agnostic patterns.",
+      "selectionMode": "multi",
+      "items": [
+        {
+          "id": "seo-technical-baseline",
+          "label": "Technical SEO baseline",
+          "description": "Per-template title & meta patterns, Open Graph and Twitter cards, canonical strategy, robots.txt + XML sitemap wiring, starter JSON-LD (e.g. Organization / WebSite or page-appropriate types), and a concise Search Console handoff checklist.",
+          "tags": ["SEO", "Metadata", "Schema"],
+          "priceHint": {
+            "display": "From ~$420",
+            "basis": "Scales with page templates, locales, and how much custom schema you need."
+          }
+        },
+        {
+          "id": "seo-onpage-content",
+          "label": "On-page SEO & content pass",
+          "description": "Working from your draft copy: page-by-page title and meta description recommendations, heading hierarchy sanity, internal link nudges, and image alt guidance—does not include net-new copywriting unless scoped separately.",
+          "tags": ["SEO", "Copy structure"],
+          "priceHint": {
+            "display": "From ~$320",
+            "basis": "Tied to page count and how finalized the copy is."
+          }
+        },
+        {
+          "id": "seo-local-business",
+          "label": "Local / multi-location SEO hooks",
+          "description": "LocalBusiness (or multi-location) structured data patterns, NAP consistency notes, and alignment with Google Business Profile basics—maps embeds and paid local campaigns are out unless added.",
+          "tags": ["Local SEO", "Schema"],
+          "priceHint": {
+            "display": "From ~$260",
+            "basis": "More locations or languages add templating time."
+          }
+        }
+      ]
+    },
+    {
       "id": "hosting",
       "label": "Hosting & deploy",
       "description": "Where it lives and how pushes go out.",

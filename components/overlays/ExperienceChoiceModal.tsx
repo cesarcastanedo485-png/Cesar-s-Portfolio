@@ -112,7 +112,7 @@ export function ExperienceChoiceModal() {
             Skip the portfolio tour for now. Opens in calm (blue pill) mode so the price menus are
             easier to read — you can switch to red pill anytime from the site.
           </p>
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+          <div className="mt-4 grid gap-3 sm:grid-cols-3">
             <button
               type="button"
               onClick={() => chooseExperienceAndGo("matrix", "/build")}
@@ -139,6 +139,20 @@ export function ExperienceChoiceModal() {
               Social media packages
               <span className="mt-1 block text-[11px] font-normal text-fuchsia-200/70">
                 À la carte (social media) — posts & platforms
+              </span>
+            </button>
+            <button
+              type="button"
+              onClick={() => chooseExperienceAndGo("matrix", "/apps")}
+              className={cn(
+                "rounded-lg border border-emerald-500/40 bg-emerald-950/30 px-3 py-3 text-left text-sm font-medium text-emerald-50 transition",
+                "hover:border-emerald-300/55 hover:bg-emerald-900/35 sm:col-span-1",
+                "focus-visible:outline focus-visible:ring-2 focus-visible:ring-emerald-400/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f1a]",
+              )}
+            >
+              Mobile app packages
+              <span className="mt-1 block text-[11px] font-normal text-emerald-200/70">
+                À la carte (app) — stacks, stores & ASO
               </span>
             </button>
           </div>
