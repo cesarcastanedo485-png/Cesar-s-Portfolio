@@ -10,6 +10,7 @@ import { useEffect, useMemo, useState } from "react";
 import { gamesSection, type GameItem } from "@/lib/content";
 import { useHydrated } from "@/lib/use-hydrated";
 import { GodotDemoEmbed } from "@/components/sections/GodotDemoEmbed";
+import { CardDetailsDisclosure } from "@/components/ui/card-details-disclosure";
 
 /** Summary + tech tags (price is rendered by the parent row). */
 function GameMeta({ game }: { game: GameItem }) {
@@ -187,31 +188,33 @@ function FeaturedGameSpotlight({ game }: { game: GameItem }) {
               {game.price}
             </p>
           </div>
-          {game.detail ? (
-            <p className="neon-sign-body text-sm leading-relaxed">
-              {game.detail}
-            </p>
-          ) : null}
-          {game.highlights?.length ? (
-            <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed">
-              {game.highlights.map((line, i) => (
-                <li key={`${game.id}-hl-${i}`} className="neon-sign-body">
-                  {line}
-                </li>
-              ))}
-            </ul>
-          ) : null}
-          <GameMeta game={game} />
-          <GodotDemoEmbed
-            demoEnabled={game.demoEnabled}
-            demoSlug={game.demoSlug}
-            demoTitle={game.demoTitle}
-            demoNotes={game.demoNotes}
-            demoFallbackHref={game.demoFallbackHref}
-          />
-          {game.sourceAvailable && (
-            <SourceAvailableButton href={game.sourceHref} />
-          )}
+          <CardDetailsDisclosure disclosureId={`game-details-${game.id}`}>
+            {game.detail ? (
+              <p className="neon-sign-body text-sm leading-relaxed">
+                {game.detail}
+              </p>
+            ) : null}
+            {game.highlights?.length ? (
+              <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed">
+                {game.highlights.map((line, i) => (
+                  <li key={`${game.id}-hl-${i}`} className="neon-sign-body">
+                    {line}
+                  </li>
+                ))}
+              </ul>
+            ) : null}
+            <GameMeta game={game} />
+            <GodotDemoEmbed
+              demoEnabled={game.demoEnabled}
+              demoSlug={game.demoSlug}
+              demoTitle={game.demoTitle}
+              demoNotes={game.demoNotes}
+              demoFallbackHref={game.demoFallbackHref}
+            />
+            {game.sourceAvailable && (
+              <SourceAvailableButton href={game.sourceHref} />
+            )}
+          </CardDetailsDisclosure>
         </div>
       </div>
     </Card>
@@ -236,19 +239,21 @@ function GameCard({ game }: { game: GameItem }) {
             </h3>
           </div>
         </div>
-        <div className="flex flex-col gap-2.5 border-t border-white/10 bg-black px-4 py-3">
+        <div className="flex flex-col gap-2 border-t border-white/10 bg-black px-4 py-3">
           <p className="text-xs text-muted-foreground">{game.price}</p>
-          <GameMeta game={game} />
-          <GodotDemoEmbed
-            demoEnabled={game.demoEnabled}
-            demoSlug={game.demoSlug}
-            demoTitle={game.demoTitle}
-            demoNotes={game.demoNotes}
-            demoFallbackHref={game.demoFallbackHref}
-          />
-          {game.sourceAvailable && (
-            <SourceAvailableButton href={game.sourceHref} />
-          )}
+          <CardDetailsDisclosure disclosureId={`game-details-${game.id}`}>
+            <GameMeta game={game} />
+            <GodotDemoEmbed
+              demoEnabled={game.demoEnabled}
+              demoSlug={game.demoSlug}
+              demoTitle={game.demoTitle}
+              demoNotes={game.demoNotes}
+              demoFallbackHref={game.demoFallbackHref}
+            />
+            {game.sourceAvailable && (
+              <SourceAvailableButton href={game.sourceHref} />
+            )}
+          </CardDetailsDisclosure>
         </div>
       </Card>
     );
@@ -265,11 +270,9 @@ function GameCard({ game }: { game: GameItem }) {
           </div>
         )}
       </div>
-      <CardFooter className="flex flex-col items-start gap-3 border-t border-white/10 bg-black p-4">
-        <div className="flex w-full flex-col gap-2">
-          <span className="text-sm font-medium text-foreground">
-            {game.price}
-          </span>
+      <CardFooter className="flex flex-col items-start gap-2 border-t border-white/10 bg-black p-4">
+        <span className="text-sm font-medium text-foreground">{game.price}</span>
+        <CardDetailsDisclosure disclosureId={`game-details-${game.id}`}>
           <GameMeta game={game} />
           <GodotDemoEmbed
             demoEnabled={game.demoEnabled}
@@ -278,10 +281,10 @@ function GameCard({ game }: { game: GameItem }) {
             demoNotes={game.demoNotes}
             demoFallbackHref={game.demoFallbackHref}
           />
-        </div>
-        {game.sourceAvailable && (
-          <SourceAvailableButton href={game.sourceHref} />
-        )}
+          {game.sourceAvailable && (
+            <SourceAvailableButton href={game.sourceHref} />
+          )}
+        </CardDetailsDisclosure>
       </CardFooter>
     </Card>
   );

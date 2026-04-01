@@ -187,3 +187,20 @@ body {
     transform: scale(0.6);
   }
 }
+
+/* QuoteSection — turquoise / cyan neon (distinct from body-copy cyan) */
+.quote-neon-turquoise {
+  color: rgba(204, 251, 251, 0.98);
+  -webkit-text-stroke: 0.4px rgba(45, 212, 191, 0.38);
+  text-shadow:
+    0 0 2px rgba(255, 255, 255, 0.65),
+    0 0 10px rgba(34, 211, 238, 0.78),
+    0 0 22px rgba(45, 212, 191, 0.52),
+    0 0 38px rgba(13, 148, 136, 0.32);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .quote-neon-turquoise {
+    text-shadow: 0 0 10px rgba(34, 211, 238, 0.55);
+  }
+}

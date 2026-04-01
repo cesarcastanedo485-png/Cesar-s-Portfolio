@@ -6,6 +6,7 @@ import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { websitesSection, type WorkItem } from "@/lib/content";
 import { GodotDemoEmbed } from "@/components/sections/GodotDemoEmbed";
+import { CardDetailsDisclosure } from "@/components/ui/card-details-disclosure";
 
 function workMediaShellClass(item: WorkItem, isEmbed: boolean) {
   if (item.featured) {
@@ -179,29 +180,34 @@ export function WebsitesGallery() {
                       {item.role}
                     </p>
                   </div>
-                  <p className="neon-sign-body text-sm leading-relaxed">
-                    {item.summary}
-                  </p>
-                  {item.tags?.length ? (
-                    <ul className="flex flex-wrap gap-1.5" aria-label="Technologies">
-                      {item.tags.map((tag) => (
-                        <li
-                          key={tag}
-                          className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-xs text-white/80"
-                        >
-                          {tag}
-                        </li>
-                      ))}
-                    </ul>
-                  ) : null}
-                  <GodotDemoEmbed
-                    demoEnabled={item.demoEnabled}
-                    demoSlug={item.demoSlug}
-                    demoTitle={item.demoTitle}
-                    demoNotes={item.demoNotes}
-                    demoFallbackHref={item.demoFallbackHref}
-                  />
-                  <WorkLinks links={item.links} />
+                  <CardDetailsDisclosure disclosureId={`work-details-${item.id}`}>
+                    <p className="neon-sign-body text-sm leading-relaxed">
+                      {item.summary}
+                    </p>
+                    {item.tags?.length ? (
+                      <ul
+                        className="flex flex-wrap gap-1.5"
+                        aria-label="Technologies"
+                      >
+                        {item.tags.map((tag) => (
+                          <li
+                            key={tag}
+                            className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-xs text-white/80"
+                          >
+                            {tag}
+                          </li>
+                        ))}
+                      </ul>
+                    ) : null}
+                    <GodotDemoEmbed
+                      demoEnabled={item.demoEnabled}
+                      demoSlug={item.demoSlug}
+                      demoTitle={item.demoTitle}
+                      demoNotes={item.demoNotes}
+                      demoFallbackHref={item.demoFallbackHref}
+                    />
+                    <WorkLinks links={item.links} />
+                  </CardDetailsDisclosure>
                 </div>
               </div>
             </Card>

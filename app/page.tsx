@@ -58,7 +58,7 @@ export default function Home() {
           <SectionSparkles>
             <WebsitesGallery />
           </SectionSparkles>
-          <SectionSparkles>
+          <SectionSparkles layout="scatter">
             <QuoteSection />
           </SectionSparkles>
           <SectionSparkles>

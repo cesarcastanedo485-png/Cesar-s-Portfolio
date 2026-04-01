@@ -31,7 +31,8 @@ function hashSeed(id: string, i: number) {
   return Math.abs(h);
 }
 
-function makeSpecs(id: string): SparkleSpec[] {
+/** Fills the section — use for quote block only. */
+function makeScatterSpecs(id: string): SparkleSpec[] {
   const hues: SparkleSpec["hue"][] = ["white", "cyan", "magenta", "gold"];
   return Array.from({ length: SPARKLE_COUNT }, (_, i) => {
     const h = hashSeed(id, i);
@@ -46,6 +47,48 @@ function makeSpecs(id: string): SparkleSpec[] {
   });
 }
 
+/** Hug left/right (and light top/bottom) edges of the wrapper. */
+function makeFrameSpecs(id: string): SparkleSpec[] {
+  const hues: SparkleSpec["hue"][] = ["white", "cyan", "magenta", "gold"];
+  const specs: SparkleSpec[] = [];
+  let k = 0;
+  for (let i = 0; i < 10; i++) {
+    const h = hashSeed(id, k++);
+    specs.push({
+      left: 0.4 + (h % 45) / 12,
+      top: 7 + (i / 9) * 84 + (h % 6) * 0.35,
+      size: 2 + (h % 4) * 0.75,
+      delay: (h % 2800) / 1000,
+      duration: 2.2 + (h % 2200) / 1000,
+      hue: hues[h % hues.length]!,
+    });
+  }
+  for (let i = 0; i < 10; i++) {
+    const h = hashSeed(id, k++);
+    specs.push({
+      left: 94.2 + (h % 42) / 12,
+      top: 7 + (i / 9) * 84 + (h % 6) * 0.35,
+      size: 2 + (h % 4) * 0.75,
+      delay: (h % 2600) / 1000,
+      duration: 2.1 + (h % 2100) / 1000,
+      hue: hues[(h + 1) % hues.length]!,
+    });
+  }
+  for (let i = 0; i < 4; i++) {
+    const h = hashSeed(id, k++);
+    const topBand = i < 2;
+    specs.push({
+      left: 8 + (h % 84),
+      top: topBand ? 1.2 + (h % 5) * 0.8 : 92.5 + (h % 5) * 0.9,
+      size: 2 + (h % 3) * 0.85,
+      delay: (h % 2400) / 1000,
+      duration: 2.3 + (h % 1900) / 1000,
+      hue: hues[(h + 2) % hues.length]!,
+    });
+  }
+  return specs;
+}
+
 const hueClass: Record<SparkleSpec["hue"], string> = {
   white: "bg-white shadow-[0_0_6px_rgba(255,255,255,0.9)]",
   cyan: "bg-cyan-200 shadow-[0_0_8px_rgba(34,211,238,0.85)]",
@@ -53,22 +96,34 @@ const hueClass: Record<SparkleSpec["hue"], string> = {
   gold: "bg-amber-200 shadow-[0_0_7px_rgba(251,191,36,0.75)]",
 };
 
+type SparkleLayout = "frame" | "scatter";
+
 type SectionSparklesProps = {
   children: ReactNode;
   className?: string;
+  /** `frame` = sparkles along vertical edges; `scatter` = full-area (e.g. quote). */
+  layout?: SparkleLayout;
 };
 
 /**
  * Wraps a block; when it enters view, twinkling particles play at ~half-disco intensity.
  */
-export function SectionSparkles({ children, className }: SectionSparklesProps) {
+export function SectionSparkles({
+  children,
+  className,
+  layout = "frame",
+}: SectionSparklesProps) {
   const reduceMotion = useReducedMotion();
   const id = useId();
   const wrapRef = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(false);
   const [mounted, setMounted] = useState(false);
 
-  const specs = useMemo(() => makeSpecs(id), [id]);
+  const specs = useMemo(
+    () =>
+      layout === "scatter" ? makeScatterSpecs(id) : makeFrameSpecs(id),
+    [id, layout],
+  );
 
   useEffect(() => {
     setMounted(true);
