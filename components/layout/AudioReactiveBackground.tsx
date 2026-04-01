@@ -2,7 +2,14 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
-import { ChevronLeft, ChevronRight, Music2, Pause, Play } from "lucide-react";
+import {
+  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
+  Music2,
+  Pause,
+  Play,
+} from "lucide-react";
 import { useReducedMotion } from "framer-motion";
 import { useHydrated } from "@/lib/use-hydrated";
 import { useAudioReactiveDrive } from "@/lib/use-audio-reactive-drive";
@@ -74,20 +81,22 @@ export function AudioReactiveBackground({
 
   const crossOrigin = audioSrc.startsWith("http") ? "anonymous" : undefined;
 
-  const leftSafe = "max(0.5rem,env(safe-area-inset-left,0px))";
+  /** Mobile-first safe insets (thumb + notches). */
+  const insetLeft = "max(0.75rem,env(safe-area-inset-left,0px))";
+  const insetBottom = "max(1rem,env(safe-area-inset-bottom,0px))";
 
   return (
     <>
       {/* Visual layers only: stacking context stays behind page content */}
       <div
         ref={containerRef}
-        className="pointer-events-none fixed inset-0 -z-20 overflow-hidden"
+        className="pointer-events-none fixed inset-x-0 top-0 bottom-0 -z-20 min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-visual-mul:0.88] md:[--arp-visual-mul:1]"
         style={{ "--arp-pulse": 0 } as CSSProperties}
       >
         <audio
           ref={audioRef}
           src={audioSrc}
-          preload="metadata"
+          preload="none"
           crossOrigin={crossOrigin}
           playsInline
           loop
@@ -96,7 +105,7 @@ export function AudioReactiveBackground({
           onPause={() => setPlaying(false)}
         />
 
-        <div className="pointer-events-none absolute inset-0">
+        <div className="pointer-events-none absolute inset-0 min-h-[100svh] min-h-[100dvh]">
           {hasImage ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element -- decorative full-bleed background */}
@@ -105,12 +114,13 @@ export function AudioReactiveBackground({
                 alt={imageAlt || ""}
                 decoding="async"
                 fetchPriority="low"
-                className="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover will-change-transform"
+                sizes="100vw"
+                className="absolute left-1/2 top-1/2 min-h-full min-w-full max-w-none object-cover will-change-transform"
                 style={{
                   transform:
-                    "scale(calc(1 + var(--arp-pulse, 0) * 0.12)) translateZ(0)",
+                    "translate3d(-50%,-50%,0) scale(calc(1 + var(--arp-pulse, 0) * 0.12 * var(--arp-visual-mul, 1)))",
                   filter:
-                    "brightness(calc(0.92 + var(--arp-pulse, 0) * 0.38)) contrast(calc(1 + var(--arp-pulse, 0) * 0.12)) saturate(calc(1 + var(--arp-pulse, 0) * 0.35))",
+                    "brightness(calc(0.92 + var(--arp-pulse, 0) * 0.38 * var(--arp-visual-mul, 1))) contrast(calc(1 + var(--arp-pulse, 0) * 0.12 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.35 * var(--arp-visual-mul, 1)))",
                 }}
               />
             </>
@@ -120,16 +130,16 @@ export function AudioReactiveBackground({
               className="absolute inset-0 bg-gradient-to-b from-violet-950 via-indigo-950 to-[#050810] will-change-transform"
               style={{
                 transform:
-                  "scale(calc(1 + var(--arp-pulse, 0) * 0.1)) translateZ(0)",
+                  "scale(calc(1 + var(--arp-pulse, 0) * 0.1 * var(--arp-visual-mul, 1))) translateZ(0)",
                 filter:
-                  "brightness(calc(0.94 + var(--arp-pulse, 0) * 0.32)) saturate(calc(1 + var(--arp-pulse, 0) * 0.4))",
+                  "brightness(calc(0.94 + var(--arp-pulse, 0) * 0.32 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.4 * var(--arp-visual-mul, 1)))",
               }}
             />
           )}
-          {/* Soft bloom (follows scene light): tail / upper figure */}
+          {/* Soft bloom — lighter blur on mobile (GPU) */}
           <div
             aria-hidden
-            className="absolute inset-0 scale-105 mix-blend-screen blur-[18px] sm:blur-[22px]"
+            className="absolute inset-0 scale-105 mix-blend-screen blur-[10px] sm:blur-[16px] md:blur-[22px]"
             style={{
               backgroundImage: `
                 radial-gradient(ellipse 42% 36% at 50% 42%, rgba(255, 120, 255, 0.55) 0%, rgba(236, 72, 153, 0.22) 45%, transparent 62%),
@@ -188,22 +198,40 @@ export function AudioReactiveBackground({
               type="button"
               onClick={() => setDockOpen(true)}
               className={cn(
-                "pointer-events-auto absolute top-1/2 flex h-14 w-10 -translate-y-1/2 touch-manipulation items-center justify-center rounded-r-xl border border-l-0 border-white/25 bg-[#0a0e17]/92 text-white/90 shadow-lg backdrop-blur-md",
-                "hover:bg-[#121a28]/95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400 active:scale-[0.98]",
+                "pointer-events-auto absolute flex touch-manipulation items-center justify-center border border-white/25 bg-[#0a0e17]/95 text-white/90 shadow-lg",
+                "backdrop-blur-sm md:backdrop-blur-md",
+                "[-webkit-tap-highlight-color:transparent]",
+                /* Mobile-first: thumb reach, bottom edge */
+                "bottom-[var(--arp-inset-b)] left-[var(--arp-inset-l)] top-auto h-12 w-12 translate-y-0 rounded-full border-white/30 md:bottom-auto md:left-0 md:top-1/2 md:h-14 md:w-10 md:-translate-y-1/2 md:rounded-l-none md:rounded-r-xl md:border-l-0 md:px-0 md:pl-[max(0.5rem,env(safe-area-inset-left,0px))]",
+                "hover:bg-[#121a28]/95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400 active:scale-[0.97]",
               )}
-              style={{ left: 0, paddingLeft: leftSafe }}
+              style={
+                {
+                  "--arp-inset-l": insetLeft,
+                  "--arp-inset-b": insetBottom,
+                } as CSSProperties
+              }
               aria-expanded={false}
               aria-label="Show music controls"
             >
-              <ChevronRight className="h-5 w-5 shrink-0" aria-hidden />
+              <Music2 className="h-5 w-5 shrink-0 md:hidden" aria-hidden />
+              <ChevronRight className="hidden h-5 w-5 shrink-0 md:inline" aria-hidden />
             </button>
           ) : (
             <div
-              className="pointer-events-auto absolute top-1/2 flex -translate-y-1/2 flex-col items-center gap-3 rounded-2xl border border-white/20 bg-[#0a0e17]/90 p-3 shadow-2xl backdrop-blur-md"
-              style={{
-                left: leftSafe,
-                maxHeight: "min(90dvh, 28rem)",
-              }}
+              className={cn(
+                "pointer-events-auto absolute flex flex-col items-center gap-3 rounded-2xl border border-white/20 bg-[#0a0e17]/95 p-3 shadow-2xl",
+                "backdrop-blur-sm md:backdrop-blur-md",
+                /* Mobile-first: dock above home indicator, left-aligned for one-hand */
+                "bottom-[var(--arp-inset-b)] left-[var(--arp-inset-l)] right-auto top-auto max-w-[min(19rem,calc(100vw-1.5rem))] translate-y-0",
+                "md:bottom-auto md:left-[max(0.5rem,env(safe-area-inset-left,0px))] md:right-auto md:top-1/2 md:max-h-[min(90dvh,28rem)] md:max-w-none md:-translate-y-1/2",
+              )}
+              style={
+                {
+                  "--arp-inset-l": insetLeft,
+                  "--arp-inset-b": insetBottom,
+                } as CSSProperties
+              }
             >
               <div className="flex w-full items-center justify-between gap-2 pl-1">
                 <span className="flex items-center gap-1.5 text-xs font-medium tracking-wide text-white/70">
@@ -213,10 +241,14 @@ export function AudioReactiveBackground({
                 <button
                   type="button"
                   onClick={() => setDockOpen(false)}
-                  className="flex h-9 w-9 shrink-0 touch-manipulation items-center justify-center rounded-full text-white/80 hover:bg-white/10 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400"
+                  className={cn(
+                    "flex h-11 w-11 shrink-0 touch-manipulation items-center justify-center rounded-full text-white/80 [-webkit-tap-highlight-color:transparent] hover:bg-white/10 md:h-9 md:w-9",
+                    "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400 active:bg-white/15",
+                  )}
                   aria-label="Hide music controls"
                 >
-                  <ChevronLeft className="h-5 w-5" aria-hidden />
+                  <ChevronDown className="h-5 w-5 md:hidden" aria-hidden />
+                  <ChevronLeft className="hidden h-5 w-5 md:inline" aria-hidden />
                 </button>
               </div>
 
@@ -226,8 +258,8 @@ export function AudioReactiveBackground({
                 aria-pressed={playing}
                 aria-label={playing ? "Pause background music" : "Play background music"}
                 className={cn(
-                  "relative flex h-[4.5rem] w-[4.5rem] shrink-0 touch-manipulation items-center justify-center rounded-full border-2 border-white/45 bg-black/40 text-white shadow-inner",
-                  "transition-transform hover:scale-[1.03] active:scale-[0.97]",
+                  "relative flex h-[4.25rem] w-[4.25rem] shrink-0 touch-manipulation items-center justify-center rounded-full border-2 border-white/45 bg-black/45 text-white shadow-inner [-webkit-tap-highlight-color:transparent] sm:h-[4.5rem] sm:w-[4.5rem]",
+                  "transition-transform active:scale-[0.96] md:hover:scale-[1.03] md:active:scale-[0.97]",
                   "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-violet-400",
                 )}
               >
@@ -239,8 +271,8 @@ export function AudioReactiveBackground({
                 )}
               </button>
 
-              <p className="max-w-[10rem] text-center text-[10px] leading-tight text-white/45">
-                Tap to play (sound on)
+              <p className="max-w-[11rem] text-center text-[11px] leading-snug text-white/50 sm:text-[10px] sm:leading-tight sm:text-white/45">
+                Tap play — unmute phone if needed
               </p>
 
               {error ? (
