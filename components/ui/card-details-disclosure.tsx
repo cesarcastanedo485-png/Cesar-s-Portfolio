@@ -1,4 +1,5 @@
 import { cn } from "@/lib/utils";
+import { useProgression } from "@/lib/progression";
 
 type CardDetailsDisclosureProps = {
   /** Stable id for anchor / accordion semantics */
@@ -19,8 +20,22 @@ export function CardDetailsDisclosure({
   children,
   className,
 }: CardDetailsDisclosureProps) {
+  const { awardLevelEvent } = useProgression();
+
   return (
-    <details id={disclosureId} className={cn("group mt-2", className)}>
+    <details
+      id={disclosureId}
+      className={cn("group mt-2", className)}
+      onToggle={(e) => {
+        const el = e.currentTarget;
+        if (!el.open) return;
+        awardLevelEvent({
+          type: "details-expand",
+          key: `details-expand:${disclosureId}`,
+          source: disclosureId,
+        });
+      }}
+    >
       <summary
         className={cn(
           "flex cursor-pointer list-none items-center justify-between gap-2 rounded-lg border border-teal-500/30 bg-teal-950/20 px-3 py-2.5 text-left text-sm font-medium text-teal-200/95 transition hover:border-teal-400/45 hover:bg-teal-950/30",

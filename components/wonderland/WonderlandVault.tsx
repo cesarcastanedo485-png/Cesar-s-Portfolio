@@ -1,6 +1,14 @@
 "use client";
 
-import { useCallback, useId, useMemo, useRef, useState } from "react";
+import type { CSSProperties } from "react";
+import {
+  useCallback,
+  useEffect,
+  useId,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import {
   BookMarked,
@@ -12,6 +20,7 @@ import {
 } from "lucide-react";
 import { BrandWatermark } from "@/components/brand/BrandWatermark";
 import { site, type WonderlandVaultCopy } from "@/lib/content";
+import { useProgression } from "@/lib/progression";
 import { cn } from "@/lib/utils";
 import {
   GamesVaultPortalRings,
@@ -63,19 +72,46 @@ export function WonderlandVault({
   const rabbitProgressRef = useRef(0);
   const milestoneRef = useRef(0);
   const rabbitMilestoneRef = useRef(0);
+  const sealedSurfaceRef = useRef<HTMLDivElement>(null);
   const hintId = useId();
+  const [inViewport, setInViewport] = useState(false);
 
   const isWork = variant === "work";
   const minimal = minimalClosedLayout;
   const hideWorkChrome = minimal && isWork;
   const hideGamesChrome = minimal && !isWork;
+  const { awardLevelEvent } = useProgression();
   const wm = site.watermark;
   const hint =
     copy.accessHint?.trim() ||
     (isWork
       ? "Work samples are hidden until you open this control."
       : "Games are hidden until you open this control.");
-  const keyTurnThresholdDeg = 300;
+  const keyTurnThresholdDeg = 220;
+
+  useEffect(() => {
+    const el = sealedSurfaceRef.current;
+    if (!el || typeof IntersectionObserver === "undefined") {
+      setInViewport(true);
+      return;
+    }
+    const io = new IntersectionObserver(
+      (entries) => {
+        const hit = entries[0];
+        if (!hit) return;
+        const ratio = hit.intersectionRatio;
+        const rect = hit.boundingClientRect;
+        const vh =
+          typeof window !== "undefined" ? window.innerHeight : rect.height;
+        const centerBias =
+          rect.top < vh * 0.88 && rect.bottom > vh * 0.12;
+        setInViewport(ratio >= 0.14 && centerBias);
+      },
+      { threshold: [0, 0.08, 0.14, 0.25, 0.45], rootMargin: "12% 0px -10% 0px" },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
 
   const clearTurnSession = useCallback(() => {
     activePointerRef.current = null;
@@ -106,11 +142,16 @@ export function WonderlandVault({
         if (typeof window !== "undefined" && "vibrate" in navigator) {
           navigator.vibrate([12, 20, 16]);
         }
+        awardLevelEvent({
+          type: "vault-open",
+          key: "vault-open:work",
+          source: "work",
+        });
         setOpen(true);
         clearTurnSession();
       }
     },
-    [clearTurnSession, isWork, open],
+    [awardLevelEvent, clearTurnSession, isWork, open],
   );
 
   const angleFromPointer = useCallback(
@@ -141,13 +182,14 @@ export function WonderlandVault({
       const distance = Math.hypot(dx, dy);
       const minRing = rect.width * 0.21;
       const maxRing = rect.width * 0.49;
-      const startsNearBottom = dy > rect.height * 0.16;
+      const startsNearBottom = dy > -rect.height * 0.04;
 
       if (!startsNearBottom || distance < minRing || distance > maxRing) {
         setTurnHint("Start at the bottom of the ring, then sweep counterclockwise.");
         return;
       }
 
+      e.preventDefault();
       activePointerRef.current = e.pointerId;
       lastAngleRef.current = angleFromPointer(e);
       setTurning(true);
@@ -213,7 +255,7 @@ export function WonderlandVault({
     setRabbitTurning(false);
   }, []);
 
-  const rabbitThresholdDeg = 360;
+  const rabbitThresholdDeg = 240;
   const rabbitApplyProgress = useCallback(
     (deltaDeg: number) => {
       if (isWork || open) return;
@@ -238,11 +280,16 @@ export function WonderlandVault({
         if (typeof window !== "undefined" && "vibrate" in navigator) {
           navigator.vibrate([10, 18, 12]);
         }
+        awardLevelEvent({
+          type: "vault-open",
+          key: "vault-open:games",
+          source: "games",
+        });
         setOpen(true);
         clearRabbitTurnSession();
       }
     },
-    [clearRabbitTurnSession, isWork, open],
+    [awardLevelEvent, clearRabbitTurnSession, isWork, open],
   );
 
   const rabbitAngleFromPointer = useCallback((e: React.PointerEvent) => {
@@ -257,6 +304,21 @@ export function WonderlandVault({
   const onRabbitPointerDown = useCallback(
     (e: React.PointerEvent<HTMLButtonElement>) => {
       if (isWork || open) return;
+      const el = rabbitDialRef.current;
+      if (!el) return;
+      const rect = el.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const dx = e.clientX - cx;
+      const dy = e.clientY - cy;
+      const distance = Math.hypot(dx, dy);
+      const minRing = rect.width * 0.16;
+      const maxRing = rect.width * 0.5;
+      if (distance < minRing || distance > maxRing) {
+        setRabbitHint("Touch on the spiral ring, then trace inward.");
+        return;
+      }
+      e.preventDefault();
       rabbitPointerRef.current = e.pointerId;
       rabbitLastAngleRef.current = rabbitAngleFromPointer(e);
       setRabbitTurning(true);
@@ -269,12 +331,13 @@ export function WonderlandVault({
   const onRabbitPointerMove = useCallback(
     (e: React.PointerEvent<HTMLButtonElement>) => {
       if (isWork || open || rabbitPointerRef.current !== e.pointerId) return;
+      e.preventDefault();
       const current = rabbitAngleFromPointer(e);
       let delta = current - rabbitLastAngleRef.current;
       if (delta > 180) delta -= 360;
       if (delta < -180) delta += 360;
       rabbitLastAngleRef.current = current;
-      rabbitApplyProgress(Math.max(0, -delta));
+      rabbitApplyProgress(Math.min(28, Math.max(0, -delta)));
     },
     [isWork, open, rabbitAngleFromPointer, rabbitApplyProgress],
   );
@@ -302,6 +365,29 @@ export function WonderlandVault({
     };
   }, [rabbitProgress]);
 
+  const gestureActive = turning || rabbitTurning;
+  const progressNorm = Math.max(turnProgress, rabbitProgress);
+  const interacting = gestureActive || progressNorm > 0.02;
+
+  const sealedBackdropOpacity = useMemo(() => {
+    const idleHidden = 0.04;
+    const idleRevealed = 0.2;
+    const base = inViewport ? idleRevealed : idleHidden;
+    if (!interacting) return base;
+    const depth = Math.min(
+      1,
+      Math.max(progressNorm, gestureActive ? 0.28 : 0),
+    );
+    const target = 0.06 + depth * 0.9;
+    return Math.min(0.96, Math.max(base, target));
+  }, [gestureActive, inViewport, interacting, progressNorm]);
+
+  const orbSoftness = useMemo(() => {
+    if (!inViewport) return 0.2;
+    if (interacting) return 1;
+    return 0.35;
+  }, [inViewport, interacting]);
+
   return (
     <div className="space-y-5">
       <span id={hintId} className="sr-only">
@@ -309,17 +395,30 @@ export function WonderlandVault({
       </span>
       {!open ? (
         <motion.div
-          layout
+          ref={sealedSurfaceRef}
+          layout={false}
           whileHover={reduceMotion ? undefined : { scale: 1.006 }}
           whileTap={reduceMotion ? undefined : { scale: 0.995 }}
           transition={{ type: "spring", stiffness: 520, damping: 28 }}
           className={cn(
-            "group relative w-full overflow-hidden rounded-2xl border text-left transition-colors",
-            isWork
-              ? "border-cyan-500/35 bg-gradient-to-br from-[#0c1224]/95 via-[#080d18]/98 to-[#050810]"
-              : "border-amber-400/35 bg-gradient-to-br from-[#1a1208]/95 via-[#100a06]/98 to-[#050810]"
+            "vault-sealed-surface group relative w-full overflow-hidden rounded-2xl border text-left",
+            isWork ? "border-cyan-500/35" : "border-amber-400/35",
+            gestureActive && "touch-none",
           )}
+          style={gestureActive ? ({ touchAction: "none" } as CSSProperties) : undefined}
         >
+          <div
+            className={cn(
+              "pointer-events-none absolute inset-0 z-0 bg-gradient-to-br transition-opacity duration-500 ease-out motion-reduce:transition-none",
+              isWork
+                ? "from-[#0c1224] via-[#080d18] to-[#050810]"
+                : "from-[#1a1208] via-[#100a06] to-[#050810]",
+            )}
+            style={{
+              opacity: reduceMotion ? Math.max(sealedBackdropOpacity, 0.35) : sealedBackdropOpacity,
+            }}
+            aria-hidden
+          />
           <WorkVaultMechanismFrame />
           {isWork ? (
             <WorkVaultKeyholePlate />
@@ -348,16 +447,18 @@ export function WonderlandVault({
           ) : null}
           <div
             className={cn(
-              "pointer-events-none absolute -right-16 -top-20 z-[1] size-[min(55vw,280px)] rounded-full opacity-40 blur-3xl",
+              "pointer-events-none absolute -right-16 -top-20 z-[1] size-[min(55vw,280px)] rounded-full blur-3xl transition-opacity duration-500 ease-out motion-reduce:transition-none",
               isWork ? "bg-cyan-500/25" : "bg-amber-500/20"
             )}
+            style={{ opacity: 0.4 * orbSoftness }}
             aria-hidden
           />
           <div
             className={cn(
-              "pointer-events-none absolute -bottom-24 -left-12 z-[1] size-[min(48vw,220px)] rounded-full opacity-35 blur-3xl",
+              "pointer-events-none absolute -bottom-24 -left-12 z-[1] size-[min(48vw,220px)] rounded-full blur-3xl transition-opacity duration-500 ease-out motion-reduce:transition-none",
               isWork ? "bg-fuchsia-600/20" : "bg-emerald-600/18"
             )}
+            style={{ opacity: 0.35 * orbSoftness }}
             aria-hidden
           />
 
@@ -443,7 +544,7 @@ export function WonderlandVault({
                   aria-valuemax={100}
                   aria-valuenow={Math.round(turnProgress * 100)}
                   aria-describedby={hintId}
-                  className="relative size-24 touch-none rounded-full border border-cyan-300/35 bg-black/45 text-cyan-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_0_22px_rgba(34,211,238,0.2)] transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300/70 active:scale-[0.98]"
+                  className="relative z-[3] size-24 touch-none rounded-full border border-cyan-300/35 bg-black/45 text-cyan-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_0_22px_rgba(34,211,238,0.2)] transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-300/70 active:scale-[0.98]"
                   style={{
                     backgroundImage: `conic-gradient(from -90deg, rgba(34,211,238,0.85) ${
                       turnProgress * 360
@@ -481,7 +582,7 @@ export function WonderlandVault({
                   aria-controls={panelId}
                   aria-describedby={hintId}
                   aria-label={`${copy.ctaClosed}: ${copy.teaserTitle}`}
-                  className="relative size-24 touch-none rounded-full border border-amber-300/35 bg-black/45 text-amber-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_0_24px_rgba(251,191,36,0.16)] transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400/70 active:scale-[0.98]"
+                  className="relative z-[3] size-24 touch-none rounded-full border border-amber-300/35 bg-black/45 text-amber-100 shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_0_24px_rgba(251,191,36,0.16)] transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-400/70 active:scale-[0.98]"
                 >
                   <span className="absolute inset-[5px] rounded-full border border-amber-100/16 bg-[#0a0704]/90" />
                   <span

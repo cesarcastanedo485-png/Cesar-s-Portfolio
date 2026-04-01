@@ -178,7 +178,7 @@ function FeaturedGameSpotlight({ game }: { game: GameItem }) {
             <GameIconImage
               src={game.iconSrc}
               alt={game.iconAlt ?? game.title}
-              className="object-contain object-center mix-blend-darken"
+              className="object-contain object-center drop-shadow-[0_0_18px_rgba(255,255,255,0.18)]"
               priority
             />
           ) : (
@@ -245,7 +245,7 @@ function GameCard({ game }: { game: GameItem }) {
           <GameIconImage
             src={game.iconSrc}
             alt={game.iconAlt ?? game.title}
-            className="box-border object-contain object-center p-0 mix-blend-darken"
+            className="box-border object-contain object-center p-0 drop-shadow-[0_0_14px_rgba(255,255,255,0.16)]"
           />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/75 to-transparent px-3 pb-3 pt-16 sm:px-4 sm:pb-4 sm:pt-20">
             <h3 className="text-center text-base font-semibold leading-snug tracking-tight text-white sm:text-lg [text-shadow:0_2px_12px_rgba(0,0,0,0.9),0_0_20px_rgba(0,212,255,0.25)]">

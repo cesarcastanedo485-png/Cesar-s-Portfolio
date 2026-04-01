@@ -6,7 +6,7 @@ import { useProgression } from "@/lib/progression";
 import { cn } from "@/lib/utils";
 
 export function DreamNowSection() {
-  const { levelOneComplete, openOverlay } = useProgression();
+  const { currentLevel, maxLevel, canAccessOracle, openOverlay } = useProgression();
 
   return (
     <section
@@ -29,7 +29,7 @@ export function DreamNowSection() {
             Open the 3D chamber on its own page — built for orbit, zoom, and the
             experiments ahead.
           </p>
-          {levelOneComplete ? (
+          {canAccessOracle ? (
             <Link
               href="/oracle-3d"
               className={cn(
@@ -42,14 +42,17 @@ export function DreamNowSection() {
           ) : (
             <div className="mt-6 space-y-3">
               <p className="vault-neon-instruction text-sm">
-                Complete Level 1 to unlock the Oracle chamber.
+                Reach Level {maxLevel} to unlock the Oracle chamber.
+              </p>
+              <p className="text-xs text-white/65">
+                Current progress: Level {currentLevel} / {maxLevel}
               </p>
               <button
                 type="button"
                 onClick={() => openOverlay({ openForm: true })}
                 className="inline-flex rounded-full border border-cyan-400/40 bg-cyan-950/35 px-5 py-2.5 text-sm text-cyan-100 transition hover:bg-cyan-900/40"
               >
-                Unlock with Level 1
+                View level requirements
               </button>
             </div>
           )}

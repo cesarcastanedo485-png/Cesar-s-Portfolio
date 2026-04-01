@@ -8,6 +8,8 @@ type BackgroundAtmosphereProps = {
   enabled: boolean;
 };
 
+const FORCE_CENTER_SMOKE_DEBUG = true;
+
 /**
  * Fixed layer behind page chrome: scroll-linked cool→warm grade + dual smoke.
  */
@@ -65,6 +67,16 @@ export function BackgroundAtmosphere({ enabled }: BackgroundAtmosphereProps) {
               "linear-gradient(180deg, rgba(56,189,248,0.06) 0%, transparent 55%, rgba(232,121,249,0.05) 100%)",
           }}
         />
+        {FORCE_CENTER_SMOKE_DEBUG ? (
+          <div
+            className="absolute inset-0 opacity-[0.66]"
+            style={{
+              backgroundImage:
+                "radial-gradient(ellipse 72% 40% at 50% 52%, rgba(255,255,255,0.58) 0%, rgba(216,180,254,0.42) 38%, rgba(147,197,253,0.2) 58%, transparent 74%)",
+            }}
+            aria-hidden
+          />
+        ) : null}
       </div>
     );
   }
@@ -92,25 +104,35 @@ export function BackgroundAtmosphere({ enabled }: BackgroundAtmosphereProps) {
       />
       {/* Smoke — two parallax layers in opposite horizontal directions */}
       <div
-        className="portfolio-smoke-parallax pointer-events-none absolute inset-0 mix-blend-screen opacity-95 max-md:opacity-[0.88]"
+        className="portfolio-smoke-parallax pointer-events-none absolute inset-0 mix-blend-screen opacity-95 max-md:opacity-[0.9]"
         style={{
           backgroundImage: `
-            radial-gradient(ellipse 88% 44% at calc(49% + var(--atmo-scroll-t) * 16%) calc(55% + var(--atmo-scroll-t) * 6%), rgba(255,255,255,0.42) 0%, rgba(226,232,240,0.24) 30%, rgba(186,230,253,0.12) 50%, transparent 66%),
-            radial-gradient(ellipse 38% 32% at calc(46% + var(--atmo-scroll-t) * 11%) 50%, rgba(255,255,255,0.3) 0%, transparent 54%)
+            radial-gradient(ellipse 88% 44% at calc(50% + var(--atmo-scroll-t) * 8%) calc(52% + var(--atmo-scroll-t) * 4%), rgba(255,255,255,0.5) 0%, rgba(226,232,240,0.3) 30%, rgba(186,230,253,0.2) 50%, transparent 68%),
+            radial-gradient(ellipse 40% 34% at calc(50% + var(--atmo-scroll-t) * 6%) 50%, rgba(255,255,255,0.36) 0%, transparent 56%)
           `,
         }}
         aria-hidden
       />
       <div
-        className="portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-soft-light opacity-[1.06] max-md:opacity-[0.98]"
+        className="portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-soft-light opacity-[1.08] max-md:opacity-[1]"
         style={{
           backgroundImage: `
-            radial-gradient(ellipse 76% 58% at calc(53% - var(--atmo-scroll-t) * 18%) 59%, rgba(244,232,255,0.38) 0%, rgba(168,85,247,0.18) 44%, transparent 68%),
-            radial-gradient(ellipse 62% 40% at calc(50% - var(--atmo-scroll-t) * 14%) 63%, rgba(255,255,255,0.17) 0%, transparent 56%)
+            radial-gradient(ellipse 78% 60% at calc(50% - var(--atmo-scroll-t) * 9%) 57%, rgba(244,232,255,0.44) 0%, rgba(168,85,247,0.24) 44%, transparent 68%),
+            radial-gradient(ellipse 62% 40% at calc(50% - var(--atmo-scroll-t) * 6%) 62%, rgba(255,255,255,0.22) 0%, transparent 58%)
           `,
         }}
         aria-hidden
       />
+      {FORCE_CENTER_SMOKE_DEBUG ? (
+        <div
+          className="absolute inset-0 mix-blend-normal opacity-[0.42]"
+          style={{
+            backgroundImage:
+              "radial-gradient(ellipse 66% 36% at 50% 52%, rgba(250,250,255,0.64) 0%, rgba(244,232,255,0.45) 34%, rgba(167,139,250,0.2) 58%, transparent 74%)",
+          }}
+          aria-hidden
+        />
+      ) : null}
     </div>
   );
 }

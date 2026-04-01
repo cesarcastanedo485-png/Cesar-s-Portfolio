@@ -247,6 +247,12 @@ body {
   }
 }
 
+/* WonderlandVault sealed card — limit scroll chaining while dragging dials on mobile */
+.vault-sealed-surface {
+  isolation: isolate;
+  overscroll-behavior: contain;
+}
+
 /* Section intros — same shell as hero panel */
 .section-glass-panel {
   border-radius: 1rem;

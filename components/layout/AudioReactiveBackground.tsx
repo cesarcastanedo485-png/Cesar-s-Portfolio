@@ -18,6 +18,7 @@ import {
   BG_SCROLL_SHIFT_RANGE_VW,
 } from "@/lib/background-parallax";
 import { useScrollDrivenShiftX } from "@/lib/use-scroll-driven-shift-x";
+import { useProgression } from "@/lib/progression";
 import { cn } from "@/lib/utils";
 
 type AudioReactiveBackgroundProps = {
@@ -27,6 +28,8 @@ type AudioReactiveBackgroundProps = {
   showControls?: boolean;
   imageAlt?: string;
 };
+
+const FORCE_CENTER_SMOKE_DEBUG = true;
 
 /** Full-bleed background (z below content) + separate overlay controls (z above content). */
 export function AudioReactiveBackground({
@@ -43,6 +46,7 @@ export function AudioReactiveBackground({
   const [playing, setPlaying] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [dockOpen, setDockOpen] = useState(true);
+  const { awardLevelEvent } = useProgression();
 
   /** Only dampen when OS explicitly requests reduced motion — never block analyser on `null`. */
   const pulseDampen = reduceMotion === true ? 0.32 : 1;
@@ -90,6 +94,11 @@ export function AudioReactiveBackground({
     }
     try {
       setError(null);
+      awardLevelEvent({
+        type: "atmosphere-play",
+        key: "atmosphere-play",
+        source: "audio-dock",
+      });
       if (hydrated) {
         ensureGraph();
         await resumeContext();
@@ -98,7 +107,7 @@ export function AudioReactiveBackground({
     } catch (e) {
       setError(e instanceof Error ? e.message : "Playback failed");
     }
-  }, [ensureGraph, hydrated, playing, resumeContext]);
+  }, [awardLevelEvent, ensureGraph, hydrated, playing, resumeContext]);
 
   const crossOrigin = audioSrc.startsWith("http") ? "anonymous" : undefined;
 
@@ -141,7 +150,7 @@ export function AudioReactiveBackground({
                   transform:
                     "translate3d(calc(-50% + var(--arp-scroll-x, 0vw)), -50%, 0) scale(calc(1 + var(--arp-pulse, 0) * 0.1 * var(--arp-visual-mul, 1)))",
                   filter:
-                    "brightness(calc(0.9 + var(--arp-pulse, 0) * 0.22 * var(--arp-visual-mul, 1))) contrast(calc(1 + var(--arp-pulse, 0) * 0.09 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.26 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 9deg)) drop-shadow(0 0 calc(6px + var(--arp-pulse-spike, 0) * 16px) rgba(250, 100, 220, 0.55))",
+                    "brightness(calc(0.9 + var(--arp-pulse, 0) * 0.22 * var(--arp-visual-mul, 1))) contrast(calc(1 + var(--arp-pulse, 0) * 0.09 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.26 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 9deg))",
                 }}
               />
             </>
@@ -157,7 +166,7 @@ export function AudioReactiveBackground({
               }}
             />
           )}
-          {/* Edge bloom — avoids center hotspot glow */}
+          {/* Edge bloom only (no center hotspot) */}
           <div
             aria-hidden
             className="absolute inset-0 mix-blend-screen blur-[8px] sm:blur-[12px] md:blur-[18px]"
@@ -189,8 +198,8 @@ export function AudioReactiveBackground({
             className="portfolio-smoke-parallax pointer-events-none absolute inset-0 mix-blend-screen opacity-95 max-md:opacity-[0.84]"
             style={{
               backgroundImage: `
-                radial-gradient(ellipse 92% 46% at calc(50% + var(--arp-scroll-x, 0vw) * 0.16) 56%, rgba(255,255,255,0.5) 0%, rgba(226,232,240,0.3) 28%, rgba(186,230,253,0.16) 46%, transparent 66%),
-                radial-gradient(ellipse 36% 30% at calc(46% + var(--arp-scroll-x, 0vw) * 0.11) 51%, rgba(255,255,255,0.38) 0%, rgba(255,250,255,0.14) 44%, transparent 60%)
+                radial-gradient(ellipse 92% 46% at calc(50% + var(--arp-scroll-x, 0vw) * 0.09) 54%, rgba(255,255,255,0.56) 0%, rgba(226,232,240,0.36) 28%, rgba(186,230,253,0.2) 46%, transparent 68%),
+                radial-gradient(ellipse 38% 32% at calc(50% + var(--arp-scroll-x, 0vw) * 0.06) 51%, rgba(255,255,255,0.44) 0%, rgba(255,250,255,0.17) 44%, transparent 60%)
               `,
               opacity:
                 "calc(0.5 + var(--arp-pulse, 0) * 0.3 + var(--arp-pulse-spike, 0) * 0.2)",
@@ -208,6 +217,16 @@ export function AudioReactiveBackground({
                 "calc(0.58 + var(--arp-pulse, 0) * 0.24)",
             }}
           />
+          {FORCE_CENTER_SMOKE_DEBUG ? (
+            <div
+              aria-hidden
+              className="absolute inset-0 mix-blend-normal opacity-[0.36]"
+              style={{
+                backgroundImage:
+                  "radial-gradient(ellipse 64% 34% at 50% 53%, rgba(250,250,255,0.64) 0%, rgba(244,232,255,0.45) 34%, rgba(167,139,250,0.2) 56%, transparent 72%)",
+              }}
+            />
+          ) : null}
         </div>
       </div>
 
@@ -264,7 +283,14 @@ export function AudioReactiveBackground({
                 </span>
                 <button
                   type="button"
-                  onClick={() => setDockOpen(false)}
+                  onClick={() => {
+                    awardLevelEvent({
+                      type: "atmosphere-minimize",
+                      key: "atmosphere-minimize",
+                      source: "audio-dock",
+                    });
+                    setDockOpen(false);
+                  }}
                   className={cn(
                     "flex h-11 w-11 shrink-0 touch-manipulation items-center justify-center rounded-full text-white/80 [-webkit-tap-highlight-color:transparent] hover:bg-white/10 md:h-9 md:w-9",
                     "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400 active:bg-white/15",

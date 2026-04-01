@@ -1,8 +1,16 @@
+"use client";
+
 import Link from "next/link";
 import { nav } from "@/lib/content";
+import { useProgression } from "@/lib/progression";
 
 export function Header() {
-  const internal = nav.links.filter((l) => !l.external);
+  const { canAccessOracle } = useProgression();
+  const internal = nav.links.filter((l) => {
+    if (l.external) return false;
+    if (l.href === "/oracle-3d" && !canAccessOracle) return false;
+    return true;
+  });
   const external = nav.links.filter((l) => l.external);
 
   return (

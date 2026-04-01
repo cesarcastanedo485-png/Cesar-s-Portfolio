@@ -69,7 +69,7 @@ function WorkMedia({ item, badge }: { item: WorkItem; badge?: string }) {
                 ? "(max-width: 768px) 100vw, 55vw"
                 : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
             }
-            className="object-cover mix-blend-darken"
+            className="object-cover brightness-[0.96] contrast-110"
             priority={item.featured}
           />
         </div>

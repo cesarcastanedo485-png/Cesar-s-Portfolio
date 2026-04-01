@@ -1,59 +1,34 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import { useProgression } from "@/lib/progression";
-import { validateUsername } from "@/lib/username-policy";
-
-function isValidEmail(value: string): boolean {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value.trim());
-}
 
 export function LevelUpOverlay() {
   const {
     hydrated,
+    currentLevel,
+    maxLevel,
     levelOneComplete,
+    canAccessOracle,
     overlayCollapsed,
-    playMode,
     username,
     collapseOverlay,
     openOverlay,
-    startPlay,
-    submitLevelOne,
   } = useProgression();
 
-  const [formState, setFormState] = useState({ username: "", email: "" });
-  const [error, setError] = useState<string | null>(null);
-
-  const showFullOverlay = hydrated && !levelOneComplete && !overlayCollapsed;
+  const showFullOverlay = hydrated && !overlayCollapsed;
 
   const heading = useMemo(() => {
     if (!hydrated) return "Initializing wonderland";
-    if (levelOneComplete) return `Level 1 unlocked${username ? `, ${username}` : ""}`;
-    if (playMode) return "Level 1: Claim your badge";
-    return "Level Up: Start the game";
-  }, [hydrated, levelOneComplete, playMode, username]);
-
-  const onSubmit = (e: FormEvent) => {
-    e.preventDefault();
-    const usernameError = validateUsername(formState.username);
-    if (usernameError) {
-      setError(usernameError);
-      return;
+    if (canAccessOracle) {
+      return `Level ${currentLevel} reached${username ? `, ${username}` : ""}`;
     }
-    if (!isValidEmail(formState.email)) {
-      setError("Please enter a valid email.");
-      return;
-    }
-    setError(null);
-    submitLevelOne({
-      username: formState.username,
-      email: formState.email,
-      source: "level-one-overlay",
-    });
-  };
+    if (!levelOneComplete) return "Level 1: Wake the atmosphere";
+    return `Level ${currentLevel} reached${username ? `, ${username}` : ""}`;
+  }, [canAccessOracle, currentLevel, hydrated, levelOneComplete, username]);
 
-  if (!hydrated || levelOneComplete) {
+  if (!hydrated) {
     return null;
   }
 
@@ -79,58 +54,33 @@ export function LevelUpOverlay() {
                 {heading}
               </h2>
               <p className="mt-2 text-sm text-white/70">
-                {playMode
-                  ? "Enter a clean username + email to unlock interactive widgets."
-                  : "Press Play to begin. You can still browse the site even while this is locked."}
+                {!levelOneComplete
+                  ? "Press Play in Atmosphere controls or minimize the Atmosphere dock to hit Level 1."
+                  : canAccessOracle
+                    ? "Level 5 complete. Oracle access is now unlocked."
+                    : `Keep interacting to reach Level ${maxLevel}: open vaults or expand project details.`}
               </p>
             </div>
-
-            {!playMode ? (
-              <button
-                type="button"
-                onClick={startPlay}
-                className="inline-flex h-11 items-center gap-2 rounded-full border border-cyan-400/40 bg-cyan-950/40 px-5 text-sm font-medium text-cyan-100 transition hover:bg-cyan-900/45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400/70"
-              >
-                <Sparkles className="h-4 w-4" />
-                Play
-              </button>
-            ) : (
-              <form onSubmit={onSubmit} className="space-y-3">
-                <label className="block text-sm">
-                  <span className="mb-1 block text-white/80">Username</span>
-                  <input
-                    value={formState.username}
-                    onChange={(e) =>
-                      setFormState((prev) => ({ ...prev, username: e.target.value }))
-                    }
-                    maxLength={28}
-                    className="w-full rounded-lg border border-white/15 bg-black/35 px-3 py-2 text-white outline-none transition focus:border-cyan-400/70"
-                    placeholder="Pick a clean username"
-                    autoComplete="nickname"
-                  />
-                </label>
-                <label className="block text-sm">
-                  <span className="mb-1 block text-white/80">Email</span>
-                  <input
-                    type="email"
-                    value={formState.email}
-                    onChange={(e) =>
-                      setFormState((prev) => ({ ...prev, email: e.target.value }))
-                    }
-                    className="w-full rounded-lg border border-white/15 bg-black/35 px-3 py-2 text-white outline-none transition focus:border-cyan-400/70"
-                    placeholder="you@example.com"
-                    autoComplete="email"
-                  />
-                </label>
-                {error ? <p className="text-sm text-rose-300">{error}</p> : null}
+            <div className="space-y-3">
+              <p className="vault-neon-instruction text-sm">Progress: Level {currentLevel} / {maxLevel}</p>
+              {!canAccessOracle ? (
+                <p className="text-xs text-white/60">
+                  Oracle chamber unlocks only at Level {maxLevel}.
+                </p>
+              ) : (
+                <p className="text-xs text-emerald-300">Oracle unlocked.</p>
+              )}
+              {!levelOneComplete ? (
                 <button
-                  type="submit"
-                  className="inline-flex h-10 items-center rounded-full border border-fuchsia-400/45 bg-fuchsia-950/40 px-5 text-sm font-medium text-fuchsia-100 transition hover:bg-fuchsia-900/45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-fuchsia-400/70"
+                  type="button"
+                  onClick={collapseOverlay}
+                  className="inline-flex h-10 items-center gap-2 rounded-full border border-cyan-400/40 bg-cyan-950/40 px-5 text-sm font-medium text-cyan-100 transition hover:bg-cyan-900/45 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-cyan-400/70"
                 >
-                  Complete Level 1
+                  <Sparkles className="h-4 w-4" />
+                  Got it
                 </button>
-              </form>
-            )}
+              ) : null}
+            </div>
           </div>
         </div>
       ) : (
@@ -141,7 +91,7 @@ export function LevelUpOverlay() {
           aria-label="Show level overlay"
         >
           <ChevronUp className="h-4 w-4" />
-          Level 1
+          Level {currentLevel}
         </button>
       )}
     </>
