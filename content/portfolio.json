@@ -9,10 +9,10 @@
     },
     "audioReactiveBackground": {
       "enabled": true,
-      "imageSrc": "/backgrounds/cyber-atlas.png",
+      "imageSrc": "/backgrounds/alice-parallax.png",
       "audioSrc": "/audio/background.mp3",
       "showControls": true,
-      "imageAlt": ""
+      "imageAlt": "Cyberpunk Wonderland city panorama with neon billboards and Alice figure"
     },
     "keywords": [
       "portfolio",
