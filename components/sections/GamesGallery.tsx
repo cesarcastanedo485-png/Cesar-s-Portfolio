@@ -11,6 +11,7 @@ import { gamesSection, type GameItem } from "@/lib/content";
 import { useHydrated } from "@/lib/use-hydrated";
 import { GodotDemoEmbed } from "@/components/sections/GodotDemoEmbed";
 import { CardDetailsDisclosure } from "@/components/ui/card-details-disclosure";
+import { SectionOverviewDisclosure } from "@/components/ui/section-overview-disclosure";
 
 /** Summary + tech tags (price is rendered by the parent row). */
 function GameMeta({ game }: { game: GameItem }) {
@@ -303,13 +304,17 @@ export function GamesGallery() {
       aria-labelledby="games-heading"
     >
       <div className="container mx-auto max-w-6xl px-6">
-        <div className="section-glass-panel mb-8 flex flex-col gap-3 px-5 py-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between md:px-7 md:py-5">
+        <div className="section-glass-panel mb-8 flex flex-col px-5 py-4 md:px-7 md:py-5">
           <h2 id="games-heading" className="text-2xl font-bold text-foreground">
             {gamesSection.sectionTitle}
           </h2>
-          <span className="neon-sign-body max-w-xl text-sm leading-snug sm:text-right md:text-base">
-            {gamesSection.sectionEyebrow}
-          </span>
+          {gamesSection.sectionEyebrow ? (
+            <SectionOverviewDisclosure id="games-section-overview" tone="games">
+              <p className="neon-sign-body text-sm leading-snug md:text-base">
+                {gamesSection.sectionEyebrow}
+              </p>
+            </SectionOverviewDisclosure>
+          ) : null}
         </div>
         {spotlight.map((game) => (
           <FeaturedGameSpotlight key={game.id} game={game} />

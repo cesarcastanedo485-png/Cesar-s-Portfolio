@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { websitesSection, type WorkItem } from "@/lib/content";
 import { GodotDemoEmbed } from "@/components/sections/GodotDemoEmbed";
 import { CardDetailsDisclosure } from "@/components/ui/card-details-disclosure";
+import { SectionOverviewDisclosure } from "@/components/ui/section-overview-disclosure";
 
 function workMediaShellClass(item: WorkItem, isEmbed: boolean) {
   if (item.featured) {
@@ -144,9 +145,11 @@ export function WebsitesGallery() {
             {sectionEyebrow}
           </h2>
           {sectionIntro ? (
-            <p className="neon-sign-body mt-3 max-w-2xl text-sm leading-relaxed md:text-base">
-              {sectionIntro}
-            </p>
+            <SectionOverviewDisclosure id="work-section-overview" tone="work">
+              <p className="neon-sign-body text-sm leading-relaxed md:text-base">
+                {sectionIntro}
+              </p>
+            </SectionOverviewDisclosure>
           ) : null}
         </div>
 
