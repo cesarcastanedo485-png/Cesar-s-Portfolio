@@ -39,13 +39,13 @@ export function useScrollDrivenShiftX(
       if (!target) {
         return;
       }
-      const doc = document.documentElement;
-      const scrollY = window.scrollY ?? doc.scrollTop;
-      const maxScroll = Math.max(
-        1,
-        doc.scrollHeight - window.innerHeight,
-      );
-      const t = Math.min(1, Math.max(0, scrollY / maxScroll));
+      const root = document.scrollingElement ?? document.documentElement;
+      const scrollTop = root.scrollTop;
+      const maxScroll = Math.max(0, root.scrollHeight - root.clientHeight);
+      const t =
+        maxScroll <= 0
+          ? 0.5
+          : Math.min(1, Math.max(0, scrollTop / maxScroll));
       const shiftVw = (t - 0.5) * rangeVw;
       target.style.setProperty("--arp-scroll-x", `${shiftVw}vw`);
     };

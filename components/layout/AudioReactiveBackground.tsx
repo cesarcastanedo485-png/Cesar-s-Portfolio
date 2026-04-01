@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import {
   ChevronDown,
@@ -60,6 +60,17 @@ export function AudioReactiveBackground({
     rangeVw: SCROLL_SHIFT_RANGE_VW,
   });
 
+  /** React `style` would reset imperative --arp-* vars every render; init once on the DOM node. */
+  useLayoutEffect(() => {
+    const el = containerRef.current;
+    if (!el) {
+      return;
+    }
+    el.style.setProperty("--arp-pulse", "0");
+    el.style.setProperty("--arp-pulse-spike", "0");
+    el.style.setProperty("--arp-scroll-x", "0vw");
+  }, []);
+
   useEffect(() => {
     if (!hydrated || !playing) {
       return;
@@ -101,13 +112,6 @@ export function AudioReactiveBackground({
       <div
         ref={containerRef}
         className="pointer-events-none fixed inset-x-0 top-0 bottom-0 -z-20 min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-visual-mul:0.96] md:[--arp-visual-mul:1]"
-        style={
-          {
-            "--arp-pulse": 0,
-            "--arp-pulse-spike": 0,
-            "--arp-scroll-x": "0vw",
-          } as CSSProperties
-        }
       >
         <audio
           ref={audioRef}
