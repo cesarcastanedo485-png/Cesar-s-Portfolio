@@ -35,8 +35,7 @@
     "links": [
       { "label": "Work", "href": "#work" },
       { "label": "Games", "href": "#games" },
-      { "label": "Dream Now", "href": "#dream-now" },
-      { "label": "3D Oracle", "href": "/oracle-3d" },
+      { "label": "Dream Now", "href": "/oracle-3d" },
       { "label": "Contact", "href": "#contact" },
       {
         "label": "GitHub",
@@ -62,16 +61,16 @@
     "tagline": "Crafting websites, apps, and games"
   },
   "websites": {
-    "sectionEyebrow": "Selected work",
-    "sectionIntro": "Curious projects live behind the latch — production sites, brand worlds, and hardware-leaning tools. If you can imagine it, we can shape it into something shippable.",
+    "sectionEyebrow": "",
+    "sectionIntro": "",
     "featuredBadge": "Featured",
     "vault": {
       "teaserTitle": "The architect’s folio",
-      "teaserBody": "NWI Fun Ball, Mordecaius Maximus, the 3D Fan Player, and this very portfolio wait inside — lift the latch when you’re ready to peek.",
+      "teaserBody": "Curious projects live behind the latch.",
       "ctaClosed": "Turn the key",
       "ctaOpen": "Seal the folio",
       "accessHint": "Selected work stays locked behind this folio until you open it.",
-      "footnote": "Next.js · TypeScript · Flutter · systems that ship"
+      "footnote": "NWI Fun Ball · Next.js"
     },
     "items": [
       {
@@ -134,15 +133,15 @@
     "text": "We are the music makers, and we are the dreamers of dreams"
   },
   "games": {
-    "sectionTitle": "Games",
-    "sectionEyebrow": "Stream-first · TikTok Live chat + Twitch placeholders",
+    "sectionTitle": "",
+    "sectionEyebrow": "",
     "vault": {
       "teaserTitle": "Down the rabbit hole",
-      "teaserBody": "Chatling Ranch, tarot stream overlay, Dungeon Master Lite, and the branching CYOA pilot — a whole tea party of experiments, hidden until you take the plunge.",
+      "teaserBody": "",
       "ctaClosed": "Trace the spiral",
       "ctaOpen": "Lock the rabbit hole",
       "accessHint": "Games stay sealed behind this passage until you open it.",
-      "footnote": "React · WebSockets · Godot Web · live-audience UX"
+      "footnote": ""
     },
     "items": [
       {

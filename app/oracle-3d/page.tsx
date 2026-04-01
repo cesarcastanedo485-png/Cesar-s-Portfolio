@@ -23,16 +23,16 @@ export default function Oracle3DPage() {
             <h1 className="text-3xl font-semibold tracking-tight sm:text-4xl">
               Mad Hatter Oracle Chamber
             </h1>
-            <p className="mt-2 max-w-2xl text-sm text-white/70">
+            <p className="vault-neon-instruction mt-2 max-w-2xl text-sm">
               Drag to orbit, pinch to zoom, and inspect the model. This page is
               optimized for mobile-first interaction.
             </p>
           </div>
           <Link
-            href="/#dream-now"
+            href="/"
             className="rounded-full border border-cyan-400/35 bg-cyan-950/35 px-4 py-2 text-sm text-cyan-100 transition hover:bg-cyan-900/40"
           >
-            Back to Dream Now
+            Back to portfolio
           </Link>
         </div>
 
@@ -60,7 +60,7 @@ export default function Oracle3DPage() {
           </div>
         </section>
 
-        <p className="text-xs leading-relaxed text-white/55">
+        <p className="vault-neon-instruction text-xs leading-relaxed">
           Note: this model is currently high-resolution and may load slowly on
           cellular/mobile. I can add compressed LOD versions next.
         </p>

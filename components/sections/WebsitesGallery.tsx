@@ -147,27 +147,33 @@ export function WebsitesGallery() {
     (a, b) => Number(!!b.featured) - Number(!!a.featured)
   );
 
+  const showSectionHeading = Boolean(sectionEyebrow?.trim());
+
   return (
     <section
       id="work"
       className="py-16 scroll-mt-24"
-      aria-labelledby="work-heading"
+      aria-labelledby={showSectionHeading ? "work-heading" : undefined}
+      aria-label={showSectionHeading ? undefined : "Selected work"}
     >
       <div className="container mx-auto max-w-6xl px-6">
-        <div className="section-glass-panel mb-8 max-w-3xl px-5 py-4 md:px-7 md:py-5">
-          <h2
-            id="work-heading"
-            className="text-2xl font-bold tracking-tight text-foreground md:text-3xl"
-          >
-            {sectionEyebrow}
-          </h2>
-        </div>
+        {showSectionHeading ? (
+          <div className="section-glass-panel mb-8 max-w-3xl px-5 py-4 md:px-7 md:py-5">
+            <h2
+              id="work-heading"
+              className="text-2xl font-bold tracking-tight text-foreground md:text-3xl"
+            >
+              {sectionEyebrow}
+            </h2>
+          </div>
+        ) : null}
 
         <WonderlandVault
           variant="work"
           panelId="work-vault-panel"
           copy={vaultCopy}
-          overview={sectionIntro}
+          overview={sectionIntro?.trim() || undefined}
+          minimalClosedLayout
         >
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {ordered.map((item) => (

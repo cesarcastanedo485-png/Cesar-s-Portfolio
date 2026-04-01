@@ -311,23 +311,29 @@ export function GamesGallery() {
     .filter((g) => !g.featured)
     .sort((a, b) => a.id - b.id);
 
+  const showGamesHeading = Boolean(gamesSection.sectionTitle?.trim());
+
   return (
     <section
       id="games"
       className="py-16 scroll-mt-24"
-      aria-labelledby="games-heading"
+      aria-labelledby={showGamesHeading ? "games-heading" : undefined}
+      aria-label={showGamesHeading ? undefined : "Games"}
     >
       <div className="container mx-auto max-w-6xl px-6">
-        <div className="section-glass-panel mb-8 flex flex-col px-5 py-4 md:px-7 md:py-5">
-          <h2 id="games-heading" className="text-2xl font-bold text-foreground">
-            {gamesSection.sectionTitle}
-          </h2>
-        </div>
+        {showGamesHeading ? (
+          <div className="section-glass-panel mb-8 flex flex-col px-5 py-4 md:px-7 md:py-5">
+            <h2 id="games-heading" className="text-2xl font-bold text-foreground">
+              {gamesSection.sectionTitle}
+            </h2>
+          </div>
+        ) : null}
         <WonderlandVault
           variant="games"
           panelId="games-vault-panel"
           copy={vaultCopy}
-          overview={gamesSection.sectionEyebrow}
+          overview={gamesSection.sectionEyebrow?.trim() || undefined}
+          minimalClosedLayout
         >
           <>
             {spotlight.map((game) => (

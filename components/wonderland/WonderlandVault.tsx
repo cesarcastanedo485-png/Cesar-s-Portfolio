@@ -24,6 +24,8 @@ type WonderlandVaultProps = {
   panelId: string;
   copy: WonderlandVaultCopy;
   overview?: string;
+  /** Strip decorative chrome in the sealed state: folio = key + keyhole + copy; games = title + spiral only */
+  minimalClosedLayout?: boolean;
   children: React.ReactNode;
 };
 
@@ -36,6 +38,7 @@ export function WonderlandVault({
   panelId,
   copy,
   overview,
+  minimalClosedLayout = false,
   children,
 }: WonderlandVaultProps) {
   const reduceMotion = useReducedMotion();
@@ -43,12 +46,12 @@ export function WonderlandVault({
   const [turnProgress, setTurnProgress] = useState(0);
   const [turning, setTurning] = useState(false);
   const [turnHint, setTurnHint] = useState(
-    "Start at the bottom notch, then rotate counterclockwise.",
+    "Start at the bottom of the dial, then rotate counterclockwise.",
   );
   const [rabbitProgress, setRabbitProgress] = useState(0);
   const [rabbitTurning, setRabbitTurning] = useState(false);
   const [rabbitHint, setRabbitHint] = useState(
-    "Drag the token down the spiral to descend.",
+    "Trace the spiral with the rabbit token to open.",
   );
   const dialRef = useRef<HTMLButtonElement>(null);
   const rabbitDialRef = useRef<HTMLButtonElement>(null);
@@ -63,6 +66,9 @@ export function WonderlandVault({
   const hintId = useId();
 
   const isWork = variant === "work";
+  const minimal = minimalClosedLayout;
+  const hideWorkChrome = minimal && isWork;
+  const hideGamesChrome = minimal && !isWork;
   const wm = site.watermark;
   const hint =
     copy.accessHint?.trim() ||
@@ -138,14 +144,14 @@ export function WonderlandVault({
       const startsNearBottom = dy > rect.height * 0.16;
 
       if (!startsNearBottom || distance < minRing || distance > maxRing) {
-        setTurnHint("Touch the bottom of the dial first, then turn left.");
+        setTurnHint("Start at the bottom of the ring, then sweep counterclockwise.");
         return;
       }
 
       activePointerRef.current = e.pointerId;
       lastAngleRef.current = angleFromPointer(e);
       setTurning(true);
-      setTurnHint("Good. Keep rotating counterclockwise.");
+      setTurnHint("Good — keep rotating counterclockwise.");
       el.setPointerCapture(e.pointerId);
     },
     [angleFromPointer, isWork, open],
@@ -172,7 +178,7 @@ export function WonderlandVault({
       if (activePointerRef.current !== e.pointerId) return;
       clearTurnSession();
       if (!open && progressRef.current < keyTurnThresholdDeg * 0.45) {
-        setTurnHint("Almost there. Start from the bottom and sweep left.");
+        setTurnHint("Almost there — begin at the bottom and sweep left.");
       }
     },
     [clearTurnSession, open],
@@ -183,11 +189,11 @@ export function WonderlandVault({
     setTurnProgress(0);
     progressRef.current = 0;
     milestoneRef.current = 0;
-    setTurnHint("Start at the bottom notch, then rotate counterclockwise.");
+    setTurnHint("Start at the bottom of the dial, then rotate counterclockwise.");
     setRabbitProgress(0);
     rabbitProgressRef.current = 0;
     rabbitMilestoneRef.current = 0;
-    setRabbitHint("Drag the token down the spiral to descend.");
+    setRabbitHint("Trace the spiral with the rabbit token to open.");
   }, []);
 
   const onDialKeyDown = useCallback(
@@ -196,7 +202,7 @@ export function WonderlandVault({
       if (e.key === "ArrowLeft" || e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         applyTurnProgress(42);
-        setTurnHint("Keyboard turn: keep pressing to complete the turn.");
+        setTurnHint("Keyboard: keep pressing to finish the turn.");
       }
     },
     [applyTurnProgress, isWork, open],
@@ -228,7 +234,7 @@ export function WonderlandVault({
       }
 
       if (nextDeg >= rabbitThresholdDeg) {
-        setRabbitHint("You dropped through the rabbit hole.");
+        setRabbitHint("Open — you dropped through the rabbit hole.");
         if (typeof window !== "undefined" && "vibrate" in navigator) {
           navigator.vibrate([10, 18, 12]);
         }
@@ -254,7 +260,7 @@ export function WonderlandVault({
       rabbitPointerRef.current = e.pointerId;
       rabbitLastAngleRef.current = rabbitAngleFromPointer(e);
       setRabbitTurning(true);
-      setRabbitHint("Good. Keep spiraling inward.");
+      setRabbitHint("Good — keep spiraling inward.");
       rabbitDialRef.current?.setPointerCapture(e.pointerId);
     },
     [isWork, open, rabbitAngleFromPointer],
@@ -315,15 +321,21 @@ export function WonderlandVault({
           )}
         >
           <WorkVaultMechanismFrame />
-          {isWork ? <WorkVaultKeyholePlate /> : <GamesVaultPortalRings />}
-
-          <span
-            className="pointer-events-none absolute right-3 top-2.5 font-serif text-lg leading-none text-white/[0.11] sm:right-4 sm:top-3 sm:text-xl"
-            aria-hidden
-          >
-            ♠
-          </span>
           {isWork ? (
+            <WorkVaultKeyholePlate />
+          ) : hideGamesChrome ? null : (
+            <GamesVaultPortalRings />
+          )}
+
+          {!hideWorkChrome ? (
+            <span
+              className="pointer-events-none absolute right-3 top-2.5 font-serif text-lg leading-none text-white/[0.11] sm:right-4 sm:top-3 sm:text-xl"
+              aria-hidden
+            >
+              ♠
+            </span>
+          ) : null}
+          {isWork && !hideWorkChrome ? (
             <div
               className="pointer-events-none absolute right-[5.25rem] top-1/2 hidden -translate-y-1/2 md:flex md:items-center md:justify-center lg:right-[6.25rem]"
               aria-hidden
@@ -350,55 +362,63 @@ export function WonderlandVault({
           />
 
           <div className="relative z-[2] flex flex-col gap-4 p-6 sm:flex-row sm:items-center sm:gap-6 sm:p-8">
-            <div className="relative shrink-0">
-              {!isWork ? (
+            {!minimal ? (
+              <div className="relative shrink-0">
+                {!isWork ? (
+                  <div
+                    className="pointer-events-none absolute -top-8 left-1/2 flex -translate-x-1/2 gap-1.5"
+                    aria-hidden
+                  >
+                    <div className="vault-tea-steam-wisp h-7 w-px rounded-full bg-gradient-to-t from-amber-200/55 via-amber-100/25 to-transparent" />
+                    <div className="vault-tea-steam-wisp h-9 w-px rounded-full bg-gradient-to-t from-amber-200/50 via-amber-100/20 to-transparent" />
+                    <div className="vault-tea-steam-wisp h-6 w-px rounded-full bg-gradient-to-t from-amber-200/45 via-amber-50/15 to-transparent" />
+                  </div>
+                ) : null}
                 <div
-                  className="pointer-events-none absolute -top-8 left-1/2 flex -translate-x-1/2 gap-1.5"
+                  className={cn(
+                    "relative flex size-16 items-center justify-center rounded-2xl border shadow-inner sm:size-[4.5rem]",
+                    isWork
+                      ? "border-cyan-400/30 bg-black/50 text-cyan-200/90"
+                      : "border-amber-400/30 bg-black/50 text-amber-200/90"
+                  )}
                   aria-hidden
                 >
-                  <div className="vault-tea-steam-wisp h-7 w-px rounded-full bg-gradient-to-t from-amber-200/55 via-amber-100/25 to-transparent" />
-                  <div className="vault-tea-steam-wisp h-9 w-px rounded-full bg-gradient-to-t from-amber-200/50 via-amber-100/20 to-transparent" />
-                  <div className="vault-tea-steam-wisp h-6 w-px rounded-full bg-gradient-to-t from-amber-200/45 via-amber-50/15 to-transparent" />
+                  {!isWork ? (
+                    <Clock
+                      className="absolute -right-1 -top-1 size-5 text-amber-200/55 sm:size-5"
+                      strokeWidth={1.5}
+                      aria-hidden
+                    />
+                  ) : null}
+                  {isWork ? (
+                    <BookMarked className="size-8 sm:size-9" strokeWidth={1.25} />
+                  ) : (
+                    <Rabbit className="size-8 sm:size-9" strokeWidth={1.25} />
+                  )}
                 </div>
-              ) : null}
-              <div
-                className={cn(
-                  "relative flex size-16 items-center justify-center rounded-2xl border shadow-inner sm:size-[4.5rem]",
-                  isWork
-                    ? "border-cyan-400/30 bg-black/50 text-cyan-200/90"
-                    : "border-amber-400/30 bg-black/50 text-amber-200/90"
-                )}
-                aria-hidden
-              >
-                {!isWork ? (
-                  <Clock
-                    className="absolute -right-1 -top-1 size-5 text-amber-200/55 sm:size-5"
-                    strokeWidth={1.5}
-                    aria-hidden
-                  />
-                ) : null}
-                {isWork ? (
-                  <BookMarked className="size-8 sm:size-9" strokeWidth={1.25} />
-                ) : (
-                  <Rabbit className="size-8 sm:size-9" strokeWidth={1.25} />
-                )}
               </div>
-            </div>
+            ) : null}
 
             <div className="min-w-0 flex-1 space-y-2">
               <p
                 className={cn(
-                  "font-serif text-xl font-medium tracking-tight sm:text-2xl",
-                  isWork ? "text-cyan-100/95" : "text-amber-50/95"
+                  hideGamesChrome
+                    ? "vault-neon-instruction text-lg font-normal tracking-wide sm:text-xl"
+                    : cn(
+                        "font-serif text-xl font-medium tracking-tight sm:text-2xl",
+                        isWork ? "text-cyan-100/95" : "text-amber-50/95"
+                      ),
                 )}
               >
                 {copy.teaserTitle}
               </p>
-              <p className="neon-sign-body text-sm leading-relaxed text-white/65 sm:text-base">
-                {copy.teaserBody}
-              </p>
-              {copy.footnote ? (
-                <p className="text-[10px] font-medium uppercase tracking-[0.2em] text-white/35">
+              {copy.teaserBody?.trim() ? (
+                <p className="vault-neon-instruction text-sm leading-relaxed sm:text-base">
+                  {copy.teaserBody}
+                </p>
+              ) : null}
+              {copy.footnote?.trim() ? (
+                <p className="vault-neon-instruction text-xs sm:text-sm">
                   {copy.footnote}
                 </p>
               ) : null}
@@ -443,7 +463,7 @@ export function WonderlandVault({
                   </span>
                   <span className="absolute bottom-[6%] left-1/2 h-3 w-6 -translate-x-1/2 rounded-full border border-cyan-200/35 bg-cyan-100/10" />
                 </button>
-                <p className="max-w-32 text-center text-[11px] leading-snug text-cyan-100/72">
+                <p className="vault-neon-instruction max-w-36 text-center text-[11px] leading-snug">
                   {Math.round(turnProgress * 100)}% turned
                 </p>
               </div>
@@ -486,19 +506,19 @@ export function WonderlandVault({
                     <Rabbit className="size-3.5" />
                   </span>
                 </button>
-                <p className="max-w-32 text-center text-[11px] leading-snug text-amber-100/72">
+                <p className="vault-neon-instruction max-w-36 text-center text-[11px] leading-snug">
                   {Math.round(rabbitProgress * 100)}% descended
                 </p>
               </div>
             )}
           </div>
           {isWork ? (
-            <div className="relative z-[2] px-6 pb-6 text-xs text-cyan-100/65 sm:px-8">
-              <p>{turnHint}</p>
+            <div className="relative z-[2] px-6 pb-6 sm:px-8">
+              <p className="vault-neon-instruction text-xs sm:text-sm">{turnHint}</p>
             </div>
           ) : (
-            <div className="relative z-[2] px-6 pb-6 text-xs text-amber-100/65 sm:px-8">
-              <p>{rabbitHint}</p>
+            <div className="relative z-[2] px-6 pb-6 sm:px-8">
+              <p className="vault-neon-instruction text-xs sm:text-sm">{rabbitHint}</p>
             </div>
           )}
         </motion.div>
