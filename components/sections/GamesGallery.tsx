@@ -16,7 +16,7 @@ function GameMeta({ game }: { game: GameItem }) {
   return (
     <>
       {game.summary ? (
-        <p className="text-xs leading-relaxed text-muted-foreground/95">
+        <p className="neon-sign-body text-xs leading-relaxed">
           {game.summary}
         </p>
       ) : null}
@@ -151,7 +151,7 @@ function FeaturedGameSpotlight({ game }: { game: GameItem }) {
   const hasIcon = Boolean(game.iconSrc);
 
   return (
-    <Card className="mb-6 overflow-hidden border-amber-500/25 bg-black/40 shadow-[0_0_0_1px_rgba(245,158,11,0.12)] transition-all hover:border-amber-500/35">
+    <Card className="mb-6 overflow-hidden border-amber-500/25 bg-[#050810]/90 shadow-[0_0_0_1px_rgba(245,158,11,0.12)] backdrop-blur-md transition-all hover:border-amber-500/35">
       <div className="flex flex-col md:flex-row md:items-stretch">
         <div
           className={cn(
@@ -188,14 +188,16 @@ function FeaturedGameSpotlight({ game }: { game: GameItem }) {
             </p>
           </div>
           {game.detail ? (
-            <p className="text-sm leading-relaxed text-muted-foreground">
+            <p className="neon-sign-body text-sm leading-relaxed">
               {game.detail}
             </p>
           ) : null}
           {game.highlights?.length ? (
-            <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-muted-foreground">
+            <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed">
               {game.highlights.map((line, i) => (
-                <li key={`${game.id}-hl-${i}`}>{line}</li>
+                <li key={`${game.id}-hl-${i}`} className="neon-sign-body">
+                  {line}
+                </li>
               ))}
             </ul>
           ) : null}
@@ -221,7 +223,7 @@ function GameCard({ game }: { game: GameItem }) {
 
   if (isIconApp && game.iconSrc) {
     return (
-      <Card className="group overflow-hidden border-white/10 bg-black/40 transition-all hover:border-white/20">
+      <Card className="group overflow-hidden border-white/10 bg-[#050810]/88 backdrop-blur-md transition-all hover:border-white/20">
         <div className="relative aspect-[3/4] overflow-hidden bg-[#06080f]">
           <GameIconImage
             src={game.iconSrc}
@@ -234,7 +236,7 @@ function GameCard({ game }: { game: GameItem }) {
             </h3>
           </div>
         </div>
-        <div className="flex flex-col gap-2.5 border-t border-white/5 bg-black/50 px-4 py-3">
+        <div className="flex flex-col gap-2.5 border-t border-white/5 bg-[#03050a]/90 px-4 py-3">
           <p className="text-xs text-muted-foreground">{game.price}</p>
           <GameMeta game={game} />
           <GodotDemoEmbed
@@ -263,7 +265,7 @@ function GameCard({ game }: { game: GameItem }) {
           </div>
         )}
       </div>
-      <CardFooter className="flex flex-col items-start gap-3 border-t border-white/10 bg-black/20 p-4">
+      <CardFooter className="flex flex-col items-start gap-3 border-t border-white/10 bg-[#03050a]/88 p-4 backdrop-blur-sm">
         <div className="flex w-full flex-col gap-2">
           <span className="text-sm font-medium text-foreground">
             {game.price}
@@ -298,11 +300,11 @@ export function GamesGallery() {
       aria-labelledby="games-heading"
     >
       <div className="container mx-auto max-w-6xl px-6">
-        <div className="mb-8 flex flex-wrap items-center justify-between gap-4">
-          <h2 id="games-heading" className="text-2xl font-bold">
+        <div className="section-glass-panel mb-8 flex flex-col gap-3 px-5 py-4 sm:flex-row sm:flex-wrap sm:items-end sm:justify-between md:px-7 md:py-5">
+          <h2 id="games-heading" className="text-2xl font-bold text-foreground">
             {gamesSection.sectionTitle}
           </h2>
-          <span className="text-sm text-muted-foreground">
+          <span className="neon-sign-body max-w-xl text-sm leading-snug sm:text-right md:text-base">
             {gamesSection.sectionEyebrow}
           </span>
         </div>

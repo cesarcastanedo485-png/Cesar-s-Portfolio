@@ -102,3 +102,29 @@ body {
       drop-shadow(0 0 14px rgba(168, 85, 247, 0.45));
   }
 }
+
+/* Descriptive copy — glowing white + cyan halo (not for titles or tag chips) */
+.neon-sign-body {
+  color: rgba(248, 250, 252, 0.96);
+  -webkit-text-stroke: 0.4px rgba(34, 211, 238, 0.32);
+  text-shadow:
+    0 0 1px rgba(255, 255, 255, 0.9),
+    0 0 8px rgba(34, 211, 238, 0.55),
+    0 0 18px rgba(34, 211, 238, 0.38),
+    0 0 32px rgba(34, 211, 238, 0.22);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .neon-sign-body {
+    text-shadow: 0 0 6px rgba(34, 211, 238, 0.45);
+  }
+}
+
+/* Section intros — same shell as hero panel */
+.section-glass-panel {
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(10, 14, 23, 0.82);
+  box-shadow: 0 12px 48px rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(12px);
+}

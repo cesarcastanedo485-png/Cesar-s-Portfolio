@@ -79,7 +79,7 @@ function WorkMedia({ item, badge }: { item: WorkItem; badge?: string }) {
 function WorkLinks({ links }: { links: WorkItem["links"] }) {
   if (!links.length) {
     return (
-      <p className="text-xs italic text-muted-foreground">More details soon.</p>
+      <p className="neon-sign-body text-xs italic">More details soon.</p>
     );
   }
 
@@ -135,20 +135,18 @@ export function WebsitesGallery() {
       aria-labelledby="work-heading"
     >
       <div className="container mx-auto max-w-6xl px-6">
-        <div className="mb-10 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h2
-              id="work-heading"
-              className="text-2xl font-bold tracking-tight text-foreground md:text-3xl"
-            >
-              {sectionEyebrow}
-            </h2>
-            {sectionIntro ? (
-              <p className="mt-2 max-w-2xl text-sm text-muted-foreground md:text-base">
-                {sectionIntro}
-              </p>
-            ) : null}
-          </div>
+        <div className="section-glass-panel mb-10 max-w-3xl px-5 py-4 md:px-7 md:py-5">
+          <h2
+            id="work-heading"
+            className="text-2xl font-bold tracking-tight text-foreground md:text-3xl"
+          >
+            {sectionEyebrow}
+          </h2>
+          {sectionIntro ? (
+            <p className="neon-sign-body mt-3 max-w-2xl text-sm leading-relaxed md:text-base">
+              {sectionIntro}
+            </p>
+          ) : null}
         </div>
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
@@ -156,7 +154,7 @@ export function WebsitesGallery() {
             <Card
               key={item.id}
               className={cn(
-                "overflow-hidden border-white/10 bg-black/35 shadow-none backdrop-blur-sm transition-all duration-300 hover:border-white/20 hover:shadow-[0_0_0_1px_rgba(34,211,238,0.12)]",
+                "overflow-hidden border-white/10 bg-[#050810]/88 shadow-none backdrop-blur-md transition-all duration-300 hover:border-white/20 hover:shadow-[0_0_0_1px_rgba(34,211,238,0.12)]",
                 item.featured && "md:col-span-2"
               )}
             >
@@ -177,11 +175,11 @@ export function WebsitesGallery() {
                     <h3 className="text-lg font-semibold tracking-tight text-white sm:text-xl">
                       {item.title}
                     </h3>
-                    <p className="text-xs font-medium uppercase tracking-wide text-cyan-400/90">
+                    <p className="neon-sign-body text-xs font-medium uppercase tracking-wide">
                       {item.role}
                     </p>
                   </div>
-                  <p className="text-sm leading-relaxed text-muted-foreground">
+                  <p className="neon-sign-body text-sm leading-relaxed">
                     {item.summary}
                   </p>
                   {item.tags?.length ? (

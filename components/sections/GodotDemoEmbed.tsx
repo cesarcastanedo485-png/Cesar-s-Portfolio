@@ -34,7 +34,7 @@ export function GodotDemoEmbed({
   }
 
   return (
-    <div className={cn("rounded-lg border border-white/10 bg-black/35 p-3", className)}>
+    <div className={cn("rounded-lg border border-white/10 bg-[#050810]/85 p-3 backdrop-blur-sm", className)}>
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
         <p className="text-xs font-medium uppercase tracking-wide text-cyan-300/90">
           {demoTitle ?? "Interactive demo"}
@@ -64,7 +64,7 @@ export function GodotDemoEmbed({
         </div>
       </div>
       {demoNotes ? (
-        <p className="mb-2 text-xs leading-relaxed text-muted-foreground">{demoNotes}</p>
+        <p className="neon-sign-body mb-2 text-xs leading-relaxed">{demoNotes}</p>
       ) : null}
       {isOpen ? (
         <div className="relative aspect-video min-h-[200px] overflow-hidden rounded-md border border-white/10 bg-[#06080f] touch-manipulation [transform:translateZ(0)] sm:min-h-0">

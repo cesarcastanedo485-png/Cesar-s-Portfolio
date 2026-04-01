@@ -30,17 +30,17 @@ export function ContactSection() {
       aria-labelledby="contact-heading"
     >
       <div className="container mx-auto max-w-3xl px-6">
-        <p className="mb-3 text-center text-xs font-medium uppercase tracking-[0.2em] text-muted-foreground">
-          {sectionEyebrow}
-        </p>
-        <div className="rounded-2xl border border-white/10 bg-black/40 p-8 shadow-[0_0_0_1px_rgba(34,211,238,0.06)] backdrop-blur-md sm:p-10">
+        <div className="section-glass-panel px-6 py-8 sm:px-10 sm:py-10">
+          <p className="mb-4 text-center text-xs font-medium uppercase tracking-[0.2em] text-cyan-200/70">
+            {sectionEyebrow}
+          </p>
           <h2
             id="contact-heading"
             className="text-center text-2xl font-semibold tracking-tight text-white md:text-3xl"
           >
             {headline}
           </h2>
-          <p className="mx-auto mt-4 max-w-xl text-center text-sm leading-relaxed text-muted-foreground md:text-base">
+          <p className="neon-sign-body mx-auto mt-5 max-w-xl text-center text-sm leading-relaxed md:text-base">
             {body}
           </p>
 
