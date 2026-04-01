@@ -5,15 +5,18 @@ import type { RefObject } from "react";
 
 type Options = {
   enabled: boolean;
-  /** Total horizontal sweep in vw (e.g. 8 → −4vw at page top to +4vw at bottom). */
+  /**
+   * Total horizontal sweep in vw. With default mapping: page top → left side of the framed
+   * layer, page bottom → right (shift = (0.5 − t) × rangeVw).
+   */
   rangeVw?: number;
   /** Custom property on `containerRef` (default `--arp-scroll-x`). */
   cssVarName?: string;
 };
 
 /**
- * Maps vertical scroll progress to a CSS variable (default `--arp-scroll-x`, vw) for parallax pan.
- * Updates via rAF; respects `enabled` (e.g. off when prefers-reduced-motion).
+ * Maps vertical scroll to horizontal translate (default `--arp-scroll-x`, vw).
+ * Top of page = panorama left; scrolling down moves the view toward the right.
  */
 export function useScrollDrivenShiftX(
   containerRef: RefObject<HTMLElement | null>,
@@ -46,9 +49,9 @@ export function useScrollDrivenShiftX(
       const maxScroll = Math.max(0, root.scrollHeight - root.clientHeight);
       const t =
         maxScroll <= 0
-          ? 0.5
+          ? 0
           : Math.min(1, Math.max(0, scrollTop / maxScroll));
-      const shiftVw = (t - 0.5) * rangeVw;
+      const shiftVw = (0.5 - t) * rangeVw;
       target.style.setProperty(cssVarName, `${shiftVw}vw`);
     };
 

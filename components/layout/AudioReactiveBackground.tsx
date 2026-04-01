@@ -69,7 +69,6 @@ export function AudioReactiveBackground({
     }
     el.style.setProperty("--arp-pulse", "0");
     el.style.setProperty("--arp-pulse-spike", "0");
-    el.style.setProperty("--arp-scroll-x", "0vw");
   }, []);
 
   useEffect(() => {
