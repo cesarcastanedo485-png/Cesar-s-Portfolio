@@ -2,6 +2,8 @@ import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { AudioReactiveBackground } from "@/components/layout/AudioReactiveBackground";
 import { SiteBackgroundVideo } from "@/components/layout/SiteBackgroundVideo";
+import { BackgroundAtmosphere } from "@/components/effects/BackgroundAtmosphere";
+import { SectionSparkles } from "@/components/effects/SectionSparkles";
 import { Hero } from "@/components/sections/Hero";
 import { WebsitesGallery } from "@/components/sections/WebsitesGallery";
 import { QuoteSection } from "@/components/sections/QuoteSection";
@@ -16,6 +18,7 @@ export default function Home() {
   const arImage = ar?.imageSrc?.trim();
   const arAudio = ar?.audioSrc?.trim();
   const useAudioReactive = Boolean(ar?.enabled && arAudio);
+  const atmosphereOn = useAudioReactive || Boolean(bgVideoSrc);
 
   return (
     <div className="relative min-h-screen">
@@ -32,8 +35,11 @@ export default function Home() {
           posterSrc={site.backgroundVideo?.poster}
         />
       )}
+      <BackgroundAtmosphere enabled={atmosphereOn} />
       <div className="relative z-10 min-h-screen">
-        <Header />
+        <SectionSparkles>
+          <Header />
+        </SectionSparkles>
         <main
           id="main-content"
           tabIndex={-1}
@@ -41,18 +47,30 @@ export default function Home() {
             "min-h-screen space-y-24 px-6 py-12 outline-none md:space-y-32 md:px-12 md:py-16 lg:space-y-40 lg:px-20 lg:py-20",
             useAudioReactive &&
               "max-md:pb-[calc(6.75rem+env(safe-area-inset-bottom,0px))]",
-            useAudioReactive || bgVideoSrc
+            atmosphereOn
               ? "bg-transparent"
               : "bg-gradient-to-b from-[#0a0e17] to-[#000]"
           )}
         >
-          <Hero content={heroContent} />
-          <WebsitesGallery />
-          <QuoteSection />
-          <GamesGallery />
-          <ContactSection />
+          <SectionSparkles>
+            <Hero content={heroContent} />
+          </SectionSparkles>
+          <SectionSparkles>
+            <WebsitesGallery />
+          </SectionSparkles>
+          <SectionSparkles>
+            <QuoteSection />
+          </SectionSparkles>
+          <SectionSparkles>
+            <GamesGallery />
+          </SectionSparkles>
+          <SectionSparkles>
+            <ContactSection />
+          </SectionSparkles>
         </main>
-        <Footer />
+        <SectionSparkles>
+          <Footer />
+        </SectionSparkles>
       </div>
     </div>
   );

@@ -147,3 +147,43 @@ body {
     drop-shadow(0 0 14px rgba(168, 85, 247, 0.55))
     drop-shadow(0 0 22px rgba(232, 121, 249, 0.35));
 }
+
+/* SectionSparkles — medium “half-disco” twinkle */
+@keyframes sparkle-dust-twinkle {
+  0%,
+  100% {
+    opacity: 0.14;
+    transform: scale(0.38);
+  }
+  38% {
+    opacity: 0.82;
+    transform: scale(1.02);
+  }
+  58% {
+    opacity: 0.92;
+    transform: scale(1.14);
+  }
+}
+
+.sparkle-dust {
+  animation-name: sparkle-dust-twinkle;
+}
+
+.sparkle-dust--idle {
+  animation-play-state: paused;
+  opacity: 0.1;
+  transform: scale(0.45);
+}
+
+.sparkle-dust--on {
+  animation-play-state: running;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sparkle-dust,
+  .sparkle-dust--on {
+    animation: none !important;
+    opacity: 0.12;
+    transform: scale(0.6);
+  }
+}
