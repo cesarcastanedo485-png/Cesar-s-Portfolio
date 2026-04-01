@@ -16,8 +16,8 @@ import { useAudioReactiveDrive } from "@/lib/use-audio-reactive-drive";
 import { useScrollDrivenShiftX } from "@/lib/use-scroll-driven-shift-x";
 import { cn } from "@/lib/utils";
 
-/** Total horizontal pan in vw (top −half → bottom +half). */
-const SCROLL_SHIFT_RANGE_VW = 8;
+/** Total horizontal pan in vw (top −half → bottom +half). Wider = see more of plate left/right. */
+const SCROLL_SHIFT_RANGE_VW = 24;
 
 type AudioReactiveBackgroundProps = {
   /** Empty: violet/indigo gradient pulse (add `/backgrounds/your.png` when ready). */
