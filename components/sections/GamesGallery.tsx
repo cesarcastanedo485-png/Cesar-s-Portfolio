@@ -151,8 +151,8 @@ function FeaturedGameSpotlight({ game }: { game: GameItem }) {
   const hasIcon = Boolean(game.iconSrc);
 
   return (
-    <Card className="mb-6 overflow-hidden border-amber-500/25 bg-[#050810]/90 shadow-[0_0_0_1px_rgba(245,158,11,0.12)] backdrop-blur-md transition-all hover:border-amber-500/35">
-      <div className="flex flex-col md:flex-row md:items-stretch">
+    <Card className="mb-6 overflow-hidden border-amber-500/25 bg-black shadow-[0_0_0_1px_rgba(245,158,11,0.12)] transition-all hover:border-amber-500/35">
+      <div className="flex flex-col bg-black md:flex-row md:items-stretch">
         <div
           className={cn(
             "relative min-h-[220px] bg-black md:w-[min(42%,420px)] md:shrink-0",
@@ -178,7 +178,7 @@ function FeaturedGameSpotlight({ game }: { game: GameItem }) {
             Flagship project
           </span>
         </div>
-        <div className="flex flex-1 flex-col gap-3 border-t border-white/10 p-5 sm:p-6 md:border-l md:border-t-0">
+        <div className="flex flex-1 flex-col gap-3 border-t border-white/10 bg-black p-5 sm:p-6 md:border-l md:border-t-0">
           <div>
             <h3 className="text-xl font-semibold tracking-tight text-white sm:text-2xl">
               {game.title}
@@ -223,7 +223,7 @@ function GameCard({ game }: { game: GameItem }) {
 
   if (isIconApp && game.iconSrc) {
     return (
-      <Card className="group overflow-hidden border-white/10 bg-[#050810]/88 backdrop-blur-md transition-all hover:border-white/20">
+      <Card className="group overflow-hidden border-white/10 bg-black transition-all hover:border-white/20">
         <div className="relative aspect-[3/4] overflow-hidden bg-black">
           <GameIconImage
             src={game.iconSrc}
@@ -236,7 +236,7 @@ function GameCard({ game }: { game: GameItem }) {
             </h3>
           </div>
         </div>
-        <div className="flex flex-col gap-2.5 border-t border-white/5 bg-[#03050a]/90 px-4 py-3">
+        <div className="flex flex-col gap-2.5 border-t border-white/10 bg-black px-4 py-3">
           <p className="text-xs text-muted-foreground">{game.price}</p>
           <GameMeta game={game} />
           <GodotDemoEmbed
@@ -255,8 +255,8 @@ function GameCard({ game }: { game: GameItem }) {
   }
 
   return (
-    <Card className="group overflow-hidden border-white/10 transition-all hover:border-white/20">
-      <div className="relative aspect-[3/4] overflow-hidden">
+    <Card className="group overflow-hidden border-white/10 bg-black transition-all hover:border-white/20">
+      <div className="relative aspect-[3/4] overflow-hidden bg-black">
         <div className={`absolute inset-0 bg-gradient-to-br ${game.gradient}`} />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
         {game.title && (
@@ -265,7 +265,7 @@ function GameCard({ game }: { game: GameItem }) {
           </div>
         )}
       </div>
-      <CardFooter className="flex flex-col items-start gap-3 border-t border-white/10 bg-[#03050a]/88 p-4 backdrop-blur-sm">
+      <CardFooter className="flex flex-col items-start gap-3 border-t border-white/10 bg-black p-4">
         <div className="flex w-full flex-col gap-2">
           <span className="text-sm font-medium text-foreground">
             {game.price}
