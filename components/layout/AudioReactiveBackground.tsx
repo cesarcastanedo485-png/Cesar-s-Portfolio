@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { CSSProperties } from "react";
 import { ChevronLeft, ChevronRight, Music2, Pause, Play } from "lucide-react";
 import { useReducedMotion } from "framer-motion";
@@ -32,14 +32,24 @@ export function AudioReactiveBackground({
   const [error, setError] = useState<string | null>(null);
   const [dockOpen, setDockOpen] = useState(true);
 
-  const allowMotion = hydrated && reduceMotion === false;
-  const analyse = allowMotion && playing;
+  /** Only dampen when OS explicitly requests reduced motion — never block analyser on `null`. */
+  const pulseDampen = reduceMotion === true ? 0.32 : 1;
+  const analyse = hydrated && playing;
 
   const { ensureGraph, resumeContext } = useAudioReactiveDrive({
     audioRef,
     containerRef,
     analyse,
+    pulseDampen,
   });
+
+  useEffect(() => {
+    if (!hydrated || !playing) {
+      return;
+    }
+    ensureGraph();
+    void resumeContext();
+  }, [ensureGraph, hydrated, playing, resumeContext]);
 
   const togglePlayback = useCallback(async () => {
     const audio = audioRef.current;
@@ -52,7 +62,7 @@ export function AudioReactiveBackground({
     }
     try {
       setError(null);
-      if (allowMotion) {
+      if (hydrated) {
         ensureGraph();
         await resumeContext();
       }
@@ -60,7 +70,7 @@ export function AudioReactiveBackground({
     } catch (e) {
       setError(e instanceof Error ? e.message : "Playback failed");
     }
-  }, [allowMotion, ensureGraph, playing, resumeContext]);
+  }, [ensureGraph, hydrated, playing, resumeContext]);
 
   const crossOrigin = audioSrc.startsWith("http") ? "anonymous" : undefined;
 
@@ -116,7 +126,31 @@ export function AudioReactiveBackground({
               }}
             />
           )}
-          {/* Base neon wash — always visible so magenta/cyan reads through scrim */}
+          {/* Soft bloom (follows scene light): tail / upper figure */}
+          <div
+            aria-hidden
+            className="absolute inset-0 scale-105 mix-blend-screen blur-[18px] sm:blur-[22px]"
+            style={{
+              backgroundImage: `
+                radial-gradient(ellipse 42% 36% at 50% 42%, rgba(255, 120, 255, 0.55) 0%, rgba(236, 72, 153, 0.22) 45%, transparent 62%),
+                radial-gradient(ellipse 55% 48% at 48% 38%, rgba(192, 132, 252, 0.4) 0%, transparent 55%)
+              `,
+              opacity: "calc(0.52 + var(--arp-pulse, 0) * 0.48)",
+            }}
+          />
+          {/* Dress + legs / fog band — matches downward glow in the plate */}
+          <div
+            aria-hidden
+            className="absolute inset-0 mix-blend-soft-light"
+            style={{
+              backgroundImage: `
+                radial-gradient(ellipse 48% 55% at 50% 58%, rgba(167, 139, 250, 0.42) 0%, rgba(88, 28, 135, 0.12) 50%, transparent 68%),
+                radial-gradient(ellipse 85% 35% at 52% 78%, rgba(251, 207, 232, 0.38) 0%, rgba(244, 114, 182, 0.18) 40%, transparent 62%)
+              `,
+              opacity: "calc(0.28 + var(--arp-pulse, 0) * 0.55)",
+            }}
+          />
+          {/* Base neon wash — wide read */}
           <div
             aria-hidden
             className="absolute inset-0 mix-blend-screen"
@@ -128,7 +162,7 @@ export function AudioReactiveBackground({
               opacity: "calc(0.4 + var(--arp-pulse, 0) * 0.58)",
             }}
           />
-          {/* Beat flash — slams toward full opacity on kicks */}
+          {/* Beat flash — kicks */}
           <div
             aria-hidden
             className="absolute inset-0 mix-blend-screen"

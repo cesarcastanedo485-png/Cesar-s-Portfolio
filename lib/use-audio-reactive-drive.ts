@@ -3,16 +3,20 @@
 import { useCallback, useEffect, useRef } from "react";
 import type { RefObject } from "react";
 
-const BASS_BIN_COUNT = 12;
-const RAW_GAIN = 2.45;
-const ATTACK = 0.45;
-const RELEASE = 0.1;
+const BASS_BIN_START = 0;
+const BASS_BIN_END = 42;
+const RAW_GAIN = 2.2;
+const ATTACK = 0.5;
+const RELEASE = 0.08;
+const RMS_GAIN = 5.2;
 
 export type UseAudioReactiveDriveOptions = {
   audioRef: RefObject<HTMLAudioElement | null>;
   containerRef: RefObject<HTMLElement | null>;
   /** When false, animation frame loop stops and pulse CSS var resets. */
   analyse: boolean;
+  /** Multiply final pulse (0–1) for prefers-reduced-motion without disabling analyser. */
+  pulseDampen?: number;
 };
 
 /**
@@ -23,10 +27,12 @@ export function useAudioReactiveDrive({
   audioRef,
   containerRef,
   analyse,
+  pulseDampen = 1,
 }: UseAudioReactiveDriveOptions) {
   const ctxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const freqDataRef = useRef<Uint8Array | null>(null);
+  const timeDataRef = useRef<Uint8Array | null>(null);
   const wiredForAudioRef = useRef<HTMLAudioElement | null>(null);
   const smoothedRef = useRef(0);
   const rafRef = useRef(0);
@@ -40,8 +46,8 @@ export function useAudioReactiveDrive({
     const ctx = new AudioContext();
     const source = ctx.createMediaElementSource(audio);
     const analyser = ctx.createAnalyser();
-    analyser.fftSize = 512;
-    analyser.smoothingTimeConstant = 0.55;
+    analyser.fftSize = 1024;
+    analyser.smoothingTimeConstant = 0.38;
     source.connect(analyser);
     analyser.connect(ctx.destination);
 
@@ -49,6 +55,8 @@ export function useAudioReactiveDrive({
     analyserRef.current = analyser;
     const buf = new ArrayBuffer(analyser.frequencyBinCount);
     freqDataRef.current = new Uint8Array(buf);
+    const tbuf = new ArrayBuffer(analyser.fftSize);
+    timeDataRef.current = new Uint8Array(tbuf);
     wiredForAudioRef.current = audio;
     return ctx;
   }, [audioRef]);
@@ -85,25 +93,40 @@ export function useAudioReactiveDrive({
           analyser.getByteFrequencyData(
             data as Parameters<AnalyserNode["getByteFrequencyData"]>[0],
           );
+          const hi = Math.min(BASS_BIN_END, data.length);
+          const n = Math.max(1, hi - BASS_BIN_START);
           let sum = 0;
-          const n = Math.min(BASS_BIN_COUNT, data.length);
-          for (let i = 0; i < n; i++) {
+          for (let i = BASS_BIN_START; i < hi; i++) {
             sum += data[i] ?? 0;
           }
-          const raw = Math.min(
-            1,
-            (sum / (n * 255)) * RAW_GAIN,
-          );
+          const fftNorm = (sum / (n * 255)) * RAW_GAIN;
+
+          let rmsNorm = 0;
+          const time = timeDataRef.current;
+          if (time && time.length === analyser.fftSize) {
+            analyser.getByteTimeDomainData(
+              time as Parameters<AnalyserNode["getByteTimeDomainData"]>[0],
+            );
+            let acc = 0;
+            for (let i = 0; i < time.length; i++) {
+              const v = (time[i]! - 128) / 128;
+              acc += v * v;
+            }
+            rmsNorm = Math.min(1, Math.sqrt(acc / time.length) * RMS_GAIN);
+          }
+
+          const raw = Math.min(1, Math.max(fftNorm, rmsNorm * 0.92));
           const prev = smoothedRef.current;
           smoothedRef.current =
             raw > prev
               ? prev * (1 - ATTACK) + raw * ATTACK
               : prev * (1 - RELEASE) + raw * RELEASE;
         }
-        target.style.setProperty(
-          "--arp-pulse",
-          smoothedRef.current.toFixed(4),
+        const out = Math.min(
+          1,
+          Math.max(0, smoothedRef.current * pulseDampen),
         );
+        target.style.setProperty("--arp-pulse", out.toFixed(4));
       }
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -116,7 +139,7 @@ export function useAudioReactiveDrive({
         containerRef.current.style.setProperty("--arp-pulse", "0");
       }
     };
-  }, [analyse, audioRef, containerRef]);
+  }, [analyse, audioRef, containerRef, pulseDampen]);
 
   return { ensureGraph, resumeContext };
 }
