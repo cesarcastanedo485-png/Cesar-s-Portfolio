@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useProgression } from "@/lib/progression";
 
 type GodotDemoEmbedProps = {
   demoEnabled?: boolean;
@@ -22,6 +23,7 @@ export function GodotDemoEmbed({
   className,
 }: GodotDemoEmbedProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const { levelOneComplete, openOverlay } = useProgression();
 
   const src = useMemo(() => {
     const slug = demoSlug?.trim();
@@ -31,6 +33,34 @@ export function GodotDemoEmbed({
 
   if (!demoEnabled || !src) {
     return null;
+  }
+
+  if (!levelOneComplete) {
+    return (
+      <div
+        className={cn(
+          "rounded-lg border border-white/10 bg-[#050810]/85 p-3 backdrop-blur-sm",
+          className,
+        )}
+      >
+        <p className="text-xs font-medium uppercase tracking-wide text-amber-200/85">
+          Demo locked
+        </p>
+        <p className="neon-sign-body mt-2 text-xs leading-relaxed">
+          Level up once to unlock interactive demos.
+        </p>
+        <button
+          type="button"
+          onClick={() => openOverlay({ openForm: true })}
+          className={cn(
+            buttonVariants({ variant: "outline", size: "sm" }),
+            "mt-3 h-8 border-amber-500/40 text-amber-100 hover:bg-amber-950/30",
+          )}
+        >
+          Unlock with Level 1
+        </button>
+      </div>
+    );
   }
 
   return (

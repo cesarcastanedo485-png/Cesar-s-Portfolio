@@ -9,15 +9,12 @@ type BackgroundAtmosphereProps = {
 };
 
 /**
- * Fixed layer behind page chrome: scroll-linked cool→warm grade + pointer sheen.
- * On coarse pointers, sheen is weaker and drifts slowly instead of tracking.
+ * Fixed layer behind page chrome: scroll-linked cool→warm grade + dual smoke.
  */
 export function BackgroundAtmosphere({ enabled }: BackgroundAtmosphereProps) {
   const reduceMotion = useReducedMotion();
   const elRef = useRef<HTMLDivElement>(null);
-  const ptrRef = useRef({ x: 50, y: 42 });
   const rafScroll = useRef(0);
-  const rafPtr = useRef(0);
 
   useEffect(() => {
     if (!enabled || typeof window === "undefined") {
@@ -39,69 +36,14 @@ export function BackgroundAtmosphere({ enabled }: BackgroundAtmosphereProps) {
       rafScroll.current = requestAnimationFrame(setScrollT);
     };
 
-    const coarse =
-      typeof window.matchMedia === "function" &&
-      window.matchMedia("(pointer: coarse)").matches;
-
-    const applyPtr = () => {
-      rafPtr.current = 0;
-      const { x, y } = ptrRef.current;
-      elRef.current?.style.setProperty("--atmo-ptr-x", `${x.toFixed(2)}%`);
-      elRef.current?.style.setProperty("--atmo-ptr-y", `${y.toFixed(2)}%`);
-    };
-
-    const onMove = (e: MouseEvent) => {
-      if (coarse) return;
-      ptrRef.current = {
-        x: (e.clientX / Math.max(1, window.innerWidth)) * 100,
-        y: (e.clientY / Math.max(1, window.innerHeight)) * 100,
-      };
-      if (rafPtr.current) return;
-      rafPtr.current = requestAnimationFrame(applyPtr);
-    };
-
-    let driftRaf = 0;
-    let driftStart = 0;
-    const drift = (time: number) => {
-      if (!coarse) {
-        return;
-      }
-      if (!driftStart) {
-        driftStart = time;
-      }
-      const phase = (time - driftStart) / 1000;
-      ptrRef.current = {
-        x: 50 + Math.sin(phase * 0.42) * 38,
-        y: 42 + Math.cos(phase * 0.36) * 32,
-      };
-      elRef.current?.style.setProperty(
-        "--atmo-ptr-x",
-        `${ptrRef.current.x.toFixed(2)}%`,
-      );
-      elRef.current?.style.setProperty(
-        "--atmo-ptr-y",
-        `${ptrRef.current.y.toFixed(2)}%`,
-      );
-      driftRaf = requestAnimationFrame(drift);
-    };
-
     setScrollT();
-    applyPtr();
     window.addEventListener("scroll", onScroll, { passive: true });
     window.addEventListener("resize", onScroll, { passive: true });
-    window.addEventListener("mousemove", onMove, { passive: true });
-
-    if (coarse) {
-      driftRaf = requestAnimationFrame(drift);
-    }
 
     return () => {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
-      window.removeEventListener("mousemove", onMove);
       cancelAnimationFrame(rafScroll.current);
-      cancelAnimationFrame(rafPtr.current);
-      cancelAnimationFrame(driftRaf);
     };
   }, [enabled]);
 
@@ -113,7 +55,7 @@ export function BackgroundAtmosphere({ enabled }: BackgroundAtmosphereProps) {
     return (
       <div
         ref={elRef}
-        className="pointer-events-none fixed inset-0 -z-[15] [--atmo-scroll-t:0] [--atmo-ptr-x:50%] [--atmo-ptr-y:54%]"
+        className="pointer-events-none fixed inset-0 -z-[15] [--atmo-scroll-t:0]"
         aria-hidden
       >
         <div
@@ -130,7 +72,7 @@ export function BackgroundAtmosphere({ enabled }: BackgroundAtmosphereProps) {
   return (
     <div
       ref={elRef}
-      className="pointer-events-none fixed inset-0 -z-[15] [--atmo-ptr-x:50%] [--atmo-ptr-y:54%] [--atmo-scroll-t:0]"
+      className="pointer-events-none fixed inset-0 -z-[15] [--atmo-scroll-t:0]"
       aria-hidden
     >
       {/* Scroll-linked grade: cooler top of page → warmer / magenta toward bottom */}
@@ -148,39 +90,23 @@ export function BackgroundAtmosphere({ enabled }: BackgroundAtmosphereProps) {
             "linear-gradient(0deg, rgba(251,191,36,calc(var(--atmo-scroll-t) * 0.08)) 0%, transparent 35%)",
         }}
       />
-      {/* Pointer (or drift) sheen */}
+      {/* Smoke — two parallax layers in opposite horizontal directions */}
       <div
-        className="absolute inset-0 mix-blend-screen opacity-45 motion-reduce:opacity-25 max-md:opacity-30"
-        style={{
-          backgroundImage:
-            "radial-gradient(ellipse 55% 48% at var(--atmo-ptr-x) var(--atmo-ptr-y), rgba(255,255,255,0.28) 0%, rgba(255,255,255,0.06) 28%, transparent 52%)",
-        }}
-      />
-      <div
-        className="absolute inset-0 mix-blend-soft-light opacity-30 max-md:opacity-20"
-        style={{
-          backgroundImage:
-            "radial-gradient(ellipse 38% 40% at var(--atmo-ptr-x) var(--atmo-ptr-y), rgba(196,181,253,0.35) 0%, transparent 45%)",
-        }}
-      />
-      {/* Smoke — biased to mid-canvas / lower-middle (Wonderland plate + tail read) */}
-      <div
-        className="portfolio-smoke-parallax pointer-events-none absolute inset-0 mix-blend-screen"
+        className="portfolio-smoke-parallax pointer-events-none absolute inset-0 mix-blend-screen opacity-95 max-md:opacity-[0.88]"
         style={{
           backgroundImage: `
-            radial-gradient(ellipse 88% 44% at calc(50% + var(--atmo-scroll-t) * 10%) calc(54% + var(--atmo-scroll-t) * 5%), rgba(255,255,255,0.4) 0%, rgba(226,232,240,0.22) 30%, rgba(186,230,253,0.1) 48%, transparent 64%),
-            radial-gradient(ellipse 40% 34% at calc(47% + var(--atmo-scroll-t) * 6%) 51%, rgba(255,255,255,0.28) 0%, transparent 52%),
-            radial-gradient(ellipse 50% 44% at var(--atmo-ptr-x) var(--atmo-ptr-y), rgba(255,250,255,0.22) 0%, transparent 46%)
+            radial-gradient(ellipse 88% 44% at calc(49% + var(--atmo-scroll-t) * 16%) calc(55% + var(--atmo-scroll-t) * 6%), rgba(255,255,255,0.42) 0%, rgba(226,232,240,0.24) 30%, rgba(186,230,253,0.12) 50%, transparent 66%),
+            radial-gradient(ellipse 38% 32% at calc(46% + var(--atmo-scroll-t) * 11%) 50%, rgba(255,255,255,0.3) 0%, transparent 54%)
           `,
         }}
         aria-hidden
       />
       <div
-        className="portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-soft-light opacity-95"
+        className="portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-soft-light opacity-[1.06] max-md:opacity-[0.98]"
         style={{
           backgroundImage: `
-            radial-gradient(ellipse 72% 56% at calc(52% - var(--atmo-scroll-t) * 12%) 58%, rgba(244,232,255,0.32) 0%, rgba(168,85,247,0.14) 42%, transparent 66%),
-            radial-gradient(ellipse 60% 38% at 49% 62%, rgba(255,255,255,0.12) 0%, transparent 54%)
+            radial-gradient(ellipse 76% 58% at calc(53% - var(--atmo-scroll-t) * 18%) 59%, rgba(244,232,255,0.38) 0%, rgba(168,85,247,0.18) 44%, transparent 68%),
+            radial-gradient(ellipse 62% 40% at calc(50% - var(--atmo-scroll-t) * 14%) 63%, rgba(255,255,255,0.17) 0%, transparent 56%)
           `,
         }}
         aria-hidden

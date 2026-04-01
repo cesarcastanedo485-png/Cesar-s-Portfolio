@@ -11,7 +11,6 @@ import {
 } from "@/lib/content";
 import { GodotDemoEmbed } from "@/components/sections/GodotDemoEmbed";
 import { CardDetailsDisclosure } from "@/components/ui/card-details-disclosure";
-import { SectionOverviewDisclosure } from "@/components/ui/section-overview-disclosure";
 import { WonderlandVault } from "@/components/wonderland/WonderlandVault";
 
 const DEFAULT_WORK_VAULT: WonderlandVaultCopy = {
@@ -155,26 +154,20 @@ export function WebsitesGallery() {
       aria-labelledby="work-heading"
     >
       <div className="container mx-auto max-w-6xl px-6">
-        <div className="section-glass-panel mb-10 max-w-3xl px-5 py-4 md:px-7 md:py-5">
+        <div className="section-glass-panel mb-8 max-w-3xl px-5 py-4 md:px-7 md:py-5">
           <h2
             id="work-heading"
             className="text-2xl font-bold tracking-tight text-foreground md:text-3xl"
           >
             {sectionEyebrow}
           </h2>
-          {sectionIntro ? (
-            <SectionOverviewDisclosure id="work-section-overview" tone="work">
-              <p className="neon-sign-body text-sm leading-relaxed md:text-base">
-                {sectionIntro}
-              </p>
-            </SectionOverviewDisclosure>
-          ) : null}
         </div>
 
         <WonderlandVault
           variant="work"
           panelId="work-vault-panel"
           copy={vaultCopy}
+          overview={sectionIntro}
         >
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             {ordered.map((item) => (

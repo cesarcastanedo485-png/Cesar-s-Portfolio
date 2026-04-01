@@ -35,6 +35,8 @@
     "links": [
       { "label": "Work", "href": "#work" },
       { "label": "Games", "href": "#games" },
+      { "label": "Dream Now", "href": "#dream-now" },
+      { "label": "3D Oracle", "href": "/oracle-3d" },
       { "label": "Contact", "href": "#contact" },
       {
         "label": "GitHub",
@@ -137,7 +139,7 @@
     "vault": {
       "teaserTitle": "Down the rabbit hole",
       "teaserBody": "Chatling Ranch, tarot stream overlay, Dungeon Master Lite, and the branching CYOA pilot — a whole tea party of experiments, hidden until you take the plunge.",
-      "ctaClosed": "Open the passage",
+      "ctaClosed": "Trace the spiral",
       "ctaOpen": "Lock the rabbit hole",
       "accessHint": "Games stay sealed behind this passage until you open it.",
       "footnote": "React · WebSockets · Godot Web · live-audience UX"

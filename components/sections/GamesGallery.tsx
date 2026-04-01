@@ -16,12 +16,11 @@ import { WonderlandVault } from "@/components/wonderland/WonderlandVault";
 import { useHydrated } from "@/lib/use-hydrated";
 import { GodotDemoEmbed } from "@/components/sections/GodotDemoEmbed";
 import { CardDetailsDisclosure } from "@/components/ui/card-details-disclosure";
-import { SectionOverviewDisclosure } from "@/components/ui/section-overview-disclosure";
 
 const DEFAULT_GAMES_VAULT: WonderlandVaultCopy = {
   teaserTitle: "Down the rabbit hole",
   teaserBody: "Stream-first games and demos hide here until you open the vault.",
-  ctaClosed: "Open the passage",
+  ctaClosed: "Trace the spiral",
   ctaOpen: "Lock the rabbit hole",
   accessHint: "Games stay sealed until you open this passage.",
   footnote: "React · WebSockets · live-audience UX",
@@ -323,18 +322,12 @@ export function GamesGallery() {
           <h2 id="games-heading" className="text-2xl font-bold text-foreground">
             {gamesSection.sectionTitle}
           </h2>
-          {gamesSection.sectionEyebrow ? (
-            <SectionOverviewDisclosure id="games-section-overview" tone="games">
-              <p className="neon-sign-body text-sm leading-snug md:text-base">
-                {gamesSection.sectionEyebrow}
-              </p>
-            </SectionOverviewDisclosure>
-          ) : null}
         </div>
         <WonderlandVault
           variant="games"
           panelId="games-vault-panel"
           copy={vaultCopy}
+          overview={gamesSection.sectionEyebrow}
         >
           <>
             {spotlight.map((game) => (

@@ -157,80 +157,55 @@ export function AudioReactiveBackground({
               }}
             />
           )}
-          {/* Soft bloom — lighter blur on mobile (GPU) */}
+          {/* Edge bloom — avoids center hotspot glow */}
           <div
             aria-hidden
-            className="absolute inset-0 scale-105 mix-blend-screen blur-[10px] sm:blur-[16px] md:blur-[22px]"
+            className="absolute inset-0 mix-blend-screen blur-[8px] sm:blur-[12px] md:blur-[18px]"
             style={{
               backgroundImage: `
-                radial-gradient(ellipse 42% 36% at 50% 42%, rgba(255, 120, 255, 0.55) 0%, rgba(236, 72, 153, 0.22) 45%, transparent 62%),
-                radial-gradient(ellipse 55% 48% at 48% 38%, rgba(192, 132, 252, 0.4) 0%, transparent 55%)
+                radial-gradient(ellipse 72% 34% at 50% 8%, rgba(255, 120, 255, 0.24) 0%, rgba(236, 72, 153, 0.1) 48%, transparent 72%),
+                radial-gradient(ellipse 88% 30% at 50% 94%, rgba(192, 132, 252, 0.2) 0%, transparent 70%)
               `,
               opacity:
-                "calc(0.5 + var(--arp-pulse, 0) * 0.28 + var(--arp-pulse-spike, 0) * 0.22)",
+                "calc(0.34 + var(--arp-pulse, 0) * 0.2 + var(--arp-pulse-spike, 0) * 0.1)",
             }}
           />
-          {/* Dress + legs / fog band — matches downward glow in the plate */}
+          {/* Subtle side fog for depth without central bloom */}
           <div
             aria-hidden
             className="absolute inset-0 mix-blend-soft-light"
             style={{
               backgroundImage: `
-                radial-gradient(ellipse 48% 55% at 50% 58%, rgba(167, 139, 250, 0.42) 0%, rgba(88, 28, 135, 0.12) 50%, transparent 68%),
-                radial-gradient(ellipse 85% 35% at 52% 78%, rgba(251, 207, 232, 0.38) 0%, rgba(244, 114, 182, 0.18) 40%, transparent 62%)
+                radial-gradient(ellipse 42% 66% at 8% 58%, rgba(167, 139, 250, 0.18) 0%, transparent 68%),
+                radial-gradient(ellipse 42% 66% at 92% 58%, rgba(251, 207, 232, 0.16) 0%, transparent 68%)
               `,
               opacity:
-                "calc(0.32 + var(--arp-pulse, 0) * 0.5 + var(--arp-pulse-spike, 0) * 0.45)",
-            }}
-          />
-          {/* Base neon wash — wide read */}
-          <div
-            aria-hidden
-            className="absolute inset-0 mix-blend-screen"
-            style={{
-              backgroundImage: `
-                radial-gradient(ellipse 95% 75% at 50% 36%, rgba(255, 60, 240, 0.55) 0%, rgba(168, 85, 247, 0.42) 32%, transparent 58%),
-                radial-gradient(ellipse 60% 50% at 50% 40%, rgba(34, 211, 238, 0.5) 0%, transparent 52%)
-              `,
-              opacity:
-                "calc(0.4 + var(--arp-pulse, 0) * 0.34 + var(--arp-pulse-spike, 0) * 0.18)",
+                "calc(0.22 + var(--arp-pulse, 0) * 0.32 + var(--arp-pulse-spike, 0) * 0.2)",
             }}
           />
           {/* Mist / smoke — mid-canvas band grazes Cheshire tail zone; scroll + pulse make it read */}
           <div
             aria-hidden
-            className="portfolio-smoke-parallax pointer-events-none absolute inset-0 mix-blend-screen"
+            className="portfolio-smoke-parallax pointer-events-none absolute inset-0 mix-blend-screen opacity-95 max-md:opacity-[0.84]"
             style={{
               backgroundImage: `
-                radial-gradient(ellipse 92% 46% at calc(50% + var(--arp-scroll-x, 0vw) * 0.14) 54%, rgba(255,255,255,0.5) 0%, rgba(226,232,240,0.28) 26%, rgba(186,230,253,0.16) 44%, transparent 64%),
-                radial-gradient(ellipse 36% 30% at calc(46% + var(--arp-scroll-x, 0vw) * 0.1) 50%, rgba(255,255,255,0.38) 0%, rgba(255,250,255,0.12) 42%, transparent 58%),
-                radial-gradient(ellipse 28% 38% at calc(56% + var(--arp-scroll-x, 0vw) * 0.06) 59%, rgba(253,230,255,0.22) 0%, transparent 52%)
+                radial-gradient(ellipse 92% 46% at calc(50% + var(--arp-scroll-x, 0vw) * 0.16) 56%, rgba(255,255,255,0.5) 0%, rgba(226,232,240,0.3) 28%, rgba(186,230,253,0.16) 46%, transparent 66%),
+                radial-gradient(ellipse 36% 30% at calc(46% + var(--arp-scroll-x, 0vw) * 0.11) 51%, rgba(255,255,255,0.38) 0%, rgba(255,250,255,0.14) 44%, transparent 60%)
               `,
               opacity:
-                "calc(0.48 + var(--arp-pulse, 0) * 0.42 + var(--arp-pulse-spike, 0) * 0.26)",
+                "calc(0.5 + var(--arp-pulse, 0) * 0.3 + var(--arp-pulse-spike, 0) * 0.2)",
             }}
           />
           <div
             aria-hidden
-            className="portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-soft-light"
+            className="portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-soft-light opacity-[1.08] max-md:opacity-[0.95]"
             style={{
               backgroundImage: `
-                radial-gradient(ellipse 78% 58% at calc(51% - var(--arp-scroll-x, 0vw) * 0.11) 57%, rgba(244,232,255,0.38) 0%, rgba(196,181,253,0.2) 38%, transparent 66%),
-                radial-gradient(ellipse 55% 40% at 48% 61%, rgba(255,255,255,0.14) 0%, transparent 55%)
+                radial-gradient(ellipse 80% 60% at calc(52% - var(--arp-scroll-x, 0vw) * 0.17) 58%, rgba(244,232,255,0.4) 0%, rgba(196,181,253,0.22) 42%, transparent 68%),
+                radial-gradient(ellipse 56% 42% at calc(48% - var(--arp-scroll-x, 0vw) * 0.14) 62%, rgba(255,255,255,0.18) 0%, transparent 56%)
               `,
               opacity:
-                "calc(0.52 + var(--arp-pulse, 0) * 0.28)",
-            }}
-          />
-          {/* Beat flash — kicks (spike-forward) */}
-          <div
-            aria-hidden
-            className="absolute inset-0 mix-blend-screen"
-            style={{
-              background:
-                "radial-gradient(circle 72vmin at 50% 32%, rgba(255, 220, 255, 1) 0%, rgba(244, 114, 182, 0.72) 26%, transparent 52%)",
-              opacity:
-                "calc(var(--arp-pulse, 0) * 0.32 + var(--arp-pulse-spike, 0) * 0.52)",
+                "calc(0.58 + var(--arp-pulse, 0) * 0.24)",
             }}
           />
         </div>

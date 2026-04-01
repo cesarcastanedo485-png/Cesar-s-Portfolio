@@ -104,10 +104,10 @@ body {
     transform: translate3d(0, 0, 0) scale(1);
   }
   33% {
-    transform: translate3d(1.8%, -1%, 0) scale(1.04);
+    transform: translate3d(2.2%, -1.2%, 0) scale(1.045);
   }
   66% {
-    transform: translate3d(-1.4%, 0.7%, 0) scale(1.025);
+    transform: translate3d(-1.8%, 0.9%, 0) scale(1.03);
   }
 }
 
@@ -117,7 +117,7 @@ body {
     transform: translate3d(0, 0, 0) scale(1.04);
   }
   50% {
-    transform: translate3d(-2.2%, 1.4%, 0) scale(1.09);
+    transform: translate3d(-2.8%, 1.8%, 0) scale(1.1);
   }
 }
 
@@ -135,10 +135,12 @@ body {
 
 .portfolio-smoke-parallax {
   animation: portfolio-smoke-drift 22s ease-in-out infinite;
+  will-change: transform;
 }
 
 .portfolio-smoke-parallax-slow {
   animation: portfolio-smoke-drift-slow 31s ease-in-out infinite;
+  will-change: transform;
 }
 
 .vault-tea-steam-wisp {
@@ -195,7 +197,7 @@ body {
   .portfolio-smoke-parallax,
   .portfolio-smoke-parallax-slow {
     animation: none;
-    opacity: 0.32;
+    opacity: 0.28;
   }
 
   .hero-neon-glow {
