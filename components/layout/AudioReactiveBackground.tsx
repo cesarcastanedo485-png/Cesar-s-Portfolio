@@ -139,9 +139,9 @@ export function AudioReactiveBackground({
                 style={{
                   minWidth: `${BG_PANORAMA_MIN_WIDTH_VW}vw`,
                   transform:
-                    "translate3d(calc(-50% + var(--arp-scroll-x, 0vw)), -50%, 0) scale(calc(1 + var(--arp-pulse, 0) * 0.24 * var(--arp-visual-mul, 1)))",
+                    "translate3d(calc(-50% + var(--arp-scroll-x, 0vw)), -50%, 0) scale(calc(1 + var(--arp-pulse, 0) * 0.1 * var(--arp-visual-mul, 1)))",
                   filter:
-                    "brightness(calc(0.88 + var(--arp-pulse, 0) * 0.52 * var(--arp-visual-mul, 1))) contrast(calc(1 + var(--arp-pulse, 0) * 0.2 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.55 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 18deg)) drop-shadow(0 0 calc(12px + var(--arp-pulse-spike, 0) * 42px) rgba(250, 100, 220, 0.85))",
+                    "brightness(calc(0.9 + var(--arp-pulse, 0) * 0.22 * var(--arp-visual-mul, 1))) contrast(calc(1 + var(--arp-pulse, 0) * 0.09 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.26 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 9deg)) drop-shadow(0 0 calc(6px + var(--arp-pulse-spike, 0) * 16px) rgba(250, 100, 220, 0.55))",
                 }}
               />
             </>
@@ -151,9 +151,9 @@ export function AudioReactiveBackground({
               className="absolute inset-0 bg-gradient-to-b from-violet-950 via-indigo-950 to-[#050810] will-change-transform"
               style={{
                 transform:
-                  "translate3d(var(--arp-scroll-x, 0vw), 0, 0) scale(calc(1 + var(--arp-pulse, 0) * 0.2 * var(--arp-visual-mul, 1))) translateZ(0)",
+                  "translate3d(var(--arp-scroll-x, 0vw), 0, 0) scale(calc(1 + var(--arp-pulse, 0) * 0.1 * var(--arp-visual-mul, 1))) translateZ(0)",
                 filter:
-                  "brightness(calc(0.9 + var(--arp-pulse, 0) * 0.48 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.5 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 14deg))",
+                  "brightness(calc(0.92 + var(--arp-pulse, 0) * 0.22 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.28 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 8deg))",
               }}
             />
           )}
@@ -167,7 +167,7 @@ export function AudioReactiveBackground({
                 radial-gradient(ellipse 55% 48% at 48% 38%, rgba(192, 132, 252, 0.4) 0%, transparent 55%)
               `,
               opacity:
-                "calc(0.55 + var(--arp-pulse, 0) * 0.42 + var(--arp-pulse-spike, 0) * 0.35)",
+                "calc(0.5 + var(--arp-pulse, 0) * 0.28 + var(--arp-pulse-spike, 0) * 0.22)",
             }}
           />
           {/* Dress + legs / fog band — matches downward glow in the plate */}
@@ -193,7 +193,7 @@ export function AudioReactiveBackground({
                 radial-gradient(ellipse 60% 50% at 50% 40%, rgba(34, 211, 238, 0.5) 0%, transparent 52%)
               `,
               opacity:
-                "calc(0.45 + var(--arp-pulse, 0) * 0.52 + var(--arp-pulse-spike, 0) * 0.28)",
+                "calc(0.4 + var(--arp-pulse, 0) * 0.34 + var(--arp-pulse-spike, 0) * 0.18)",
             }}
           />
           {/* Beat flash — kicks (spike-forward) */}
@@ -204,7 +204,7 @@ export function AudioReactiveBackground({
               background:
                 "radial-gradient(circle 72vmin at 50% 32%, rgba(255, 220, 255, 1) 0%, rgba(244, 114, 182, 0.72) 26%, transparent 52%)",
               opacity:
-                "calc(var(--arp-pulse, 0) * 0.55 + var(--arp-pulse-spike, 0) * 0.95)",
+                "calc(var(--arp-pulse, 0) * 0.32 + var(--arp-pulse-spike, 0) * 0.52)",
             }}
           />
         </div>

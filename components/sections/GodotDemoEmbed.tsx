@@ -67,7 +67,7 @@ export function GodotDemoEmbed({
         <p className="neon-sign-body mb-2 text-xs leading-relaxed">{demoNotes}</p>
       ) : null}
       {isOpen ? (
-        <div className="relative aspect-video min-h-[200px] overflow-hidden rounded-md border border-white/10 bg-[#06080f] touch-manipulation [transform:translateZ(0)] sm:min-h-0">
+        <div className="relative aspect-video min-h-[200px] overflow-hidden rounded-md border border-white/10 bg-black touch-manipulation [transform:translateZ(0)] sm:min-h-0">
           <iframe
             title={demoTitle ?? "Godot demo"}
             src={src}

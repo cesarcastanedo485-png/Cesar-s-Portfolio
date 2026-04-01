@@ -128,3 +128,22 @@ body {
   box-shadow: 0 12px 48px rgba(0, 0, 0, 0.45);
   backdrop-filter: blur(12px);
 }
+
+/* Header wordmark — magenta / violet neon (not cyan) */
+.header-brand-word {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: #fce7f3;
+  text-shadow:
+    0 0 1px rgba(255, 255, 255, 0.85),
+    0 0 10px rgba(232, 121, 249, 0.65),
+    0 0 22px rgba(236, 72, 153, 0.45),
+    0 0 36px rgba(168, 85, 247, 0.35);
+  -webkit-text-stroke: 0.35px rgba(232, 121, 249, 0.35);
+}
+
+.header-mark-glow {
+  filter: drop-shadow(0 0 6px rgba(236, 72, 153, 0.75))
+    drop-shadow(0 0 14px rgba(168, 85, 247, 0.55))
+    drop-shadow(0 0 22px rgba(232, 121, 249, 0.35));
+}

@@ -6,14 +6,14 @@ export function Header() {
   const external = nav.links.filter((l) => l.external);
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-background/90 backdrop-blur-xl">
+    <header className="sticky top-0 z-50 w-full border-b border-fuchsia-500/15 bg-background/92 backdrop-blur-xl">
       <div className="container mx-auto flex min-h-14 flex-col gap-3 px-4 py-3 sm:px-6 md:min-h-16 md:flex-row md:items-center md:justify-between md:gap-4 md:py-0">
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-3 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]"
+          className="flex shrink-0 items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]"
         >
-          <Logo />
-          <span className="text-lg font-semibold text-foreground">
+          <BrandMark />
+          <span className="header-brand-word text-lg md:text-xl">
             {nav.brandLabel}
           </span>
         </Link>
@@ -26,14 +26,14 @@ export function Header() {
               <Link
                 key={link.href + link.label}
                 href={link.href}
-                className="rounded-md px-2.5 py-1.5 text-sm text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 sm:px-3 sm:py-2"
+                className="rounded-md px-2.5 py-1.5 text-sm text-muted-foreground transition-colors hover:text-fuchsia-100/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-500/45 sm:px-3 sm:py-2"
               >
                 {link.label}
               </Link>
             ))}
           </nav>
           <span
-            className="hidden h-4 w-px shrink-0 bg-white/15 md:block"
+            className="hidden h-4 w-px shrink-0 bg-gradient-to-b from-transparent via-fuchsia-500/35 to-transparent md:block"
             aria-hidden
           />
           <nav
@@ -46,7 +46,7 @@ export function Header() {
                 href={link.href}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="rounded-md px-2.5 py-1.5 text-sm text-cyan-200/85 transition-colors hover:text-cyan-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-cyan-500/60 sm:px-3 sm:py-2"
+                className="rounded-md px-2.5 py-1.5 text-sm text-fuchsia-200/90 transition-colors hover:text-pink-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-500/50 sm:px-3 sm:py-2"
               >
                 {link.label}
               </a>
@@ -58,31 +58,40 @@ export function Header() {
   );
 }
 
-function Logo() {
+/** Soft diamond mark — reads as a gem / spark, not letterforms like “L I”. */
+function BrandMark() {
   return (
     <svg
-      width="28"
-      height="28"
+      width="26"
+      height="26"
       viewBox="0 0 28 28"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
-      className="text-foreground"
+      className="header-mark-glow shrink-0"
       aria-hidden
     >
+      <defs>
+        <linearGradient
+          id="headerMarkGrad"
+          x1="4"
+          y1="4"
+          x2="24"
+          y2="24"
+          gradientUnits="userSpaceOnUse"
+        >
+          <stop stopColor="#f0abfc" />
+          <stop offset="0.45" stopColor="#e879f9" />
+          <stop offset="1" stopColor="#c084fc" />
+        </linearGradient>
+      </defs>
       <path
-        d="M8 6L8 22L14 22"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
+        d="M14 4l8.5 8.5L14 24 5.5 12.5 14 4z"
+        stroke="url(#headerMarkGrad)"
+        strokeWidth="1.75"
         strokeLinejoin="round"
+        fill="rgba(168,85,247,0.12)"
       />
-      <path
-        d="M20 6L20 22L14 22"
-        stroke="currentColor"
-        strokeWidth="2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <circle cx="14" cy="12.5" r="2" fill="#fce7f3" opacity="0.95" />
     </svg>
   );
 }

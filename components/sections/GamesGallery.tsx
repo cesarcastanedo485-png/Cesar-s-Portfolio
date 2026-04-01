@@ -155,7 +155,7 @@ function FeaturedGameSpotlight({ game }: { game: GameItem }) {
       <div className="flex flex-col md:flex-row md:items-stretch">
         <div
           className={cn(
-            "relative min-h-[220px] bg-[#06080f] md:w-[min(42%,420px)] md:shrink-0",
+            "relative min-h-[220px] bg-black md:w-[min(42%,420px)] md:shrink-0",
             "aspect-[3/4] max-md:max-h-[420px] max-md:w-full md:aspect-auto md:max-h-none md:min-h-[300px]"
           )}
         >
@@ -224,7 +224,7 @@ function GameCard({ game }: { game: GameItem }) {
   if (isIconApp && game.iconSrc) {
     return (
       <Card className="group overflow-hidden border-white/10 bg-[#050810]/88 backdrop-blur-md transition-all hover:border-white/20">
-        <div className="relative aspect-[3/4] overflow-hidden bg-[#06080f]">
+        <div className="relative aspect-[3/4] overflow-hidden bg-black">
           <GameIconImage
             src={game.iconSrc}
             alt={game.iconAlt ?? game.title}

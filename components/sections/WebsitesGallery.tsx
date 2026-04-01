@@ -10,14 +10,14 @@ import { GodotDemoEmbed } from "@/components/sections/GodotDemoEmbed";
 function workMediaShellClass(item: WorkItem, isEmbed: boolean) {
   if (item.featured) {
     return cn(
-      "relative isolate bg-[#06080f]",
+      "relative isolate bg-black",
       isEmbed
         ? "aspect-[16/10] min-h-[min(52vh,420px)] md:aspect-auto md:min-h-[280px] md:w-1/2 md:shrink-0 md:self-stretch"
         : "aspect-[16/10] min-h-[200px] md:aspect-auto md:min-h-[280px] md:w-1/2 md:shrink-0 md:self-stretch"
     );
   }
   return cn(
-    "relative isolate bg-[#06080f]",
+    "relative isolate bg-black",
     isEmbed ? "aspect-[16/10] min-h-[min(42vh,300px)]" : "aspect-[16/10]"
   );
 }

@@ -5,12 +5,13 @@ import type { RefObject } from "react";
 
 const BASS_BIN_START = 0;
 const BASS_BIN_END = 42;
-const RAW_GAIN = 2.55;
-const ATTACK = 0.52;
-const RELEASE = 0.07;
-const RMS_GAIN = 5.5;
-const SPIKE_ATTACK = 0.78;
-const SPIKE_RELEASE = 0.22;
+/** Lower gains + slower attack = less “slam” on loud sections; slower release = less dead air in dense mixes. */
+const RAW_GAIN = 1.45;
+const ATTACK = 0.28;
+const RELEASE = 0.11;
+const RMS_GAIN = 3.1;
+const SPIKE_ATTACK = 0.42;
+const SPIKE_RELEASE = 0.32;
 
 export type UseAudioReactiveDriveOptions = {
   audioRef: RefObject<HTMLAudioElement | null>;
@@ -50,7 +51,7 @@ export function useAudioReactiveDrive({
     const source = ctx.createMediaElementSource(audio);
     const analyser = ctx.createAnalyser();
     analyser.fftSize = 1024;
-    analyser.smoothingTimeConstant = 0.38;
+    analyser.smoothingTimeConstant = 0.62;
     source.connect(analyser);
     analyser.connect(ctx.destination);
 
@@ -135,11 +136,11 @@ export function useAudioReactiveDrive({
         }
         const out = Math.min(
           1,
-          Math.max(0, smoothedRef.current * pulseDampen),
+          Math.max(0, smoothedRef.current * pulseDampen * 0.72),
         );
         const spikeOut = Math.min(
           1,
-          Math.max(0, spikeRef.current * pulseDampen),
+          Math.max(0, spikeRef.current * pulseDampen * 0.58),
         );
         target.style.setProperty("--arp-pulse", out.toFixed(4));
         target.style.setProperty("--arp-pulse-spike", spikeOut.toFixed(4));
