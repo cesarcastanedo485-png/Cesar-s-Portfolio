@@ -87,6 +87,8 @@ export function AudioReactiveBackground({
             <img
               src={imageSrc.trim()}
               alt={imageAlt || ""}
+              decoding="async"
+              fetchPriority="low"
               className="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover will-change-transform"
               style={{
                 transform:
@@ -119,14 +121,19 @@ export function AudioReactiveBackground({
       </div>
 
       {showControls ? (
-        <div className="pointer-events-auto fixed bottom-6 left-6 z-[60] flex flex-col gap-2">
+        <div
+          className={cn(
+            "pointer-events-auto fixed z-[60] flex max-w-[min(100vw-1.5rem,20rem)] flex-col gap-2",
+            "bottom-[max(1.25rem,env(safe-area-inset-bottom,0px))] left-[max(1.25rem,env(safe-area-inset-left,0px))] right-auto",
+          )}
+        >
           <button
             type="button"
             onClick={togglePlayback}
             aria-pressed={playing}
             className={cn(
-              "rounded-full border border-white/20 bg-[#0a0e17]/85 px-4 py-2 text-sm font-medium text-white/95 shadow-lg backdrop-blur-md",
-              "transition-colors hover:border-white/35 hover:bg-[#0a0e17]/95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400",
+              "min-h-11 touch-manipulation rounded-full border border-white/20 bg-[#0a0e17]/85 px-5 py-3 text-sm font-medium text-white/95 shadow-lg backdrop-blur-md sm:min-h-0 sm:px-4 sm:py-2",
+              "transition-colors hover:border-white/35 hover:bg-[#0a0e17]/95 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-400 active:bg-[#0a0e17]",
             )}
           >
             <span className="sr-only">Background music. </span>

@@ -9,7 +9,7 @@
     },
     "audioReactiveBackground": {
       "enabled": true,
-      "imageSrc": "",
+      "imageSrc": "/backgrounds/cyber-atlas.png",
       "audioSrc": "/audio/background.mp3",
       "showControls": true,
       "imageAlt": ""
