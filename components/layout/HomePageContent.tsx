@@ -23,8 +23,16 @@ export function HomePageContent() {
   const arImage = ar?.imageSrc?.trim();
   const arAudio = ar?.audioSrc?.trim();
   const useAudioReactive = Boolean(ar?.enabled && arAudio) && !isMatrixMode;
+  /**
+   * Ambient grade + mist behind transparent main — not only when video/audio URL exists.
+   * If `audioReactiveBackground.enabled` is true but image/audio aren’t set yet, we still
+   * show atmosphere; otherwise production reads as flat black (main was `bg-black`).
+   */
   const atmosphereOn =
-    !isMatrixMode && (useAudioReactive || Boolean(bgVideoSrc));
+    !isMatrixMode &&
+    (useAudioReactive ||
+      Boolean(bgVideoSrc?.trim()) ||
+      Boolean(ar?.enabled));
   const atmosphereLayerOn = atmosphereOn || isMatrixMode;
   const showFixedBlackBackdrop =
     !isMatrixMode && !bgVideoSrc?.trim() && !useAudioReactive;

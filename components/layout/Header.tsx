@@ -39,11 +39,8 @@ export function Header() {
           className="flex shrink-0 items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]"
         >
           <BrandMark />
-          <span className="header-brand-word min-w-0 flex-1 text-left leading-tight md:flex-none">
-            <span className="block sm:hidden">
-              {nav.brandLabelShort?.trim() || nav.brandLabel}
-            </span>
-            <span className="hidden sm:block text-lg md:text-xl">{nav.brandLabel}</span>
+          <span className="header-brand-word min-w-0 max-w-[min(100%,13.5rem)] flex-1 text-left text-sm leading-snug sm:max-w-none sm:text-lg md:flex-none md:text-xl">
+            {nav.brandLabel}
           </span>
         </Link>
         <div className="flex w-full min-w-0 flex-col gap-2 md:w-auto md:flex-row md:flex-wrap md:items-center md:justify-end md:gap-x-3 md:gap-y-1">
