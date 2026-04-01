@@ -6,6 +6,7 @@
     "clean:next": "node ./scripts/clean-next-cache.cjs",
     "reinstall:swc": "node ./scripts/reinstall-swc.cjs",
     "dev": "node ./node_modules/next/dist/bin/next dev --webpack",
+    "dev:stop": "node ./scripts/stop-next-dev.cjs",
     "dev:fresh": "node ./scripts/clean-next-cache.cjs && node ./node_modules/next/dist/bin/next dev --webpack",
     "verify:assets": "node ./scripts/verify-public-assets.cjs",
     "build": "node ./scripts/verify-public-assets.cjs && node ./node_modules/next/dist/bin/next build",
