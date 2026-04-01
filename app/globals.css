@@ -96,7 +96,108 @@ body {
   -webkit-text-fill-color: transparent;
 }
 
+/* Scroll- and pulse-linked mist (BackgroundAtmosphere + AudioReactiveBackground) */
+/* Opacity comes from inline styles (music pulse); only drift transform here */
+@keyframes portfolio-smoke-drift {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+  33% {
+    transform: translate3d(1.8%, -1%, 0) scale(1.04);
+  }
+  66% {
+    transform: translate3d(-1.4%, 0.7%, 0) scale(1.025);
+  }
+}
+
+@keyframes portfolio-smoke-drift-slow {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1.04);
+  }
+  50% {
+    transform: translate3d(-2.2%, 1.4%, 0) scale(1.09);
+  }
+}
+
+@keyframes vault-tea-steam {
+  0%,
+  100% {
+    opacity: 0.25;
+    transform: translate3d(0, 2px, 0) scaleY(1);
+  }
+  50% {
+    opacity: 0.55;
+    transform: translate3d(2px, -4px, 0) scaleY(1.12);
+  }
+}
+
+.portfolio-smoke-parallax {
+  animation: portfolio-smoke-drift 22s ease-in-out infinite;
+}
+
+.portfolio-smoke-parallax-slow {
+  animation: portfolio-smoke-drift-slow 31s ease-in-out infinite;
+}
+
+.vault-tea-steam-wisp {
+  animation: vault-tea-steam 2.8s ease-in-out infinite;
+}
+
+.vault-tea-steam-wisp:nth-child(2) {
+  animation-delay: 0.35s;
+}
+
+.vault-tea-steam-wisp:nth-child(3) {
+  animation-delay: 0.7s;
+}
+
+@keyframes vault-portal-drift {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.vault-portal-ring-slow {
+  transform-origin: center;
+  animation: vault-portal-drift 52s linear infinite;
+}
+
+.vault-portal-ring-slow-reverse {
+  transform-origin: center;
+  animation: vault-portal-drift 36s linear reverse infinite;
+}
+
+@keyframes vault-cog-turn {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+.vault-cog-tick {
+  transform-origin: center;
+  animation: vault-cog-turn 28s linear infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .vault-portal-ring-slow,
+  .vault-portal-ring-slow-reverse,
+  .vault-cog-tick {
+    animation: none;
+  }
+
+  .vault-tea-steam-wisp {
+    animation: none;
+    opacity: 0.35;
+  }
+
+  .portfolio-smoke-parallax,
+  .portfolio-smoke-parallax-slow {
+    animation: none;
+    opacity: 0.32;
+  }
+
   .hero-neon-glow {
     filter: drop-shadow(0 0 2px rgba(0, 212, 255, 0.85))
       drop-shadow(0 0 14px rgba(168, 85, 247, 0.45));

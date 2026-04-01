@@ -79,11 +79,21 @@ export type AudioReactiveBackgroundConfig = {
   imageAlt?: string;
 };
 
+/** Same mark everywhere: vault panels, footer, other surfaces — reuse this file on every site. */
+export type SiteWatermarkConfig = {
+  imageSrc: string;
+  /** Meaningful alt if the mark is not purely decorative */
+  alt?: string;
+  decorative?: boolean;
+};
+
 export const site = portfolio.site as typeof portfolio.site & {
   /** Optional looping MP4 under the page (path under `public/`, e.g. `/video/loop.mp4`). */
   backgroundVideo?: { src?: string; poster?: string };
   /** Full-bleed image + Web Audio analyser pulse (fixed assets). */
   audioReactiveBackground?: AudioReactiveBackgroundConfig;
+  /** Universal brand watermark (see `public/brand/site-watermark.svg`). */
+  watermark?: SiteWatermarkConfig;
 };
 export const nav = portfolio.nav as {
   brandLabel: string;
@@ -97,18 +107,31 @@ export const heroContent = portfolio.hero as {
 };
 
 export type HeroContentProps = typeof heroContent;
+export type WonderlandVaultCopy = {
+  teaserTitle: string;
+  teaserBody: string;
+  ctaClosed: string;
+  ctaOpen: string;
+  footnote?: string;
+  /** Explains sealed content for screen readers */
+  accessHint?: string;
+};
+
 export const websitesSection = portfolio.websites as {
   sectionEyebrow: string;
   /** Optional line under the section heading */
   sectionIntro?: string;
   /** Shown on cards with `featured: true` */
   featuredBadge?: string;
+  /** Alice-style “hidden folio” teaser; cards stay inside the vault until opened */
+  vault?: WonderlandVaultCopy;
   items: WorkItem[];
 };
 export const quoteContent = portfolio.quote as { text: string };
 export const gamesSection = portfolio.games as {
   sectionTitle: string;
   sectionEyebrow: string;
+  vault?: WonderlandVaultCopy;
   items: GameItem[];
 };
 export const contactContent = portfolio.contact as {

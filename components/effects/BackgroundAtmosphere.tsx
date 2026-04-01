@@ -113,7 +113,7 @@ export function BackgroundAtmosphere({ enabled }: BackgroundAtmosphereProps) {
     return (
       <div
         ref={elRef}
-        className="pointer-events-none fixed inset-0 -z-[15] [--atmo-scroll-t:0] [--atmo-ptr-x:50%] [--atmo-ptr-y:45%]"
+        className="pointer-events-none fixed inset-0 -z-[15] [--atmo-scroll-t:0] [--atmo-ptr-x:50%] [--atmo-ptr-y:54%]"
         aria-hidden
       >
         <div
@@ -130,7 +130,7 @@ export function BackgroundAtmosphere({ enabled }: BackgroundAtmosphereProps) {
   return (
     <div
       ref={elRef}
-      className="pointer-events-none fixed inset-0 -z-[15] [--atmo-ptr-x:50%] [--atmo-ptr-y:42%] [--atmo-scroll-t:0]"
+      className="pointer-events-none fixed inset-0 -z-[15] [--atmo-ptr-x:50%] [--atmo-ptr-y:54%] [--atmo-scroll-t:0]"
       aria-hidden
     >
       {/* Scroll-linked grade: cooler top of page → warmer / magenta toward bottom */}
@@ -162,6 +162,28 @@ export function BackgroundAtmosphere({ enabled }: BackgroundAtmosphereProps) {
           backgroundImage:
             "radial-gradient(ellipse 38% 40% at var(--atmo-ptr-x) var(--atmo-ptr-y), rgba(196,181,253,0.35) 0%, transparent 45%)",
         }}
+      />
+      {/* Smoke — biased to mid-canvas / lower-middle (Wonderland plate + tail read) */}
+      <div
+        className="portfolio-smoke-parallax pointer-events-none absolute inset-0 mix-blend-screen"
+        style={{
+          backgroundImage: `
+            radial-gradient(ellipse 88% 44% at calc(50% + var(--atmo-scroll-t) * 10%) calc(54% + var(--atmo-scroll-t) * 5%), rgba(255,255,255,0.4) 0%, rgba(226,232,240,0.22) 30%, rgba(186,230,253,0.1) 48%, transparent 64%),
+            radial-gradient(ellipse 40% 34% at calc(47% + var(--atmo-scroll-t) * 6%) 51%, rgba(255,255,255,0.28) 0%, transparent 52%),
+            radial-gradient(ellipse 50% 44% at var(--atmo-ptr-x) var(--atmo-ptr-y), rgba(255,250,255,0.22) 0%, transparent 46%)
+          `,
+        }}
+        aria-hidden
+      />
+      <div
+        className="portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-soft-light opacity-95"
+        style={{
+          backgroundImage: `
+            radial-gradient(ellipse 72% 56% at calc(52% - var(--atmo-scroll-t) * 12%) 58%, rgba(244,232,255,0.32) 0%, rgba(168,85,247,0.14) 42%, transparent 66%),
+            radial-gradient(ellipse 60% 38% at 49% 62%, rgba(255,255,255,0.12) 0%, transparent 54%)
+          `,
+        }}
+        aria-hidden
       />
     </div>
   );

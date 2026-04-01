@@ -7,11 +7,25 @@ import { cn } from "@/lib/utils";
 import { Sparkles } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useEffect, useMemo, useState } from "react";
-import { gamesSection, type GameItem } from "@/lib/content";
+import {
+  gamesSection,
+  type GameItem,
+  type WonderlandVaultCopy,
+} from "@/lib/content";
+import { WonderlandVault } from "@/components/wonderland/WonderlandVault";
 import { useHydrated } from "@/lib/use-hydrated";
 import { GodotDemoEmbed } from "@/components/sections/GodotDemoEmbed";
 import { CardDetailsDisclosure } from "@/components/ui/card-details-disclosure";
 import { SectionOverviewDisclosure } from "@/components/ui/section-overview-disclosure";
+
+const DEFAULT_GAMES_VAULT: WonderlandVaultCopy = {
+  teaserTitle: "Down the rabbit hole",
+  teaserBody: "Stream-first games and demos hide here until you open the vault.",
+  ctaClosed: "Open the passage",
+  ctaOpen: "Lock the rabbit hole",
+  accessHint: "Games stay sealed until you open this passage.",
+  footnote: "React · WebSockets · live-audience UX",
+};
 
 /** Summary + tech tags (price is rendered by the parent row). */
 function GameMeta({ game }: { game: GameItem }) {
@@ -157,7 +171,7 @@ function FeaturedGameSpotlight({ game }: { game: GameItem }) {
       <div className="flex flex-col bg-black md:flex-row md:items-stretch">
         <div
           className={cn(
-            "relative min-h-[220px] bg-black md:w-[min(42%,420px)] md:shrink-0",
+            "relative isolate min-h-[220px] bg-[#030508] md:w-[min(42%,420px)] md:shrink-0",
             "aspect-[3/4] max-md:max-h-[420px] max-md:w-full md:aspect-auto md:max-h-none md:min-h-[300px]"
           )}
         >
@@ -165,7 +179,7 @@ function FeaturedGameSpotlight({ game }: { game: GameItem }) {
             <GameIconImage
               src={game.iconSrc}
               alt={game.iconAlt ?? game.title}
-              className="object-contain object-center"
+              className="object-contain object-center mix-blend-darken"
               priority
             />
           ) : (
@@ -228,11 +242,11 @@ function GameCard({ game }: { game: GameItem }) {
   if (isIconApp && game.iconSrc) {
     return (
       <Card className="group overflow-hidden border-white/10 bg-black transition-all hover:border-white/20">
-        <div className="relative aspect-[3/4] overflow-hidden bg-black">
+        <div className="relative isolate aspect-[3/4] overflow-hidden bg-[#030508]">
           <GameIconImage
             src={game.iconSrc}
             alt={game.iconAlt ?? game.title}
-            className="box-border object-contain object-center p-0"
+            className="box-border object-contain object-center p-0 mix-blend-darken"
           />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black via-black/75 to-transparent px-3 pb-3 pt-16 sm:px-4 sm:pb-4 sm:pt-20">
             <h3 className="text-center text-base font-semibold leading-snug tracking-tight text-white sm:text-lg [text-shadow:0_2px_12px_rgba(0,0,0,0.9),0_0_20px_rgba(0,212,255,0.25)]">
@@ -292,6 +306,7 @@ function GameCard({ game }: { game: GameItem }) {
 }
 
 export function GamesGallery() {
+  const vaultCopy = gamesSection.vault ?? DEFAULT_GAMES_VAULT;
   const spotlight = gamesSection.items.filter((g) => g.featured);
   const gridGames = gamesSection.items
     .filter((g) => !g.featured)
@@ -316,14 +331,22 @@ export function GamesGallery() {
             </SectionOverviewDisclosure>
           ) : null}
         </div>
-        {spotlight.map((game) => (
-          <FeaturedGameSpotlight key={game.id} game={game} />
-        ))}
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {gridGames.map((game) => (
-            <GameCard key={game.id} game={game} />
-          ))}
-        </div>
+        <WonderlandVault
+          variant="games"
+          panelId="games-vault-panel"
+          copy={vaultCopy}
+        >
+          <>
+            {spotlight.map((game) => (
+              <FeaturedGameSpotlight key={game.id} game={game} />
+            ))}
+            <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+              {gridGames.map((game) => (
+                <GameCard key={game.id} game={game} />
+              ))}
+            </div>
+          </>
+        </WonderlandVault>
       </div>
     </section>
   );

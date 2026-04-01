@@ -12,7 +12,7 @@
       "imageSrc": "/backgrounds/alice-parallax.png",
       "audioSrc": "/audio/background.mp3",
       "showControls": true,
-      "imageAlt": "Cyberpunk Wonderland city panorama with neon billboards and Alice figure"
+      "imageAlt": "Cyberpunk Wonderland city: Alice on the glowing Cheshire tail, rain and neon; left billboard Mad Hatter in the creator’s likeness with teacup, White Rabbit and pocket watch on the right"
     },
     "keywords": [
       "portfolio",
@@ -23,7 +23,12 @@
     ],
     "ogImage": "/og.svg",
     "twitterHandle": "@cesar",
-    "canonicalBase": "https://cesar-portfolio.vercel.app"
+    "canonicalBase": "https://cesar-portfolio.vercel.app",
+    "watermark": {
+      "imageSrc": "/brand/site-watermark.svg",
+      "alt": "Cesar build mark",
+      "decorative": true
+    }
   },
   "nav": {
     "brandLabel": "Cesar",
@@ -56,8 +61,16 @@
   },
   "websites": {
     "sectionEyebrow": "Selected work",
-    "sectionIntro": "Live sites and tools. NWI Fun Ball embeds the production homepage; other entries reflect stacks from your local project folders (Mordecaius Maximus, fan player, and this repo).",
+    "sectionIntro": "Curious projects live behind the latch — production sites, brand worlds, and hardware-leaning tools. If you can imagine it, we can shape it into something shippable.",
     "featuredBadge": "Featured",
+    "vault": {
+      "teaserTitle": "The architect’s folio",
+      "teaserBody": "NWI Fun Ball, Mordecaius Maximus, the 3D Fan Player, and this very portfolio wait inside — lift the latch when you’re ready to peek.",
+      "ctaClosed": "Turn the key",
+      "ctaOpen": "Seal the folio",
+      "accessHint": "Selected work stays locked behind this folio until you open it.",
+      "footnote": "Next.js · TypeScript · Flutter · systems that ship"
+    },
     "items": [
       {
         "id": 1,
@@ -82,6 +95,7 @@
         "role": "Web · events, tickets & payments",
         "summary": "Public site for NWI Fun Ball: event storytelling, QR-friendly flows, Stripe payments, transactional email via Resend, and Neon serverless Postgres.",
         "tags": ["Next.js", "Stripe", "Neon", "Resend", "TypeScript"],
+        "featured": true,
         "embedUrl": "https://nwifunball.com",
         "imageAlt": "Live embed of nwifunball.com",
         "links": [
@@ -120,6 +134,14 @@
   "games": {
     "sectionTitle": "Games",
     "sectionEyebrow": "Stream-first · TikTok Live chat + Twitch placeholders",
+    "vault": {
+      "teaserTitle": "Down the rabbit hole",
+      "teaserBody": "Chatling Ranch, tarot stream overlay, Dungeon Master Lite, and the branching CYOA pilot — a whole tea party of experiments, hidden until you take the plunge.",
+      "ctaClosed": "Open the passage",
+      "ctaOpen": "Lock the rabbit hole",
+      "accessHint": "Games stay sealed behind this passage until you open it.",
+      "footnote": "React · WebSockets · Godot Web · live-audience UX"
+    },
     "items": [
       {
         "id": 1,

@@ -196,6 +196,32 @@ export function AudioReactiveBackground({
                 "calc(0.4 + var(--arp-pulse, 0) * 0.34 + var(--arp-pulse-spike, 0) * 0.18)",
             }}
           />
+          {/* Mist / smoke — mid-canvas band grazes Cheshire tail zone; scroll + pulse make it read */}
+          <div
+            aria-hidden
+            className="portfolio-smoke-parallax pointer-events-none absolute inset-0 mix-blend-screen"
+            style={{
+              backgroundImage: `
+                radial-gradient(ellipse 92% 46% at calc(50% + var(--arp-scroll-x, 0vw) * 0.14) 54%, rgba(255,255,255,0.5) 0%, rgba(226,232,240,0.28) 26%, rgba(186,230,253,0.16) 44%, transparent 64%),
+                radial-gradient(ellipse 36% 30% at calc(46% + var(--arp-scroll-x, 0vw) * 0.1) 50%, rgba(255,255,255,0.38) 0%, rgba(255,250,255,0.12) 42%, transparent 58%),
+                radial-gradient(ellipse 28% 38% at calc(56% + var(--arp-scroll-x, 0vw) * 0.06) 59%, rgba(253,230,255,0.22) 0%, transparent 52%)
+              `,
+              opacity:
+                "calc(0.48 + var(--arp-pulse, 0) * 0.42 + var(--arp-pulse-spike, 0) * 0.26)",
+            }}
+          />
+          <div
+            aria-hidden
+            className="portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-soft-light"
+            style={{
+              backgroundImage: `
+                radial-gradient(ellipse 78% 58% at calc(51% - var(--arp-scroll-x, 0vw) * 0.11) 57%, rgba(244,232,255,0.38) 0%, rgba(196,181,253,0.2) 38%, transparent 66%),
+                radial-gradient(ellipse 55% 40% at 48% 61%, rgba(255,255,255,0.14) 0%, transparent 55%)
+              `,
+              opacity:
+                "calc(0.52 + var(--arp-pulse, 0) * 0.28)",
+            }}
+          />
           {/* Beat flash — kicks (spike-forward) */}
           <div
             aria-hidden

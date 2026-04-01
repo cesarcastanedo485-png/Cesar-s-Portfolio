@@ -4,10 +4,25 @@ import { ArrowUpRight } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import { websitesSection, type WorkItem } from "@/lib/content";
+import {
+  websitesSection,
+  type WonderlandVaultCopy,
+  type WorkItem,
+} from "@/lib/content";
 import { GodotDemoEmbed } from "@/components/sections/GodotDemoEmbed";
 import { CardDetailsDisclosure } from "@/components/ui/card-details-disclosure";
 import { SectionOverviewDisclosure } from "@/components/ui/section-overview-disclosure";
+import { WonderlandVault } from "@/components/wonderland/WonderlandVault";
+
+const DEFAULT_WORK_VAULT: WonderlandVaultCopy = {
+  teaserTitle: "The architect’s folio",
+  teaserBody:
+    "Selected builds and experiments hide here until you choose to open them.",
+  ctaClosed: "Turn the key",
+  ctaOpen: "Seal the folio",
+  accessHint: "Selected work stays locked until you open this folio.",
+  footnote: "Next.js · TypeScript · systems that ship",
+};
 
 function workMediaShellClass(item: WorkItem, isEmbed: boolean) {
   if (item.featured) {
@@ -45,18 +60,20 @@ function WorkMedia({ item, badge }: { item: WorkItem; badge?: string }) {
           allow={LIVE_SITE_IFRAME_ALLOW}
         />
       ) : hasImage && item.imageSrc ? (
-        <Image
-          src={item.imageSrc}
-          alt={item.imageAlt ?? item.title}
-          fill
-          sizes={
-            item.featured
-              ? "(max-width: 768px) 100vw, 55vw"
-              : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          }
-          className="object-cover"
-          priority={item.featured}
-        />
+        <div className="absolute inset-0 bg-[#030508]">
+          <Image
+            src={item.imageSrc}
+            alt={item.imageAlt ?? item.title}
+            fill
+            sizes={
+              item.featured
+                ? "(max-width: 768px) 100vw, 55vw"
+                : "(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            }
+            className="object-cover mix-blend-darken"
+            priority={item.featured}
+          />
+        </div>
       ) : (
         <div
           className={cn(
@@ -126,6 +143,7 @@ function WorkLinks({ links }: { links: WorkItem["links"] }) {
 export function WebsitesGallery() {
   const { sectionEyebrow, sectionIntro, featuredBadge, items } =
     websitesSection;
+  const vaultCopy = websitesSection.vault ?? DEFAULT_WORK_VAULT;
   const ordered = [...items].sort(
     (a, b) => Number(!!b.featured) - Number(!!a.featured)
   );
@@ -153,69 +171,75 @@ export function WebsitesGallery() {
           ) : null}
         </div>
 
-        <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-          {ordered.map((item) => (
-            <Card
-              key={item.id}
-              className={cn(
-                "overflow-hidden border-white/10 bg-[#050810]/88 shadow-none backdrop-blur-md transition-all duration-300 hover:border-white/20 hover:shadow-[0_0_0_1px_rgba(34,211,238,0.12)]",
-                item.featured && "md:col-span-2"
-              )}
-            >
-              <div
+        <WonderlandVault
+          variant="work"
+          panelId="work-vault-panel"
+          copy={vaultCopy}
+        >
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+            {ordered.map((item) => (
+              <Card
+                key={item.id}
                 className={cn(
-                  "flex h-full flex-col",
-                  item.featured && "md:flex-row"
+                  "overflow-hidden border-white/10 bg-[#050810]/88 shadow-none backdrop-blur-md transition-all duration-300 hover:border-white/20 hover:shadow-[0_0_0_1px_rgba(34,211,238,0.12)]",
+                  item.featured && "md:col-span-2"
                 )}
               >
-                <WorkMedia item={item} badge={featuredBadge} />
                 <div
                   className={cn(
-                    "flex flex-1 flex-col gap-3 p-5 sm:p-6",
-                    item.featured && "md:justify-center md:py-8"
+                    "flex h-full flex-col",
+                    item.featured && "md:flex-row"
                   )}
                 >
-                  <div className="space-y-1">
-                    <h3 className="text-lg font-semibold tracking-tight text-white sm:text-xl">
-                      {item.title}
-                    </h3>
-                    <p className="neon-sign-body text-xs font-medium uppercase tracking-wide">
-                      {item.role}
-                    </p>
+                  <WorkMedia item={item} badge={featuredBadge} />
+                  <div
+                    className={cn(
+                      "flex flex-1 flex-col gap-3 p-5 sm:p-6",
+                      item.featured && "md:justify-center md:py-8"
+                    )}
+                  >
+                    <div className="space-y-1">
+                      <h3 className="text-lg font-semibold tracking-tight text-white sm:text-xl">
+                        {item.title}
+                      </h3>
+                      <p className="neon-sign-body text-xs font-medium uppercase tracking-wide">
+                        {item.role}
+                      </p>
+                    </div>
+                    <CardDetailsDisclosure disclosureId={`work-details-${item.id}`}>
+                      <p className="neon-sign-body text-sm leading-relaxed">
+                        {item.summary}
+                      </p>
+                      {item.tags?.length ? (
+                        <ul
+                          className="flex flex-wrap gap-1.5"
+                          aria-label="Technologies"
+                        >
+                          {item.tags.map((tag) => (
+                            <li
+                              key={tag}
+                              className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-xs text-white/80"
+                            >
+                              {tag}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : null}
+                      <GodotDemoEmbed
+                        demoEnabled={item.demoEnabled}
+                        demoSlug={item.demoSlug}
+                        demoTitle={item.demoTitle}
+                        demoNotes={item.demoNotes}
+                        demoFallbackHref={item.demoFallbackHref}
+                      />
+                      <WorkLinks links={item.links} />
+                    </CardDetailsDisclosure>
                   </div>
-                  <CardDetailsDisclosure disclosureId={`work-details-${item.id}`}>
-                    <p className="neon-sign-body text-sm leading-relaxed">
-                      {item.summary}
-                    </p>
-                    {item.tags?.length ? (
-                      <ul
-                        className="flex flex-wrap gap-1.5"
-                        aria-label="Technologies"
-                      >
-                        {item.tags.map((tag) => (
-                          <li
-                            key={tag}
-                            className="rounded-full border border-white/10 bg-white/5 px-2.5 py-0.5 text-xs text-white/80"
-                          >
-                            {tag}
-                          </li>
-                        ))}
-                      </ul>
-                    ) : null}
-                    <GodotDemoEmbed
-                      demoEnabled={item.demoEnabled}
-                      demoSlug={item.demoSlug}
-                      demoTitle={item.demoTitle}
-                      demoNotes={item.demoNotes}
-                      demoFallbackHref={item.demoFallbackHref}
-                    />
-                    <WorkLinks links={item.links} />
-                  </CardDetailsDisclosure>
                 </div>
-              </div>
-            </Card>
-          ))}
-        </div>
+              </Card>
+            ))}
+          </div>
+        </WonderlandVault>
       </div>
     </section>
   );
