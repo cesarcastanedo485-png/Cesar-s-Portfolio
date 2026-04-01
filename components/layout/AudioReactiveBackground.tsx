@@ -15,9 +15,13 @@ import { useHydrated } from "@/lib/use-hydrated";
 import { useAudioReactiveDrive } from "@/lib/use-audio-reactive-drive";
 import {
   BG_PANORAMA_MIN_WIDTH_VW,
-  BG_SCROLL_SHIFT_RANGE_VW,
+  BG_PANORAMA_MIN_WIDTH_VW_MOBILE,
+  MOBILE_ARP_SHIFT_END_VW,
+  MOBILE_ARP_SHIFT_START_VW,
+  panoramaScrollRangeVw,
 } from "@/lib/background-parallax";
 import { AUDIO_SMOKE, SMOKE_MASKS } from "@/lib/smoke-parallax-presets";
+import { useIsNarrowViewport } from "@/lib/use-max-width-media";
 import { useScrollDrivenShiftX } from "@/lib/use-scroll-driven-shift-x";
 import { useProgression } from "@/lib/progression";
 import { cn } from "@/lib/utils";
@@ -41,6 +45,7 @@ export function AudioReactiveBackground({
 }: AudioReactiveBackgroundProps) {
   const hydrated = useHydrated();
   const reduceMotion = useReducedMotion();
+  const narrowViewport = useIsNarrowViewport();
   const audioRef = useRef<HTMLAudioElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [playing, setPlaying] = useState(false);
@@ -65,10 +70,24 @@ export function AudioReactiveBackground({
     pulseDampen,
   });
 
-  const scrollParallaxEnabled = hydrated && reduceMotion !== true;
+  /**
+   * Scroll-linked framing stays on even when the OS prefers reduced motion (common on iOS).
+   * Otherwise --arp-scroll-x never updates and side billboards never come into view.
+   * Analyser pulse is still dampened via `pulseDampen` when reduceMotion is true.
+   */
+  const scrollParallaxEnabled = hydrated;
+  const panoramaMinWidthVw = narrowViewport
+    ? BG_PANORAMA_MIN_WIDTH_VW_MOBILE
+    : BG_PANORAMA_MIN_WIDTH_VW;
+  const scrollRangeVw = panoramaScrollRangeVw(panoramaMinWidthVw);
   useScrollDrivenShiftX(containerRef, {
     enabled: scrollParallaxEnabled,
-    rangeVw: BG_SCROLL_SHIFT_RANGE_VW,
+    ...(narrowViewport
+      ? {
+          shiftStartVw: MOBILE_ARP_SHIFT_START_VW,
+          shiftEndVw: MOBILE_ARP_SHIFT_END_VW,
+        }
+      : { rangeVw: scrollRangeVw }),
   });
 
   /** React `style` would reset imperative --arp-* vars every render; init once on the DOM node. */
@@ -126,7 +145,7 @@ export function AudioReactiveBackground({
       {/* Visual layers only: stacking context stays behind page content */}
       <div
         ref={containerRef}
-        className="pointer-events-none fixed inset-x-0 top-0 bottom-0 z-0 min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-visual-mul:0.96] md:[--arp-visual-mul:1]"
+        className="audio-reactive-bg-root pointer-events-none fixed inset-x-0 top-0 bottom-0 z-0 min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-visual-mul:0.96] md:[--arp-visual-mul:1]"
       >
         <audio
           ref={audioRef}
@@ -152,7 +171,7 @@ export function AudioReactiveBackground({
                 sizes="100vw"
                 className="absolute left-1/2 top-1/2 h-full min-h-full max-w-none object-cover will-change-transform"
                 style={{
-                  minWidth: `${BG_PANORAMA_MIN_WIDTH_VW}vw`,
+                  minWidth: `${panoramaMinWidthVw}vw`,
                   transform:
                     "translate3d(calc(-50% + var(--arp-scroll-x, 0vw)), -50%, 0) scale(calc(1 + var(--arp-pulse, 0) * 0.1 * var(--arp-visual-mul, 1)))",
                   filter:
@@ -203,13 +222,17 @@ export function AudioReactiveBackground({
           <div
             aria-hidden
             className={cn(
-              "portfolio-smoke-parallax pointer-events-none absolute inset-0 mix-blend-screen",
+              "portfolio-smoke-parallax pointer-events-none absolute inset-0 mix-blend-screen max-md:mix-blend-soft-light",
               AUDIO_SMOKE.primary.desktopOpacityClass,
               AUDIO_SMOKE.primary.mobileOpacityClass,
             )}
             style={{
-              WebkitMaskImage: SMOKE_MASKS.audioPrimary,
-              maskImage: SMOKE_MASKS.audioPrimary,
+              WebkitMaskImage: narrowViewport
+                ? SMOKE_MASKS.audioPrimaryMobile
+                : SMOKE_MASKS.audioPrimary,
+              maskImage: narrowViewport
+                ? SMOKE_MASKS.audioPrimaryMobile
+                : SMOKE_MASKS.audioPrimary,
               backgroundImage: `
                 radial-gradient(ellipse 88% 42% at calc(36% + var(--arp-scroll-x, 0vw) * ${AUDIO_SMOKE.primary.xMotionA}) 52%, rgba(255,255,255,0.46) 0%, rgba(226,232,240,0.32) 32%, rgba(186,230,253,0.2) 54%, transparent 74%),
                 radial-gradient(ellipse 40% 30% at calc(64% + var(--arp-scroll-x, 0vw) * ${AUDIO_SMOKE.primary.xMotionB}) 48%, rgba(255,250,255,0.3) 0%, rgba(255,255,255,0.16) 44%, transparent 64%)
@@ -220,13 +243,17 @@ export function AudioReactiveBackground({
           <div
             aria-hidden
             className={cn(
-              "portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-screen",
+              "portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-screen max-md:mix-blend-soft-light",
               AUDIO_SMOKE.secondary.desktopOpacityClass,
               AUDIO_SMOKE.secondary.mobileOpacityClass,
             )}
             style={{
-              WebkitMaskImage: SMOKE_MASKS.audioSecondary,
-              maskImage: SMOKE_MASKS.audioSecondary,
+              WebkitMaskImage: narrowViewport
+                ? SMOKE_MASKS.audioSecondaryMobile
+                : SMOKE_MASKS.audioSecondary,
+              maskImage: narrowViewport
+                ? SMOKE_MASKS.audioSecondaryMobile
+                : SMOKE_MASKS.audioSecondary,
               backgroundImage: `
                 radial-gradient(ellipse 82% 58% at calc(72% - var(--arp-scroll-x, 0vw) * ${AUDIO_SMOKE.secondary.xMotionA}) 58%, rgba(244,232,255,0.42) 0%, rgba(196,181,253,0.28) 46%, transparent 74%),
                 radial-gradient(ellipse 52% 40% at calc(28% - var(--arp-scroll-x, 0vw) * ${AUDIO_SMOKE.secondary.xMotionB}) 60%, rgba(255,255,255,0.26) 0%, transparent 60%)

@@ -17,7 +17,8 @@
     "foregroundSmoke": {
       "enabled": true,
       "intensity": "default",
-      "inMatrixMode": false
+      "inMatrixMode": false,
+      "debugBlatantCenter": false
     },
     "keywords": [
       "portfolio",

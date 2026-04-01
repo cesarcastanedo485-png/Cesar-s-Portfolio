@@ -17,10 +17,18 @@ export type ForegroundSmokeProfile = {
 export const SMOKE_MASKS = {
   audioPrimary:
     "radial-gradient(ellipse 74% 70% at 50% 44%, transparent 0%, transparent 10%, rgba(0,0,0,0.42) 36%, black 82%)",
+  /** Looser center cut on phones so mist stays visible on small screens. */
+  audioPrimaryMobile:
+    "radial-gradient(ellipse 84% 78% at 50% 46%, transparent 0%, transparent 6%, rgba(0,0,0,0.36) 40%, black 86%)",
   audioSecondary:
     "radial-gradient(ellipse 78% 72% at 48% 50%, transparent 0%, transparent 8%, rgba(0,0,0,0.38) 34%, black 80%)",
+  audioSecondaryMobile:
+    "radial-gradient(ellipse 86% 80% at 48% 50%, transparent 0%, transparent 5%, rgba(0,0,0,0.34) 38%, black 84%)",
   foreground:
     "radial-gradient(ellipse 72% 68% at 50% 48%, transparent 0%, transparent 18%, rgba(0,0,0,0.48) 44%, black 86%)",
+  /** Wider mist on mobile; keeps edges without a bright hero spotlight. */
+  foregroundMobile:
+    "radial-gradient(ellipse 88% 82% at 50% 50%, transparent 0%, transparent 12%, rgba(0,0,0,0.42) 46%, black 88%)",
 } as const;
 
 export const AUDIO_SMOKE = {
@@ -58,26 +66,26 @@ export const ATMOSPHERE_SMOKE = {
 
 export const FOREGROUND_SMOKE_PROFILES: Record<ForegroundSmokeIntensity, ForegroundSmokeProfile> = {
   low: {
-    opacityPrimary: 0.2,
-    opacitySecondary: 0.16,
-    mobileOpacityPrimary: 0.16,
-    mobileOpacitySecondary: 0.13,
+    opacityPrimary: 1,
+    opacitySecondary: 1,
+    mobileOpacityPrimary: 1,
+    mobileOpacitySecondary: 1,
     motionPrimary: 0.2,
     motionSecondary: 0.18,
   },
   default: {
-    opacityPrimary: 0.26,
-    opacitySecondary: 0.2,
-    mobileOpacityPrimary: 0.21,
-    mobileOpacitySecondary: 0.16,
+    opacityPrimary: 1,
+    opacitySecondary: 1,
+    mobileOpacityPrimary: 1,
+    mobileOpacitySecondary: 1,
     motionPrimary: 0.26,
     motionSecondary: 0.22,
   },
   high: {
-    opacityPrimary: 0.34,
-    opacitySecondary: 0.26,
-    mobileOpacityPrimary: 0.28,
-    mobileOpacitySecondary: 0.2,
+    opacityPrimary: 1,
+    opacitySecondary: 1,
+    mobileOpacityPrimary: 1,
+    mobileOpacitySecondary: 1,
     motionPrimary: 0.32,
     motionSecondary: 0.28,
   },

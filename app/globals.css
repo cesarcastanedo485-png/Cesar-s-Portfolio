@@ -152,22 +152,22 @@ body {
 .foreground-smoke-parallax {
   animation: portfolio-smoke-drift 16s ease-in-out infinite;
   will-change: transform;
-  opacity: var(--fg-smoke-primary-opacity, 0.26);
+  opacity: var(--fg-smoke-primary-opacity, 1);
 }
 
 .foreground-smoke-parallax-slow {
   animation: portfolio-smoke-drift-slow 24s ease-in-out infinite;
   will-change: transform;
-  opacity: var(--fg-smoke-secondary-opacity, 0.2);
+  opacity: var(--fg-smoke-secondary-opacity, 1);
 }
 
 @media (max-width: 767px) {
   .foreground-smoke-parallax {
-    opacity: var(--fg-smoke-primary-mobile-opacity, 0.21);
+    opacity: var(--fg-smoke-primary-mobile-opacity, 1);
   }
 
   .foreground-smoke-parallax-slow {
-    opacity: var(--fg-smoke-secondary-mobile-opacity, 0.16);
+    opacity: var(--fg-smoke-secondary-mobile-opacity, 1);
   }
 }
 

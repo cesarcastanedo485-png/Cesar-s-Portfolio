@@ -8,8 +8,15 @@ type Options = {
   /**
    * Total horizontal sweep in vw. With default mapping: page top → left side of the framed
    * layer, page bottom → right (shift = (0.5 − t) × rangeVw).
+   * Ignored when both `shiftStartVw` and `shiftEndVw` are set.
    */
   rangeVw?: number;
+  /**
+   * Linear map: shift = shiftStartVw + t × (shiftEndVw − shiftStartVw).
+   * Use on mobile to frame left billboard at top and right billboard at bottom.
+   */
+  shiftStartVw?: number;
+  shiftEndVw?: number;
   /** Custom property on `containerRef` (default `--arp-scroll-x`). */
   cssVarName?: string;
 };
@@ -20,7 +27,13 @@ type Options = {
  */
 export function useScrollDrivenShiftX(
   containerRef: RefObject<HTMLElement | null>,
-  { enabled, rangeVw = 8, cssVarName = "--arp-scroll-x" }: Options,
+  {
+    enabled,
+    rangeVw = 8,
+    shiftStartVw,
+    shiftEndVw,
+    cssVarName = "--arp-scroll-x",
+  }: Options,
 ) {
   const tickingRef = useRef(false);
   const rafRef = useRef(0);
@@ -51,7 +64,11 @@ export function useScrollDrivenShiftX(
         maxScroll <= 0
           ? 0
           : Math.min(1, Math.max(0, scrollTop / maxScroll));
-      const shiftVw = (0.5 - t) * rangeVw;
+      const useLinear =
+        typeof shiftStartVw === "number" && typeof shiftEndVw === "number";
+      const shiftVw = useLinear
+        ? shiftStartVw + t * (shiftEndVw - shiftStartVw)
+        : (0.5 - t) * rangeVw;
       target.style.setProperty(cssVarName, `${shiftVw}vw`);
     };
 
@@ -75,5 +92,5 @@ export function useScrollDrivenShiftX(
         containerRef.current.style.setProperty(cssVarName, "0vw");
       }
     };
-  }, [containerRef, cssVarName, enabled, rangeVw]);
+  }, [containerRef, cssVarName, enabled, rangeVw, shiftStartVw, shiftEndVw]);
 }

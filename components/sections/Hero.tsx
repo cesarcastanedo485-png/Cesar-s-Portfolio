@@ -18,11 +18,11 @@ export function Hero({ content }: HeroProps) {
   const allowMotion = hydrated && reduceMotion === false && !isMatrixMode;
 
   return (
-    <section className="relative py-24 text-center" aria-labelledby="hero-heading">
-      <div className="container mx-auto max-w-5xl px-6">
+    <section className="relative py-16 text-center sm:py-24" aria-labelledby="hero-heading">
+      <div className="container mx-auto max-w-sm px-4 sm:max-w-xl sm:px-5 md:max-w-3xl md:px-6 lg:max-w-4xl xl:max-w-5xl">
         <div
           className={cn(
-            "mx-auto flex max-w-full flex-col items-center rounded-2xl border px-5 py-5 md:px-8 md:py-7",
+            "mx-auto flex max-w-full flex-col items-center rounded-2xl border px-4 py-4 sm:px-5 sm:py-5 md:px-8 md:py-7",
             isMatrixMode
               ? "border-white/10 bg-[#0f172a]/90 shadow-sm backdrop-blur-sm"
               : "border-white/12 bg-[#0a0e17]/82 shadow-[0_12px_48px_rgba(0,0,0,0.45)] backdrop-blur-md",
@@ -50,16 +50,16 @@ export function Hero({ content }: HeroProps) {
               aria-hidden
               className="hero-neon-glow inline-flex flex-wrap items-center justify-center gap-x-1 sm:flex-nowrap sm:gap-x-1.5"
             >
-              <span className="hero-neon-title text-5xl md:text-7xl lg:text-8xl">
+              <span className="hero-neon-title text-4xl sm:text-5xl md:text-7xl lg:text-8xl">
                 {content.titlePart1}
               </span>
               <PortfolioO />
-              <span className="hero-neon-title text-5xl md:text-7xl lg:text-8xl">
+              <span className="hero-neon-title text-4xl sm:text-5xl md:text-7xl lg:text-8xl">
                 {content.titlePart2}
               </span>
             </span>
           </motion.h1>
-          <p className="max-w-2xl text-pretty text-lg text-muted-foreground md:text-xl">
+          <p className="max-w-2xl text-pretty text-base text-muted-foreground sm:text-lg md:text-xl">
             {content.tagline}
           </p>
           {(content.builderLink?.href?.trim() && content.builderLink.label?.trim()) ||

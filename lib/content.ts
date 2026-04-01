@@ -95,6 +95,11 @@ export type ForegroundSmokeConfig = {
   intensity?: "low" | "default" | "high";
   /** Defaults false; opt in only if you want smoke in Matrix mode too. */
   inMatrixMode?: boolean;
+  /**
+   * TEMP: unmistakable full-opacity centered CSS overlay to prove the foreground layer
+   * exists (not smoke baked into the background art). Set false after you verify.
+   */
+  debugBlatantCenter?: boolean;
 };
 
 /** Same mark everywhere: vault panels, footer, other surfaces — reuse this file on every site. */
