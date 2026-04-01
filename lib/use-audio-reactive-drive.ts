@@ -5,10 +5,12 @@ import type { RefObject } from "react";
 
 const BASS_BIN_START = 0;
 const BASS_BIN_END = 42;
-const RAW_GAIN = 2.2;
-const ATTACK = 0.5;
-const RELEASE = 0.08;
-const RMS_GAIN = 5.2;
+const RAW_GAIN = 2.55;
+const ATTACK = 0.52;
+const RELEASE = 0.07;
+const RMS_GAIN = 5.5;
+const SPIKE_ATTACK = 0.78;
+const SPIKE_RELEASE = 0.22;
 
 export type UseAudioReactiveDriveOptions = {
   audioRef: RefObject<HTMLAudioElement | null>;
@@ -35,6 +37,7 @@ export function useAudioReactiveDrive({
   const timeDataRef = useRef<Uint8Array | null>(null);
   const wiredForAudioRef = useRef<HTMLAudioElement | null>(null);
   const smoothedRef = useRef(0);
+  const spikeRef = useRef(0);
   const rafRef = useRef(0);
 
   const ensureGraph = useCallback(() => {
@@ -75,7 +78,9 @@ export function useAudioReactiveDrive({
       smoothedRef.current = 0;
       if (el) {
         el.style.setProperty("--arp-pulse", "0");
+        el.style.setProperty("--arp-pulse-spike", "0");
       }
+      spikeRef.current = 0;
       return;
     }
 
@@ -89,6 +94,7 @@ export function useAudioReactiveDrive({
         if (audio?.paused) {
           const prev = smoothedRef.current;
           smoothedRef.current = prev * 0.9;
+          spikeRef.current *= 0.85;
         } else {
           analyser.getByteFrequencyData(
             data as Parameters<AnalyserNode["getByteFrequencyData"]>[0],
@@ -121,12 +127,22 @@ export function useAudioReactiveDrive({
             raw > prev
               ? prev * (1 - ATTACK) + raw * ATTACK
               : prev * (1 - RELEASE) + raw * RELEASE;
+          const sp = spikeRef.current;
+          spikeRef.current =
+            raw > sp
+              ? sp * (1 - SPIKE_ATTACK) + raw * SPIKE_ATTACK
+              : sp * (1 - SPIKE_RELEASE) + raw * SPIKE_RELEASE;
         }
         const out = Math.min(
           1,
           Math.max(0, smoothedRef.current * pulseDampen),
         );
+        const spikeOut = Math.min(
+          1,
+          Math.max(0, spikeRef.current * pulseDampen),
+        );
         target.style.setProperty("--arp-pulse", out.toFixed(4));
+        target.style.setProperty("--arp-pulse-spike", spikeOut.toFixed(4));
       }
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -135,8 +151,10 @@ export function useAudioReactiveDrive({
     return () => {
       cancelAnimationFrame(rafRef.current);
       smoothedRef.current = 0;
+      spikeRef.current = 0;
       if (containerRef.current) {
         containerRef.current.style.setProperty("--arp-pulse", "0");
+        containerRef.current.style.setProperty("--arp-pulse-spike", "0");
       }
     };
   }, [analyse, audioRef, containerRef, pulseDampen]);

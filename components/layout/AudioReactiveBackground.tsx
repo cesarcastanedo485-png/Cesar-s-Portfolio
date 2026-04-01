@@ -13,7 +13,11 @@ import {
 import { useReducedMotion } from "framer-motion";
 import { useHydrated } from "@/lib/use-hydrated";
 import { useAudioReactiveDrive } from "@/lib/use-audio-reactive-drive";
+import { useScrollDrivenShiftX } from "@/lib/use-scroll-driven-shift-x";
 import { cn } from "@/lib/utils";
+
+/** Total horizontal pan in vw (top −half → bottom +half). */
+const SCROLL_SHIFT_RANGE_VW = 8;
 
 type AudioReactiveBackgroundProps = {
   /** Empty: violet/indigo gradient pulse (add `/backgrounds/your.png` when ready). */
@@ -48,6 +52,12 @@ export function AudioReactiveBackground({
     containerRef,
     analyse,
     pulseDampen,
+  });
+
+  const scrollParallaxEnabled = hydrated && reduceMotion !== true;
+  useScrollDrivenShiftX(containerRef, {
+    enabled: scrollParallaxEnabled,
+    rangeVw: SCROLL_SHIFT_RANGE_VW,
   });
 
   useEffect(() => {
@@ -90,8 +100,14 @@ export function AudioReactiveBackground({
       {/* Visual layers only: stacking context stays behind page content */}
       <div
         ref={containerRef}
-        className="pointer-events-none fixed inset-x-0 top-0 bottom-0 -z-20 min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-visual-mul:0.88] md:[--arp-visual-mul:1]"
-        style={{ "--arp-pulse": 0 } as CSSProperties}
+        className="pointer-events-none fixed inset-x-0 top-0 bottom-0 -z-20 min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-visual-mul:0.96] md:[--arp-visual-mul:1]"
+        style={
+          {
+            "--arp-pulse": 0,
+            "--arp-pulse-spike": 0,
+            "--arp-scroll-x": "0vw",
+          } as CSSProperties
+        }
       >
         <audio
           ref={audioRef}
@@ -118,9 +134,9 @@ export function AudioReactiveBackground({
                 className="absolute left-1/2 top-1/2 min-h-full min-w-full max-w-none object-cover will-change-transform"
                 style={{
                   transform:
-                    "translate3d(-50%,-50%,0) scale(calc(1 + var(--arp-pulse, 0) * 0.12 * var(--arp-visual-mul, 1)))",
+                    "translate3d(calc(-50% + var(--arp-scroll-x, 0vw)), -50%, 0) scale(calc(1 + var(--arp-pulse, 0) * 0.24 * var(--arp-visual-mul, 1)))",
                   filter:
-                    "brightness(calc(0.92 + var(--arp-pulse, 0) * 0.38 * var(--arp-visual-mul, 1))) contrast(calc(1 + var(--arp-pulse, 0) * 0.12 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.35 * var(--arp-visual-mul, 1)))",
+                    "brightness(calc(0.88 + var(--arp-pulse, 0) * 0.52 * var(--arp-visual-mul, 1))) contrast(calc(1 + var(--arp-pulse, 0) * 0.2 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.55 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 18deg)) drop-shadow(0 0 calc(12px + var(--arp-pulse-spike, 0) * 42px) rgba(250, 100, 220, 0.85))",
                 }}
               />
             </>
@@ -130,9 +146,9 @@ export function AudioReactiveBackground({
               className="absolute inset-0 bg-gradient-to-b from-violet-950 via-indigo-950 to-[#050810] will-change-transform"
               style={{
                 transform:
-                  "scale(calc(1 + var(--arp-pulse, 0) * 0.1 * var(--arp-visual-mul, 1))) translateZ(0)",
+                  "translate3d(var(--arp-scroll-x, 0vw), 0, 0) scale(calc(1 + var(--arp-pulse, 0) * 0.2 * var(--arp-visual-mul, 1))) translateZ(0)",
                 filter:
-                  "brightness(calc(0.94 + var(--arp-pulse, 0) * 0.32 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.4 * var(--arp-visual-mul, 1)))",
+                  "brightness(calc(0.9 + var(--arp-pulse, 0) * 0.48 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.5 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 14deg))",
               }}
             />
           )}
@@ -145,7 +161,8 @@ export function AudioReactiveBackground({
                 radial-gradient(ellipse 42% 36% at 50% 42%, rgba(255, 120, 255, 0.55) 0%, rgba(236, 72, 153, 0.22) 45%, transparent 62%),
                 radial-gradient(ellipse 55% 48% at 48% 38%, rgba(192, 132, 252, 0.4) 0%, transparent 55%)
               `,
-              opacity: "calc(0.52 + var(--arp-pulse, 0) * 0.48)",
+              opacity:
+                "calc(0.55 + var(--arp-pulse, 0) * 0.42 + var(--arp-pulse-spike, 0) * 0.35)",
             }}
           />
           {/* Dress + legs / fog band — matches downward glow in the plate */}
@@ -157,7 +174,8 @@ export function AudioReactiveBackground({
                 radial-gradient(ellipse 48% 55% at 50% 58%, rgba(167, 139, 250, 0.42) 0%, rgba(88, 28, 135, 0.12) 50%, transparent 68%),
                 radial-gradient(ellipse 85% 35% at 52% 78%, rgba(251, 207, 232, 0.38) 0%, rgba(244, 114, 182, 0.18) 40%, transparent 62%)
               `,
-              opacity: "calc(0.28 + var(--arp-pulse, 0) * 0.55)",
+              opacity:
+                "calc(0.32 + var(--arp-pulse, 0) * 0.5 + var(--arp-pulse-spike, 0) * 0.45)",
             }}
           />
           {/* Base neon wash — wide read */}
@@ -166,20 +184,22 @@ export function AudioReactiveBackground({
             className="absolute inset-0 mix-blend-screen"
             style={{
               backgroundImage: `
-                radial-gradient(ellipse 95% 75% at 50% 36%, rgba(255, 60, 240, 0.5) 0%, rgba(168, 85, 247, 0.38) 32%, transparent 58%),
-                radial-gradient(ellipse 60% 50% at 50% 40%, rgba(34, 211, 238, 0.45) 0%, transparent 52%)
+                radial-gradient(ellipse 95% 75% at 50% 36%, rgba(255, 60, 240, 0.55) 0%, rgba(168, 85, 247, 0.42) 32%, transparent 58%),
+                radial-gradient(ellipse 60% 50% at 50% 40%, rgba(34, 211, 238, 0.5) 0%, transparent 52%)
               `,
-              opacity: "calc(0.4 + var(--arp-pulse, 0) * 0.58)",
+              opacity:
+                "calc(0.45 + var(--arp-pulse, 0) * 0.52 + var(--arp-pulse-spike, 0) * 0.28)",
             }}
           />
-          {/* Beat flash — kicks */}
+          {/* Beat flash — kicks (spike-forward) */}
           <div
             aria-hidden
             className="absolute inset-0 mix-blend-screen"
             style={{
               background:
-                "radial-gradient(circle 65vmin at 50% 34%, rgba(255, 180, 255, 1) 0%, rgba(244, 114, 182, 0.65) 28%, transparent 55%)",
-              opacity: "calc(var(--arp-pulse, 0) * 0.98)",
+                "radial-gradient(circle 72vmin at 50% 32%, rgba(255, 220, 255, 1) 0%, rgba(244, 114, 182, 0.72) 26%, transparent 52%)",
+              opacity:
+                "calc(var(--arp-pulse, 0) * 0.55 + var(--arp-pulse-spike, 0) * 0.95)",
             }}
           />
           {/* Readability scrim — ~60% so art stays visible */}
