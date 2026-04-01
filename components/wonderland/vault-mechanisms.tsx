@@ -3,6 +3,7 @@
 import { motion, useReducedMotion } from "framer-motion";
 import { Cog } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useProgression } from "@/lib/progression";
 
 /** Brass corner brackets + rivets — folio “locked” read */
 export function WorkVaultMechanismFrame() {
@@ -29,6 +30,8 @@ export function WorkVaultMechanismFrame() {
 /** Keyhole plate — turns slightly on hover via parent group */
 export function WorkVaultKeyholePlate({ className }: { className?: string }) {
   const reduceMotion = useReducedMotion();
+  const { isMatrixMode } = useProgression();
+  const still = reduceMotion === true || isMatrixMode;
   return (
     <motion.div
       className={cn(
@@ -37,7 +40,7 @@ export function WorkVaultKeyholePlate({ className }: { className?: string }) {
       )}
       aria-hidden
       animate={
-        reduceMotion
+        still
           ? undefined
           : { rotate: [0, -2, 0, 2, 0], transition: { duration: 6, repeat: Infinity, ease: "easeInOut" } }
       }

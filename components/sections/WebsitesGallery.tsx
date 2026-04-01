@@ -140,7 +140,7 @@ function WorkLinks({ links }: { links: WorkItem["links"] }) {
 }
 
 export function WebsitesGallery() {
-  const { sectionEyebrow, sectionIntro, featuredBadge, items } =
+  const { sectionEyebrow, sectionIntro, featuredBadge, items, builderTeaser } =
     websitesSection;
   const vaultCopy = websitesSection.vault ?? DEFAULT_WORK_VAULT;
   const ordered = [...items].sort(
@@ -166,6 +166,19 @@ export function WebsitesGallery() {
               {sectionEyebrow}
             </h2>
           </div>
+        ) : null}
+
+        {builderTeaser?.href?.trim() && builderTeaser.label?.trim() ? (
+          <p className="mb-6 max-w-2xl text-sm leading-relaxed text-sky-100/85">
+            {builderTeaser.text}{" "}
+            <Link
+              href={builderTeaser.href}
+              className="font-medium text-cyan-200 underline decoration-cyan-500/45 underline-offset-2 hover:text-cyan-50 hover:decoration-cyan-400/70 focus-visible:outline focus-visible:ring-2 focus-visible:ring-cyan-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]"
+            >
+              {builderTeaser.label}
+            </Link>
+            .
+          </p>
         ) : null}
 
         <WonderlandVault

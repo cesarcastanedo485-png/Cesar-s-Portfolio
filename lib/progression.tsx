@@ -4,6 +4,11 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 
 export const STORAGE_KEY = "cesar-portfolio-progression-v1";
 export const MAX_LEVEL = 5;
+/** Oracle chamber link stays locked below this level (independent of future MAX_LEVEL tweaks). */
+export const ORACLE_UNLOCK_LEVEL = 5;
+
+/** `null` = visitor has not chosen red vs blue pill yet (first visit). */
+export type ExperienceMode = "wonderland" | "matrix" | null;
 
 const LEVEL_ONE_EVENT_TYPES = new Set(["atmosphere-play", "atmosphere-minimize"]);
 
@@ -24,6 +29,12 @@ export type DreamBrief = {
   createdAt: string;
 };
 
+export type DiscountClaim = {
+  email: string;
+  percent: number;
+  claimedAt: string;
+};
+
 export type StoredProgression = {
   version: number;
   currentLevel: number;
@@ -34,6 +45,10 @@ export type StoredProgression = {
   briefs: DreamBrief[];
   awardedEventKeys: string[];
   lastAwardedAtMs: number;
+  /** One-time claim for first-site discount (percent locked at submit time). */
+  discountClaim: DiscountClaim | null;
+  /** Red pill vs blue pill — matrix mode: calm UI, no coupon. */
+  experienceMode: ExperienceMode;
 };
 
 export type LevelEventInput = {
@@ -51,6 +66,9 @@ type ProgressionContextValue = {
   hydrated: boolean;
   overlayCollapsed: boolean;
   playMode: boolean;
+  experienceMode: ExperienceMode;
+  isMatrixMode: boolean;
+  needsExperienceChoice: boolean;
   currentLevel: number;
   maxLevel: number;
   levelOneComplete: boolean;
@@ -61,16 +79,27 @@ type ProgressionContextValue = {
   collapseOverlay: () => void;
   openOverlay: (options?: { openForm?: boolean }) => void;
   startPlay: () => void;
+  chooseExperience: (mode: Exclude<ExperienceMode, null>) => void;
+  /** Sets experience to `null` so the red/blue pill modal appears again (opt-out / re-choose). */
+  reopenExperienceChoice: () => void;
   awardLevelEvent: (input: LevelEventInput) => LevelEventResult;
   submitLevelOne: (input: { username: string; email: string; source?: string }) => void;
+  submitDiscountClaim: (input: { email: string; username?: string }) => boolean;
   addDreamBrief: (input: Omit<DreamBrief, "id" | "createdAt">) => void;
   exportLeadsCsv: () => void;
+  discountClaim: DiscountClaim | null;
+  eligibleDiscountPercent: number;
 };
 
 const ProgressionContext = createContext<ProgressionContextValue | null>(null);
 
+export function getEligibleDiscountPercent(level: number): number {
+  const n = Math.max(0, Math.min(MAX_LEVEL, Math.round(level)));
+  return Math.min(25, n * 5);
+}
+
 const emptyState: StoredProgression = {
-  version: 2,
+  version: 4,
   currentLevel: 0,
   levelOneComplete: false,
   username: "",
@@ -79,6 +108,8 @@ const emptyState: StoredProgression = {
   briefs: [],
   awardedEventKeys: [],
   lastAwardedAtMs: 0,
+  discountClaim: null,
+  experienceMode: null,
 };
 
 export function safeParseProgression(raw: string | null): StoredProgression {
@@ -99,8 +130,42 @@ export function safeParseProgression(raw: string | null): StoredProgression {
           : 0;
     const clampedLevel = Math.max(0, Math.min(MAX_LEVEL, Math.round(migratedLevel)));
 
+    const rawClaim = (parsed as { discountClaim?: unknown }).discountClaim;
+    let discountClaim: DiscountClaim | null = null;
+    if (
+      rawClaim &&
+      typeof rawClaim === "object" &&
+      rawClaim !== null &&
+      typeof (rawClaim as DiscountClaim).email === "string" &&
+      typeof (rawClaim as DiscountClaim).percent === "number" &&
+      typeof (rawClaim as DiscountClaim).claimedAt === "string"
+    ) {
+      discountClaim = {
+        email: (rawClaim as DiscountClaim).email.trim().toLowerCase(),
+        percent: Math.min(25, Math.max(0, Math.round((rawClaim as DiscountClaim).percent))),
+        claimedAt: (rawClaim as DiscountClaim).claimedAt,
+      };
+    }
+
+    const extended = parsed as { experienceMode?: unknown };
+    const hasExperienceKey = Object.prototype.hasOwnProperty.call(extended, "experienceMode");
+    let experienceMode: ExperienceMode = null;
+    if (hasExperienceKey && (extended.experienceMode === "matrix" || extended.experienceMode === "wonderland")) {
+      experienceMode = extended.experienceMode;
+    } else if (hasExperienceKey && extended.experienceMode === null) {
+      experienceMode = null;
+    } else {
+      const legacyProgress =
+        clampedLevel > 0 ||
+        Boolean(parsed.levelOneComplete) ||
+        (Array.isArray(parsed.awardedEventKeys) && parsed.awardedEventKeys.length > 0) ||
+        (Array.isArray(parsed.leads) && parsed.leads.length > 0) ||
+        discountClaim !== null;
+      experienceMode = legacyProgress ? "wonderland" : null;
+    }
+
     return {
-      version: typeof parsed.version === "number" ? parsed.version : 2,
+      version: typeof parsed.version === "number" ? parsed.version : 4,
       currentLevel: clampedLevel,
       levelOneComplete: clampedLevel >= 1,
       username: parsed.username?.trim() ?? "",
@@ -116,6 +181,8 @@ export function safeParseProgression(raw: string | null): StoredProgression {
         typeof parsed.lastAwardedAtMs === "number" && Number.isFinite(parsed.lastAwardedAtMs)
           ? parsed.lastAwardedAtMs
           : 0,
+      discountClaim,
+      experienceMode,
     };
   } catch {
     return emptyState;
@@ -160,17 +227,46 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
     setOverlayCollapsed(false);
   }, []);
 
+  const chooseExperience = useCallback((mode: Exclude<ExperienceMode, null>) => {
+    setState((prev) => {
+      if (mode === "matrix") {
+        const nextLevel = Math.max(1, prev.currentLevel);
+        return {
+          ...prev,
+          version: 4,
+          experienceMode: "matrix",
+          currentLevel: nextLevel,
+          levelOneComplete: true,
+        };
+      }
+      return {
+        ...prev,
+        version: 4,
+        experienceMode: "wonderland",
+      };
+    });
+  }, []);
+
+  const reopenExperienceChoice = useCallback(() => {
+    setState((prev) => ({
+      ...prev,
+      version: 4,
+      experienceMode: null,
+    }));
+  }, []);
+
   const awardLevelEvent = useCallback((input: LevelEventInput): LevelEventResult => {
     const type = input.type.trim().toLowerCase();
     const source = input.source?.trim().toLowerCase();
     const rawKey = input.key?.trim().toLowerCase();
     const eventKey = rawKey || [type, source].filter(Boolean).join(":");
     const now = Date.now();
-    let result: LevelEventResult = { leveled: false, level: state.currentLevel };
+    let result: LevelEventResult = { leveled: false, level: 0 };
+    let shouldOpenOverlay = false;
 
     setState((prev) => {
+      result = { leveled: false, level: prev.currentLevel };
       if (!type || !eventKey || prev.currentLevel >= MAX_LEVEL) {
-        result = { leveled: false, level: prev.currentLevel };
         return prev;
       }
       if (prev.currentLevel === 0 && !LEVEL_ONE_EVENT_TYPES.has(type)) {
@@ -181,16 +277,18 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
         result = { leveled: false, level: prev.currentLevel };
         return prev;
       }
-      if (now - prev.lastAwardedAtMs < 420) {
+      /** Short cooldown only to debounce duplicate pointer events; keep low so distinct interactions still level you up. */
+      if (now - prev.lastAwardedAtMs < 140) {
         result = { leveled: false, level: prev.currentLevel };
         return prev;
       }
 
       const nextLevel = Math.min(MAX_LEVEL, prev.currentLevel + 1);
       result = { leveled: true, level: nextLevel };
+      shouldOpenOverlay = prev.experienceMode !== "matrix";
       return {
         ...prev,
-        version: 2,
+        version: 4,
         currentLevel: nextLevel,
         levelOneComplete: nextLevel >= 1,
         awardedEventKeys: [...prev.awardedEventKeys, eventKey],
@@ -198,11 +296,11 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
       };
     });
 
-    if (result.leveled) {
+    if (result.leveled && shouldOpenOverlay) {
       setOverlayCollapsed(false);
     }
     return result;
-  }, [state.currentLevel]);
+  }, []);
 
   const submitLevelOne = useCallback(
     (input: { username: string; email: string; source?: string }) => {
@@ -217,6 +315,7 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
 
       setState((prev) => ({
         ...prev,
+        version: 4,
         currentLevel: prev.currentLevel === 0 ? 1 : prev.currentLevel,
         levelOneComplete: true,
         username: input.username.trim(),
@@ -233,6 +332,40 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
     },
     [],
   );
+
+  const submitDiscountClaim = useCallback((input: { email: string; username?: string }) => {
+    const email = input.email.trim().toLowerCase();
+    const simple =
+      /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    if (!simple) return false;
+
+    let ok = false;
+    setState((prev) => {
+      if (prev.experienceMode === "matrix") return prev;
+      if (prev.discountClaim) return prev;
+      const percent = getEligibleDiscountPercent(prev.currentLevel);
+      if (percent <= 0) return prev;
+      const createdAt = new Date().toISOString();
+      const username = input.username?.trim() || prev.username || "—";
+      const nextLead: LeadRecord = {
+        id: makeId("lead"),
+        username,
+        email,
+        source: `first-site-discount-${percent}pct`,
+        createdAt,
+      };
+      ok = true;
+      return {
+        ...prev,
+        version: 4,
+        email: prev.email || email,
+        username: prev.username || username,
+        discountClaim: { email, percent, claimedAt: createdAt },
+        leads: [nextLead, ...prev.leads],
+      };
+    });
+    return ok;
+  }, []);
 
   const addDreamBrief = useCallback((input: Omit<DreamBrief, "id" | "createdAt">) => {
     const next: DreamBrief = {
@@ -281,20 +414,29 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
       hydrated,
       overlayCollapsed,
       playMode,
+      experienceMode: state.experienceMode,
+      isMatrixMode: state.experienceMode === "matrix",
+      needsExperienceChoice: hydrated && state.experienceMode === null,
       currentLevel: state.currentLevel,
       maxLevel: MAX_LEVEL,
       levelOneComplete: state.levelOneComplete,
-      canAccessOracle: state.currentLevel >= MAX_LEVEL,
+      canAccessOracle: state.currentLevel >= ORACLE_UNLOCK_LEVEL,
       username: state.username,
       leads: state.leads,
       briefs: state.briefs,
       collapseOverlay,
       openOverlay,
       startPlay,
+      chooseExperience,
+      reopenExperienceChoice,
       awardLevelEvent,
       submitLevelOne,
+      submitDiscountClaim,
       addDreamBrief,
       exportLeadsCsv,
+      discountClaim: state.discountClaim,
+      eligibleDiscountPercent:
+        state.experienceMode === "matrix" ? 0 : getEligibleDiscountPercent(state.currentLevel),
     }),
     [
       hydrated,
@@ -304,8 +446,11 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
       collapseOverlay,
       openOverlay,
       startPlay,
+      chooseExperience,
+      reopenExperienceChoice,
       awardLevelEvent,
       submitLevelOne,
+      submitDiscountClaim,
       addDreamBrief,
       exportLeadsCsv,
     ],

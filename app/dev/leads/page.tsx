@@ -37,6 +37,8 @@ export default function DevLeadsPage() {
 
   const leads = useMemo<LeadRecord[]>(() => state?.leads ?? [], [state]);
   const briefs = useMemo<DreamBrief[]>(() => state?.briefs ?? [], [state]);
+  const discountClaim = state?.discountClaim ?? null;
+  const experienceMode = state?.experienceMode ?? null;
 
   const exportCsv = () => {
     const csv = toCsv(leads);
@@ -62,11 +64,31 @@ export default function DevLeadsPage() {
           <p className="text-sm text-white/65">
             Local browser storage only. Export CSV and import into Google Sheets.
           </p>
+          {experienceMode ? (
+            <p className="text-xs text-white/50">
+              Experience mode:{" "}
+              <span className="text-white/80">
+                {experienceMode === "matrix" ? "Matrix (calm)" : "Wonderland (full)"}
+              </span>
+            </p>
+          ) : null}
         </header>
+
+        {discountClaim ? (
+          <section className="rounded-xl border border-emerald-500/25 bg-emerald-950/20 p-4">
+            <h2 className="text-lg font-medium text-emerald-100/95">
+              Discount claim on file
+            </h2>
+            <p className="mt-2 text-sm text-white/80">
+              {discountClaim.percent}% for <span className="text-white">{discountClaim.email}</span>
+            </p>
+            <p className="mt-1 text-xs text-white/55">{discountClaim.claimedAt}</p>
+          </section>
+        ) : null}
 
         <section className="rounded-xl border border-white/10 bg-black/30 p-4">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-            <h2 className="text-lg font-medium">Level 1 Leads ({leads.length})</h2>
+            <h2 className="text-lg font-medium">Leads ({leads.length})</h2>
             <button
               type="button"
               onClick={exportCsv}

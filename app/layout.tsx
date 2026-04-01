@@ -9,6 +9,7 @@ import {
 import "./globals.css";
 import { site } from "@/lib/content";
 import { SkipLink } from "@/components/layout/SkipLink";
+import { ProgressionShell } from "@/components/progression/ProgressionShell";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
@@ -93,7 +94,7 @@ export default function RootLayout({
     >
       <body className="min-h-full flex flex-col font-sans">
         <SkipLink />
-        {children}
+        <ProgressionShell>{children}</ProgressionShell>
       </body>
     </html>
   );

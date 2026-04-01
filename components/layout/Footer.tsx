@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { BrandWatermark } from "@/components/brand/BrandWatermark";
 import { footerContent, site } from "@/lib/content";
 
@@ -30,6 +31,18 @@ export function Footer() {
       <p className="mt-2 max-w-xl mx-auto text-xs opacity-80">
         {footerContent.note}
       </p>
+      {footerContent.builderLink?.href?.trim() &&
+      footerContent.builderLink.label?.trim() ? (
+        <p className="mt-4 max-w-xl mx-auto text-xs text-amber-100/80">
+          {footerContent.builderLink.line}{" "}
+          <Link
+            href={footerContent.builderLink.href}
+            className="font-medium text-amber-200 underline decoration-amber-500/45 underline-offset-2 hover:text-amber-50"
+          >
+            {footerContent.builderLink.label}
+          </Link>
+        </p>
+      ) : null}
     </footer>
   );
 }

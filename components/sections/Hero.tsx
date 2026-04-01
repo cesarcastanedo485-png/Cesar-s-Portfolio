@@ -1,8 +1,11 @@
 "use client";
 
+import Link from "next/link";
 import { motion, useReducedMotion } from "framer-motion";
 import type { HeroContentProps } from "@/lib/content";
 import { useHydrated } from "@/lib/use-hydrated";
+import { useProgression } from "@/lib/progression";
+import { cn } from "@/lib/utils";
 
 type HeroProps = {
   content: HeroContentProps;
@@ -11,12 +14,20 @@ type HeroProps = {
 export function Hero({ content }: HeroProps) {
   const hydrated = useHydrated();
   const reduceMotion = useReducedMotion();
-  const allowMotion = hydrated && reduceMotion === false;
+  const { isMatrixMode } = useProgression();
+  const allowMotion = hydrated && reduceMotion === false && !isMatrixMode;
 
   return (
     <section className="relative py-24 text-center" aria-labelledby="hero-heading">
       <div className="container mx-auto max-w-5xl px-6">
-        <div className="mx-auto flex max-w-full flex-col items-center rounded-2xl border border-white/12 bg-[#0a0e17]/82 px-5 py-5 shadow-[0_12px_48px_rgba(0,0,0,0.45)] backdrop-blur-md md:px-8 md:py-7">
+        <div
+          className={cn(
+            "mx-auto flex max-w-full flex-col items-center rounded-2xl border px-5 py-5 md:px-8 md:py-7",
+            isMatrixMode
+              ? "border-white/10 bg-[#0f172a]/90 shadow-sm backdrop-blur-sm"
+              : "border-white/12 bg-[#0a0e17]/82 shadow-[0_12px_48px_rgba(0,0,0,0.45)] backdrop-blur-md",
+          )}
+        >
           <motion.h1
             id="hero-heading"
             className="mb-3 flex w-full flex-col items-center justify-center md:mb-4"
@@ -51,6 +62,16 @@ export function Hero({ content }: HeroProps) {
           <p className="max-w-2xl text-pretty text-lg text-muted-foreground md:text-xl">
             {content.tagline}
           </p>
+          {content.builderLink?.href?.trim() && content.builderLink.label?.trim() ? (
+            <p className="mt-5 text-center">
+              <Link
+                href={content.builderLink.href}
+                className="inline-flex rounded-full border border-amber-500/35 bg-amber-950/25 px-4 py-2 text-sm font-medium text-amber-100/90 transition hover:border-amber-400/45 hover:bg-amber-900/35 focus-visible:outline focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]"
+              >
+                {content.builderLink.label}
+              </Link>
+            </p>
+          ) : null}
         </div>
       </div>
     </section>
@@ -60,7 +81,8 @@ export function Hero({ content }: HeroProps) {
 function PortfolioO() {
   const hydrated = useHydrated();
   const reduceMotion = useReducedMotion();
-  const allowMotion = hydrated && reduceMotion === false;
+  const { isMatrixMode } = useProgression();
+  const allowMotion = hydrated && reduceMotion === false && !isMatrixMode;
 
   return (
     <motion.span

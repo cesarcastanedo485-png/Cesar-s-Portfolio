@@ -99,11 +99,18 @@ export const nav = portfolio.nav as {
   brandLabel: string;
   links: NavLink[];
 };
+export type BuilderLink = {
+  label: string;
+  href: string;
+};
+
 export const heroContent = portfolio.hero as {
   screenReaderTitle: string;
   titlePart1: string;
   titlePart2: string;
   tagline: string;
+  /** Secondary CTA to the à la carte builder (optional). */
+  builderLink?: BuilderLink;
 };
 
 export type HeroContentProps = typeof heroContent;
@@ -123,6 +130,8 @@ export const websitesSection = portfolio.websites as {
   sectionIntro?: string;
   /** Shown on cards with `featured: true` */
   featuredBadge?: string;
+  /** Short line + link toward the à la carte builder */
+  builderTeaser?: BuilderLink & { text: string };
   /** Alice-style “hidden folio” teaser; cards stay inside the vault until opened */
   vault?: WonderlandVaultCopy;
   items: WorkItem[];
@@ -131,6 +140,8 @@ export const quoteContent = portfolio.quote as { text: string };
 export const gamesSection = portfolio.games as {
   sectionTitle: string;
   sectionEyebrow: string;
+  /** Optional teaser link to à la carte (e.g. prototype line item). */
+  builderTeaser?: BuilderLink & { text: string };
   vault?: WonderlandVaultCopy;
   items: GameItem[];
 };
@@ -144,8 +155,11 @@ export const contactContent = portfolio.contact as {
   /** Optional default subject line for the mailto link */
   emailSubject?: string;
   secondaryLinks?: WorkLink[];
+  /** Line + link to scope deliverables before contact */
+  builderTeaser?: BuilderLink & { text: string };
 };
 export const footerContent = portfolio.footer as {
   copyright: string;
   note: string;
+  builderLink?: BuilderLink & { line: string };
 };

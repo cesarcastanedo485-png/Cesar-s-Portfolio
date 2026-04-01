@@ -36,6 +36,7 @@
       { "label": "Work", "href": "#work" },
       { "label": "Games", "href": "#games" },
       { "label": "Dream Now", "href": "/oracle-3d" },
+      { "label": "À la carte", "href": "/build" },
       { "label": "Contact", "href": "#contact" },
       {
         "label": "GitHub",
@@ -58,12 +59,21 @@
     "screenReaderTitle": "Portfolio",
     "titlePart1": "Port",
     "titlePart2": "folio",
-    "tagline": "Crafting websites, apps, and games"
+    "tagline": "Crafting websites, apps, and games",
+    "builderLink": {
+      "label": "Build à la carte — punch your scope",
+      "href": "/build"
+    }
   },
   "websites": {
     "sectionEyebrow": "",
     "sectionIntro": "",
     "featuredBadge": "Featured",
+    "builderTeaser": {
+      "text": "Prefer to line-item what you need before we talk?",
+      "label": "Open the à la carte builder",
+      "href": "/build"
+    },
     "vault": {
       "teaserTitle": "The architect’s folio",
       "teaserBody": "Curious projects live behind the latch.",
@@ -135,6 +145,11 @@
   "games": {
     "sectionTitle": "",
     "sectionEyebrow": "",
+    "builderTeaser": {
+      "text": "Need a scoped playable slice or promo build?",
+      "label": "See game options on the à la carte page",
+      "href": "/build"
+    },
     "vault": {
       "teaserTitle": "Down the rabbit hole",
       "teaserBody": "",
@@ -209,6 +224,11 @@
     "sectionEyebrow": "Contact",
     "headline": "Let’s build something",
     "body": "Open to freelance and full-time roles that need strong UI, performance, and clear communication. Replace the placeholder email with yours before you ship.",
+    "builderTeaser": {
+      "text": "Want to scope deliverables first? Prices on the builder are indicative only — not final quotes.",
+      "label": "Build à la carte",
+      "href": "/build"
+    },
     "email": "hello@example.com",
     "emailButtonLabel": "Email me",
     "emailSubject": "Hello — from your portfolio",
@@ -216,6 +236,11 @@
   },
   "footer": {
     "copyright": "Cesar. All rights reserved.",
-    "note": "Content lives in content/portfolio.json — edit there and push to redeploy (see docs/CONTENT_WORKFLOW.md)."
+    "note": "Content lives in content/portfolio.json — edit there and push to redeploy (see docs/CONTENT_WORKFLOW.md).",
+    "builderLink": {
+      "line": "Hire / scope: pick line items with indicative pricing (not final quotes).",
+      "label": "À la carte builder",
+      "href": "/build"
+    }
   }
 }

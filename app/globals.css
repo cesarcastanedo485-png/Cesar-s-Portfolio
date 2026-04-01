@@ -337,3 +337,132 @@ body {
     text-shadow: 0 0 10px rgba(34, 211, 238, 0.55);
   }
 }
+
+/* Blue pill — calm reading: strip heavy glows, idle ambient motion */
+html.matrix-mode .hero-neon-glow {
+  filter: none;
+}
+
+html.matrix-mode .hero-neon-title {
+  background-image: linear-gradient(
+    105deg,
+    #93c5fd 0%,
+    #7dd3fc 38%,
+    #a5b4fc 72%,
+    #c4b5fd 100%
+  );
+}
+
+html.matrix-mode .neon-sign-body {
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  color: rgba(241, 245, 249, 0.94);
+}
+
+html.matrix-mode .vault-neon-instruction {
+  font-family: var(--font-sans);
+  letter-spacing: 0.03em;
+  text-shadow: none;
+  color: #e2e8f0;
+}
+
+html.matrix-mode .quote-neon-turquoise {
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  color: #ccfbf1;
+}
+
+html.matrix-mode .header-brand-word {
+  -webkit-text-stroke: 0;
+  text-shadow: none;
+  color: #f1f5f9;
+}
+
+html.matrix-mode .header-mark-glow {
+  filter: none;
+}
+
+html.matrix-mode .section-glass-panel {
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(15, 23, 42, 0.72);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  backdrop-filter: blur(8px);
+}
+
+html.matrix-mode .vault-portal-ring-slow,
+html.matrix-mode .vault-portal-ring-slow-reverse,
+html.matrix-mode .vault-cog-tick {
+  animation: none !important;
+}
+
+html.matrix-mode .vault-tea-steam-wisp {
+  animation: none !important;
+  opacity: 0.2;
+}
+
+html.matrix-mode .portfolio-smoke-parallax,
+html.matrix-mode .portfolio-smoke-parallax-slow {
+  animation: none !important;
+}
+
+html.matrix-mode .sparkle-dust,
+html.matrix-mode .sparkle-dust--on {
+  display: none !important;
+}
+
+/* Build à la carte — ticket punch holes */
+@keyframes build-ticket-punch {
+  0% {
+    transform: scale(0.82);
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.build-ticket-punch-hole {
+  animation: build-ticket-punch 0.32s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .build-ticket-punch-hole {
+    animation: none;
+  }
+}
+
+/* /build — Alice × cyberpunk lane (distinct from home vault / Dream Now) */
+.build-rabbit-hole {
+  position: relative;
+}
+
+.build-rabbit-hole::before {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  background-image:
+    linear-gradient(rgba(168, 85, 247, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0, 212, 255, 0.05) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse 80% 70% at 50% 20%, black 10%, transparent 75%);
+}
+
+.build-alice-copy {
+  color: rgba(244, 232, 255, 0.92);
+}
+
+.build-alice-muted {
+  color: rgba(196, 181, 253, 0.78);
+}
+
+/* Keep à la carte readable if visitor picked blue pill (Matrix calm) */
+html.matrix-mode .build-rabbit-hole .build-alice-muted {
+  color: rgba(196, 181, 253, 0.82);
+}
+
+html.matrix-mode .build-rabbit-hole .build-alice-copy {
+  color: rgba(250, 245, 255, 0.94);
+}

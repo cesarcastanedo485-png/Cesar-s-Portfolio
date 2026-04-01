@@ -10,6 +10,7 @@ import {
 } from "react";
 import { useReducedMotion } from "framer-motion";
 import { cn } from "@/lib/utils";
+import { useProgression } from "@/lib/progression";
 
 const SPARKLE_COUNT = 24;
 
@@ -113,6 +114,7 @@ export function SectionSparkles({
   className,
   layout = "frame",
 }: SectionSparklesProps) {
+  const { isMatrixMode } = useProgression();
   const reduceMotion = useReducedMotion();
   const id = useId();
   const wrapRef = useRef<HTMLDivElement>(null);
@@ -130,7 +132,7 @@ export function SectionSparkles({
   }, []);
 
   useEffect(() => {
-    if (reduceMotion === true || !mounted) {
+    if (reduceMotion === true || isMatrixMode || !mounted) {
       return;
     }
     const el = wrapRef.current;
@@ -143,11 +145,11 @@ export function SectionSparkles({
     );
     io.observe(el);
     return () => io.disconnect();
-  }, [mounted, reduceMotion]);
+  }, [mounted, reduceMotion, isMatrixMode]);
 
   return (
     <div ref={wrapRef} className={cn("relative isolate", className)}>
-      {reduceMotion !== true && mounted ? (
+      {reduceMotion !== true && !isMatrixMode && mounted ? (
         <div
           className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
           aria-hidden

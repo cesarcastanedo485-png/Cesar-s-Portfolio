@@ -1,0 +1,416 @@
+{
+  "meta": {
+    "pageTitle": "Build à la carte",
+    "pageDescription": "Pick deliverables and scope a website or app build—indicative pricing only; final quotes after discovery.",
+    "heroTitle": "Neon Tea-Ticket Terminal",
+    "heroSubtitle": "Wonderland cyber-lane: punch the line items you need on a glowing ticket—still not a final quote, just a very honest riddle with price hints.",
+    "stickyDisclaimer": "Indicative pricing only. Final quotes depend on discovery, scope, integrations, and timeline. Prices change; this page may lag.",
+    "longDisclaimer": "Totals on this page are not binding estimates. Third-party fees (registrar, hosting, app stores, payment processors, AI or creative tool subscriptions) are usually billed to you directly unless we agree otherwise in writing. Selecting items does not create an obligation for either party.",
+    "ticketStation": "YOU",
+    "ticketDestination": "LAUNCH",
+    "mailSubject": "À la carte build — scope from portfolio"
+  },
+  "questionnaire": {
+    "title": "Phase 1 — quick context",
+    "description": "Optional, but helps the first email or call go faster.",
+    "steps": [
+      {
+        "id": "outcome",
+        "question": "What are we heading toward?",
+        "options": [
+          {
+            "id": "brochure",
+            "label": "Brochure / marketing site",
+            "description": "Explain the product, team, or offer—mostly content."
+          },
+          {
+            "id": "storefront",
+            "label": "Storefront / bookings",
+            "description": "Sell, book, or collect leads with integrations."
+          },
+          {
+            "id": "portfolio",
+            "label": "Portfolio / case studies",
+            "description": "Show work and story-first presentation."
+          },
+          {
+            "id": "game-promo",
+            "label": "Game or demo promo",
+            "description": "Trailer, embeds, download links, stream hooks."
+          }
+        ]
+      },
+      {
+        "id": "content",
+        "question": "Who owns the words and media?",
+        "options": [
+          {
+            "id": "client-ready",
+            "label": "I'll supply copy & assets",
+            "description": "You have text, logos, and imagery ready."
+          },
+          {
+            "id": "needs-support",
+            "label": "I need help with copy or media",
+            "description": "Expect a separate content pass or referrals."
+          },
+          {
+            "id": "mixed",
+            "label": "Mixed",
+            "description": "Some ready, some to figure out together."
+          }
+        ]
+      },
+      {
+        "id": "constraints",
+        "question": "Hard constraints?",
+        "options": [
+          {
+            "id": "static-only",
+            "label": "Keep it static / simple JS",
+            "description": "No framework unless we agree later."
+          },
+          {
+            "id": "square-not-stripe",
+            "label": "Square or POS — not Stripe",
+            "description": "Payments lean on Square or your stack."
+          },
+          {
+            "id": "flutter-needed",
+            "label": "Flutter mobile is in play",
+            "description": "Mobile app or companion path matters."
+          },
+          {
+            "id": "open",
+            "label": "Open — recommend to me",
+            "description": "No strong constraint yet."
+          }
+        ]
+      },
+      {
+        "id": "timeline",
+        "question": "Timeline",
+        "options": [
+          { "id": "asap", "label": "ASAP", "description": "Tight window." },
+          {
+            "id": "weeks",
+            "label": "A few weeks",
+            "description": "Normal pacing with reviews."
+          },
+          {
+            "id": "flex",
+            "label": "Flexible",
+            "description": "Date-driven milestones later."
+          }
+        ]
+      },
+      {
+        "id": "maintenance",
+        "question": "After launch",
+        "options": [
+          {
+            "id": "launch-only",
+            "label": "Launch handoff",
+            "description": "Docs and last-mile; you operate."
+          },
+          {
+            "id": "light-retainer",
+            "label": "Light touch retainer",
+            "description": "Small ongoing tweaks possible."
+          }
+        ]
+      }
+    ]
+  },
+  "categories": [
+    {
+      "id": "foundation",
+      "label": "Foundation",
+      "description": "What the site is built with. Pick one.",
+      "selectionMode": "one",
+      "items": [
+        {
+          "id": "foundation-static",
+          "label": "Static HTML, CSS & vanilla JS",
+          "description": "Fast, portable pages—great when you want a ZIP or any static host and minimal build tooling.",
+          "tags": ["HTML", "CSS", "JS"],
+          "excludes": ["foundation-next"],
+          "priceHint": {
+            "display": "From ~$800",
+            "basis": "Landing scope; more sections and CMS hooks move the quote."
+          }
+        },
+        {
+          "id": "foundation-next",
+          "label": "Next.js / React (App Router)",
+          "description": "Component-driven site with routing, SEO primitives, and room to grow into richer apps.",
+          "tags": ["Next.js", "React"],
+          "excludes": ["foundation-static"],
+          "priceHint": {
+            "display": "From ~$2,200",
+            "basis": "Depends on page count, auth, data layer, and integrations."
+          }
+        }
+      ]
+    },
+    {
+      "id": "structure",
+      "label": "Information architecture",
+      "description": "How visitors move through the build. Pick one.",
+      "selectionMode": "one",
+      "items": [
+        {
+          "id": "structure-onepager",
+          "label": "Single scrolling page + section jumps",
+          "description": "One URL, anchored sections, back-to-top—simplest narrative flow.",
+          "tags": ["One-page"],
+          "excludes": ["structure-multipage"],
+          "priceHint": {
+            "display": "Included in foundation estimate",
+            "basis": "No extra line when staying on one scrolling page."
+          }
+        },
+        {
+          "id": "structure-multipage",
+          "label": "Multi-page site + one extra landing",
+          "description": "Several routes or sections as separate pages plus one campaign-style landing.",
+          "tags": ["Multi-page"],
+          "excludes": ["structure-onepager"],
+          "priceHint": {
+            "display": "From ~$450 add-on",
+            "basis": "Scales with templates, nav, and duplicate layouts."
+          }
+        }
+      ]
+    },
+    {
+      "id": "hosting",
+      "label": "Hosting & deploy",
+      "description": "Where it lives and how pushes go out.",
+      "items": [
+        {
+          "id": "hosting-client",
+          "label": "You bring hosting",
+          "description": "I deliver artifacts and notes; you plug into your provider.",
+          "tags": ["Docs"],
+          "priceHint": {
+            "display": "From $0",
+            "basis": "Assumes clear deploy target."
+          }
+        },
+        {
+          "id": "hosting-vercel-netlify",
+          "label": "Vercel or Netlify setup",
+          "description": "Project wiring, env vars, previews, and handoff checklist.",
+          "tags": ["Vercel", "Netlify"],
+          "priceHint": {
+            "display": "From ~$350",
+            "basis": "Vendor plans billed separately."
+          }
+        },
+        {
+          "id": "hosting-static-bucket",
+          "label": "Static bucket + CDN sketch",
+          "description": "S3/R2-style bucket, cache hints, and TLS outline—not enterprise DR.",
+          "tags": ["S3", "CDN"],
+          "priceHint": {
+            "display": "From ~$280",
+            "basis": "Infra fees pass through to your cloud bill."
+          }
+        }
+      ]
+    },
+    {
+      "id": "integrations",
+      "label": "Integrations",
+      "description": "Payments, forms, measurement.",
+      "items": [
+        {
+          "id": "integration-square",
+          "label": "Square-forward commerce",
+          "description": "Links, embeds, or flows that respect Square as source of truth—not a Stripe swap.",
+          "tags": ["Square"],
+          "excludes": ["integration-stripe"],
+          "priceHint": {
+            "display": "From ~$400",
+            "basis": "Depends on catalog depth and fulfillment rules."
+          }
+        },
+        {
+          "id": "integration-stripe",
+          "label": "Stripe Checkout / billing hooks",
+          "description": "When you want Stripe-native checkout or customer portal patterns.",
+          "tags": ["Stripe"],
+          "excludes": ["integration-square"],
+          "priceHint": {
+            "display": "From ~$550",
+            "basis": "Excludes complex subscription ledgers and tax—scoped in discovery."
+          }
+        },
+        {
+          "id": "integration-forms",
+          "label": "Forms → email / CRM handoff",
+          "description": "Resend, Formspark-class patterns, spam controls, and success states.",
+          "tags": ["Forms"],
+          "priceHint": {
+            "display": "From ~$220",
+            "basis": "Per form family and provider."
+          }
+        },
+        {
+          "id": "integration-analytics",
+          "label": "Analytics that respect privacy",
+          "description": "Lightweight events or Plausible-class—no ad pixel soup unless you ask.",
+          "tags": ["Analytics"],
+          "priceHint": {
+            "display": "From ~$150",
+            "basis": "Tooling subscriptions may be extra."
+          }
+        }
+      ]
+    },
+    {
+      "id": "apps",
+      "label": "Apps & installable web",
+      "description": "Mobile and PWA paths.",
+      "items": [
+        {
+          "id": "app-flutter",
+          "label": "Flutter slice (mobile)",
+          "description": "Focused Flutter deliverable: screens, build flavors, store checklist guidance—scope locked in discovery.",
+          "tags": ["Flutter"],
+          "priceHint": {
+            "display": "From ~$4,500",
+            "basis": "Large apps split milestones; stores charge separate fees."
+          }
+        },
+        {
+          "id": "app-pwa",
+          "label": "PWA wrap",
+          "description": "Manifest, service worker shell, offline placeholder, install cues—paired with a web build.",
+          "tags": ["PWA"],
+          "priceHint": {
+            "display": "From ~$650",
+            "basis": "Heavy offline data moves into custom quote."
+          }
+        }
+      ]
+    },
+    {
+      "id": "media",
+      "label": "Media",
+      "description": "Video and motion on the page.",
+      "items": [
+        {
+          "id": "media-video",
+          "label": "Video pipeline",
+          "description": "Lazy embeds, posters, captions file hookup, and performance passes.",
+          "tags": ["Video"],
+          "priceHint": {
+            "display": "From ~$320",
+            "basis": "Encoding or long-form editing is out of scope unless added."
+          }
+        }
+      ]
+    },
+    {
+      "id": "showcase",
+      "label": "Showcase polish",
+      "description": "How work is presented.",
+      "items": [
+        {
+          "id": "showcase-case-study",
+          "label": "Case-study layout system",
+          "description": "Repeating patterns for problem → role → outcome → gallery.",
+          "tags": ["Content"],
+          "priceHint": {
+            "display": "From ~$380",
+            "basis": "More case studies, more templates."
+          }
+        },
+        {
+          "id": "showcase-json-driven",
+          "label": "JSON-driven portfolio sections",
+          "description": "Like this site: edit content in data files, keep layout stable.",
+          "tags": ["JSON", "CMS-lite"],
+          "priceHint": {
+            "display": "From ~$520",
+            "basis": "True headless CMS wiring is a separate line."
+          }
+        }
+      ]
+    },
+    {
+      "id": "game",
+      "label": "Game & prototype",
+      "description": "Narrow, shippable slice.",
+      "items": [
+        {
+          "id": "game-prototype",
+          "label": "Playable prototype / vertical slice",
+          "description": "One core loop, scoped mechanics, Web or Godot embed path—explicitly not a full production title.",
+          "tags": ["Prototype", "Godot"],
+          "priceHint": {
+            "display": "From ~$2,800",
+            "basis": "Art pipeline, networking, and live ops are separate phases."
+          }
+        }
+      ]
+    },
+    {
+      "id": "tooling",
+      "label": "Tooling & efficiency passes",
+      "description": "Optional accelerators—bounded, not unlimited credits.",
+      "items": [
+        {
+          "id": "tooling-mcp-efficiency",
+          "label": "MCP-assisted workflow pass",
+          "description": "Time-boxed efficiency using MCP-style tooling in the stack—scoped deliverables, not open-ended API spend.",
+          "tags": ["MCP", "Automation"],
+          "priceHint": {
+            "display": "From ~$400",
+            "basis": "Pass-through API or seat costs discussed upfront."
+          }
+        },
+        {
+          "id": "tooling-pixellab",
+          "label": "PixelLab asset pass",
+          "description": "One structured generation pass (characters, tiles, or props) aligned to your art direction.",
+          "tags": ["PixelLab"],
+          "priceHint": {
+            "display": "From ~$350",
+            "basis": "Your PixelLab subscription or agreed credit bundle."
+          }
+        },
+        {
+          "id": "tooling-ci",
+          "label": "Basic CI (lint + build)",
+          "description": "GitHub Actions (or similar) to guard main—no full QA matrix.",
+          "tags": ["CI"],
+          "priceHint": {
+            "display": "From ~$280",
+            "basis": "Monorepos or deploy keys add time."
+          }
+        }
+      ]
+    },
+    {
+      "id": "subscriptions",
+      "label": "Subscriptions (vendor-side)",
+      "description": "Creative or AI tooling tiers—client-owned accounts recommended.",
+      "items": [
+        {
+          "id": "sub-rosebud-tier",
+          "label": "Rosebud-class creative tool alignment",
+          "description": "I align exports and workflow with a Rosebud-style tier—you keep the subscription; I don't resell seats. Month-one onboarding can be bundled in a quote if we agree.",
+          "tags": ["Rosebud", "Subscription"],
+          "priceHint": {
+            "display": "Per vendor pricing (often ~$15–40/mo)",
+            "basis": "Indicative only; check current vendor plans. Not a line item unless we explicitly bundle onboarding hours."
+          },
+          "monthlyNote": "Recurring fee billed by the vendor to your card unless we agree pass-through in writing."
+        }
+      ]
+    }
+  ]
+}

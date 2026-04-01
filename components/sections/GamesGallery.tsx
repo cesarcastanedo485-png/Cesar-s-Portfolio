@@ -6,7 +6,12 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Sparkles } from "lucide-react";
 import { motion, useReducedMotion } from "framer-motion";
-import { useEffect, useMemo, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  type ImgHTMLAttributes,
+} from "react";
 import {
   gamesSection,
   type GameItem,
@@ -14,6 +19,7 @@ import {
 } from "@/lib/content";
 import { WonderlandVault } from "@/components/wonderland/WonderlandVault";
 import { useHydrated } from "@/lib/use-hydrated";
+import { useProgression } from "@/lib/progression";
 import { GodotDemoEmbed } from "@/components/sections/GodotDemoEmbed";
 import { CardDetailsDisclosure } from "@/components/ui/card-details-disclosure";
 
@@ -57,7 +63,8 @@ function GameMeta({ game }: { game: GameItem }) {
 function SourceAvailableButton({ href }: { href?: string }) {
   const hydrated = useHydrated();
   const reduceMotion = useReducedMotion();
-  const allowMotion = hydrated && reduceMotion === false;
+  const { isMatrixMode } = useProgression();
+  const allowMotion = hydrated && reduceMotion === false && !isMatrixMode;
 
   const inner = (
     <>
@@ -135,28 +142,53 @@ function GameIconImage({
 }) {
   const [currentSrc, setCurrentSrc] = useState(src);
   const [triedAlt, setTriedAlt] = useState(false);
+  const [broken, setBroken] = useState(false);
 
   useEffect(() => {
     setCurrentSrc(src);
     setTriedAlt(false);
+    setBroken(false);
   }, [src]);
 
   const fallbackSrc = useMemo(() => getAltIconSrc(src), [src]);
 
+  if (broken) {
+    return (
+      <div
+        className={cn(
+          "absolute inset-0 flex size-full items-center justify-center bg-gradient-to-br from-white/10 to-white/5 object-center",
+          className,
+        )}
+        role="img"
+        aria-label={alt}
+      >
+        <span className="px-3 text-center text-xs font-medium text-white/50">
+          Icon missing — add the file under <code className="text-white/70">public</code> or
+          fix <code className="text-white/70">iconSrc</code> in content.
+        </span>
+      </div>
+    );
+  }
+
   return (
     // Local assets under /public — plain <img> avoids Next/Image + SVG/fill edge cases (blank tiles on some setups).
     <img
+      key={currentSrc}
       src={currentSrc}
       alt={alt}
+      width={128}
+      height={128}
       decoding="async"
       loading={priority ? "eager" : "lazy"}
-      fetchPriority={priority ? "high" : "auto"}
+      {...(priority ? ({ fetchPriority: "high" } as ImgHTMLAttributes<HTMLImageElement>) : {})}
       className={cn("absolute inset-0 size-full object-contain object-center", className)}
       onError={() => {
         if (!triedAlt && fallbackSrc) {
           setCurrentSrc(fallbackSrc);
           setTriedAlt(true);
+          return;
         }
+        setBroken(true);
       }}
     />
   );
@@ -327,6 +359,19 @@ export function GamesGallery() {
               {gamesSection.sectionTitle}
             </h2>
           </div>
+        ) : null}
+        {gamesSection.builderTeaser?.href?.trim() &&
+        gamesSection.builderTeaser.label?.trim() ? (
+          <p className="mb-6 max-w-2xl text-sm leading-relaxed text-fuchsia-100/85">
+            {gamesSection.builderTeaser.text}{" "}
+            <Link
+              href={gamesSection.builderTeaser.href}
+              className="font-medium text-fuchsia-200 underline decoration-fuchsia-500/45 underline-offset-2 hover:text-fuchsia-50 hover:decoration-fuchsia-400/70 focus-visible:outline focus-visible:ring-2 focus-visible:ring-fuchsia-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]"
+            >
+              {gamesSection.builderTeaser.label}
+            </Link>
+            .
+          </p>
         ) : null}
         <WonderlandVault
           variant="games"

@@ -51,6 +51,8 @@ export function WonderlandVault({
   children,
 }: WonderlandVaultProps) {
   const reduceMotion = useReducedMotion();
+  const { awardLevelEvent, isMatrixMode } = useProgression();
+  const calmExperience = reduceMotion === true || isMatrixMode;
   const [open, setOpen] = useState(false);
   const [turnProgress, setTurnProgress] = useState(0);
   const [turning, setTurning] = useState(false);
@@ -80,7 +82,6 @@ export function WonderlandVault({
   const minimal = minimalClosedLayout;
   const hideWorkChrome = minimal && isWork;
   const hideGamesChrome = minimal && !isWork;
-  const { awardLevelEvent } = useProgression();
   const wm = site.watermark;
   const hint =
     copy.accessHint?.trim() ||
@@ -397,8 +398,8 @@ export function WonderlandVault({
         <motion.div
           ref={sealedSurfaceRef}
           layout={false}
-          whileHover={reduceMotion ? undefined : { scale: 1.006 }}
-          whileTap={reduceMotion ? undefined : { scale: 0.995 }}
+          whileHover={calmExperience ? undefined : { scale: 1.006 }}
+          whileTap={calmExperience ? undefined : { scale: 0.995 }}
           transition={{ type: "spring", stiffness: 520, damping: 28 }}
           className={cn(
             "vault-sealed-surface group relative w-full overflow-hidden rounded-2xl border text-left",
@@ -415,7 +416,7 @@ export function WonderlandVault({
                 : "from-[#1a1208] via-[#100a06] to-[#050810]",
             )}
             style={{
-              opacity: reduceMotion ? Math.max(sealedBackdropOpacity, 0.35) : sealedBackdropOpacity,
+              opacity: calmExperience ? Math.max(sealedBackdropOpacity, 0.35) : sealedBackdropOpacity,
             }}
             aria-hidden
           />
@@ -503,6 +504,7 @@ export function WonderlandVault({
             <div className="min-w-0 flex-1 space-y-2">
               <p
                 className={cn(
+                  "flex flex-wrap items-center gap-2",
                   hideGamesChrome
                     ? "vault-neon-instruction text-lg font-normal tracking-wide sm:text-xl"
                     : cn(
@@ -511,7 +513,24 @@ export function WonderlandVault({
                       ),
                 )}
               >
-                {copy.teaserTitle}
+                {minimal ? (
+                  <span
+                    className={cn(
+                      "inline-flex size-9 shrink-0 items-center justify-center rounded-xl border shadow-inner",
+                      isWork
+                        ? "border-cyan-400/35 bg-black/40 text-cyan-200/90"
+                        : "border-amber-400/35 bg-black/40 text-amber-200/90",
+                    )}
+                    aria-hidden
+                  >
+                    {isWork ? (
+                      <BookMarked className="size-5" strokeWidth={1.25} />
+                    ) : (
+                      <Rabbit className="size-5" strokeWidth={1.25} />
+                    )}
+                  </span>
+                ) : null}
+                <span>{copy.teaserTitle}</span>
               </p>
               {copy.teaserBody?.trim() ? (
                 <p className="vault-neon-instruction text-sm leading-relaxed sm:text-base">
@@ -639,7 +658,7 @@ export function WonderlandVault({
               onClick={onSealVault}
               aria-controls={panelId}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                "vault-seal-top inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                 "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
                 isWork
                   ? "border-white/15 bg-white/5 text-cyan-100/85 hover:border-cyan-500/35 hover:bg-cyan-950/25 focus-visible:outline-cyan-400/60"
@@ -656,7 +675,7 @@ export function WonderlandVault({
             role="region"
             aria-label={copy.teaserTitle}
             className="relative isolate"
-            initial={reduceMotion ? false : { opacity: 0, y: 12 }}
+            initial={calmExperience ? false : { opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           >
@@ -674,7 +693,31 @@ export function WonderlandVault({
                 />
               </div>
             ) : null}
-            <div className="relative z-[1]">{children}</div>
+            <div className="relative z-[1] space-y-6">
+              {children}
+              <div
+                className={cn(
+                  "flex flex-wrap items-center justify-end gap-3 border-t pt-5",
+                  isWork ? "border-cyan-500/15" : "border-amber-500/15",
+                )}
+              >
+                <button
+                  type="button"
+                  onClick={onSealVault}
+                  aria-controls={panelId}
+                  className={cn(
+                    "vault-seal-bottom inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
+                    "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2",
+                    isWork
+                      ? "border-white/15 bg-white/5 text-cyan-100/85 hover:border-cyan-500/35 hover:bg-cyan-950/25 focus-visible:outline-cyan-400/60"
+                      : "border-white/15 bg-white/5 text-amber-100/85 hover:border-amber-500/35 hover:bg-amber-950/25 focus-visible:outline-amber-400/60",
+                  )}
+                >
+                  <Lock className="size-3.5" aria-hidden />
+                  {copy.ctaOpen}
+                </button>
+              </div>
+            </div>
           </motion.div>
         </div>
       )}

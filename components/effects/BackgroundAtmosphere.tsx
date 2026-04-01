@@ -6,6 +6,8 @@ import { useReducedMotion } from "framer-motion";
 type BackgroundAtmosphereProps = {
   /** Only when the main column is transparent over a photo/video bg. */
   enabled: boolean;
+  /** Blue-pill mode: single soft wash, no scroll-linked smoke. */
+  matrixCalm?: boolean;
 };
 
 const FORCE_CENTER_SMOKE_DEBUG = true;
@@ -13,13 +15,16 @@ const FORCE_CENTER_SMOKE_DEBUG = true;
 /**
  * Fixed layer behind page chrome: scroll-linked cool→warm grade + dual smoke.
  */
-export function BackgroundAtmosphere({ enabled }: BackgroundAtmosphereProps) {
+export function BackgroundAtmosphere({
+  enabled,
+  matrixCalm = false,
+}: BackgroundAtmosphereProps) {
   const reduceMotion = useReducedMotion();
   const elRef = useRef<HTMLDivElement>(null);
   const rafScroll = useRef(0);
 
   useEffect(() => {
-    if (!enabled || typeof window === "undefined") {
+    if (!enabled || matrixCalm || typeof window === "undefined") {
       return;
     }
 
@@ -47,10 +52,27 @@ export function BackgroundAtmosphere({ enabled }: BackgroundAtmosphereProps) {
       window.removeEventListener("resize", onScroll);
       cancelAnimationFrame(rafScroll.current);
     };
-  }, [enabled]);
+  }, [enabled, matrixCalm]);
 
   if (!enabled) {
     return null;
+  }
+
+  if (matrixCalm) {
+    return (
+      <div
+        className="pointer-events-none fixed inset-0 -z-[15]"
+        aria-hidden
+      >
+        <div
+          className="absolute inset-0 opacity-50"
+          style={{
+            background:
+              "linear-gradient(180deg, rgba(15,23,42,0.5) 0%, transparent 50%, rgba(15,23,42,0.35) 100%)",
+          }}
+        />
+      </div>
+    );
   }
 
   if (reduceMotion === true) {
