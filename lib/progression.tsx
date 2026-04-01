@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from "react";
 import { submitLeadToBackend } from "@/lib/submit-lead-remote";
 
 export const STORAGE_KEY = "cesar-portfolio-progression-v1";
@@ -12,7 +12,13 @@ export const ORACLE_UNLOCK_LEVEL = 5;
 /** `null` = visitor has not chosen red vs blue pill yet (first visit). */
 export type ExperienceMode = "wonderland" | "matrix" | null;
 
-const LEVEL_ONE_EVENT_TYPES = new Set(["atmosphere-play", "atmosphere-minimize"]);
+/** Level 0 can advance via atmosphere *or* vaults / card details (no audio asset required). */
+const LEVEL_ONE_EVENT_TYPES = new Set([
+  "atmosphere-play",
+  "atmosphere-minimize",
+  "vault-open",
+  "details-expand",
+]);
 
 export type LeadRecord = {
   id: string;
@@ -62,6 +68,7 @@ export type LevelEventInput = {
 export type LevelEventResult = {
   leveled: boolean;
   level: number;
+  reason?: string;
 };
 
 type ProgressionContextValue = {
@@ -119,6 +126,16 @@ const emptyState: StoredProgression = {
   experienceMode: null,
 };
 
+/** Immediate durable write for pill choice / navigation; avoids mobile races before the debounced effect runs. */
+function persistProgressionToStorage(next: StoredProgression): void {
+  if (typeof window === "undefined") return;
+  try {
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+  } catch {
+    /* Private mode / quota / storage disabled (common on mobile Safari) */
+  }
+}
+
 export function safeParseProgression(raw: string | null): StoredProgression {
   if (!raw) return emptyState;
   try {
@@ -156,18 +173,28 @@ export function safeParseProgression(raw: string | null): StoredProgression {
 
     const extended = parsed as { experienceMode?: unknown };
     const hasExperienceKey = Object.prototype.hasOwnProperty.call(extended, "experienceMode");
+    const legacyProgress =
+      clampedLevel > 0 ||
+      Boolean(parsed.levelOneComplete) ||
+      (Array.isArray(parsed.awardedEventKeys) && parsed.awardedEventKeys.length > 0) ||
+      (Array.isArray(parsed.leads) && parsed.leads.length > 0) ||
+      discountClaim !== null;
+
     let experienceMode: ExperienceMode = null;
-    if (hasExperienceKey && (extended.experienceMode === "matrix" || extended.experienceMode === "wonderland")) {
-      experienceMode = extended.experienceMode;
-    } else if (hasExperienceKey && extended.experienceMode === null) {
-      experienceMode = null;
+    if (hasExperienceKey) {
+      const raw = extended.experienceMode;
+      if (raw === null) {
+        experienceMode = null;
+      } else if (typeof raw === "string") {
+        const n = raw.trim().toLowerCase();
+        if (n === "matrix") experienceMode = "matrix";
+        else if (n === "wonderland") experienceMode = "wonderland";
+        else experienceMode = legacyProgress ? "wonderland" : null;
+      } else {
+        experienceMode = legacyProgress ? "wonderland" : null;
+      }
     } else {
-      const legacyProgress =
-        clampedLevel > 0 ||
-        Boolean(parsed.levelOneComplete) ||
-        (Array.isArray(parsed.awardedEventKeys) && parsed.awardedEventKeys.length > 0) ||
-        (Array.isArray(parsed.leads) && parsed.leads.length > 0) ||
-        discountClaim !== null;
+      /* Saved before experienceMode existed */
       experienceMode = legacyProgress ? "wonderland" : null;
     }
 
@@ -207,16 +234,35 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
   const [overlayCollapsed, setOverlayCollapsed] = useState(true);
   const [playMode, setPlayMode] = useState(false);
   const [state, setState] = useState<StoredProgression>(emptyState);
+  const stateRef = useRef<StoredProgression>(emptyState);
 
   useEffect(() => {
-    const next = safeParseProgression(window.localStorage.getItem(STORAGE_KEY));
+    let next = emptyState;
+    try {
+      const nav = window.performance.getEntriesByType("navigation")[0] as
+        | PerformanceNavigationTiming
+        | undefined;
+      const navType = nav?.type ?? "unknown";
+      const isLocalhost =
+        window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1";
+      const shouldResetForReload = isLocalhost && navType === "reload";
+      if (shouldResetForReload) {
+        window.localStorage.removeItem(STORAGE_KEY);
+      }
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      next = safeParseProgression(raw);
+    } catch {
+      /* Storage denied (ITP / embedded / enterprise) — still unlock the client UI */
+    }
     setState(next);
+    stateRef.current = next;
     setHydrated(true);
   }, []);
 
   useEffect(() => {
     if (!hydrated) return;
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    persistProgressionToStorage(state);
+    stateRef.current = state;
   }, [hydrated, state]);
 
   const collapseOverlay = useCallback(() => {
@@ -237,21 +283,25 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
 
   const chooseExperience = useCallback((mode: Exclude<ExperienceMode, null>) => {
     setState((prev) => {
+      let next: StoredProgression;
       if (mode === "matrix") {
         const nextLevel = Math.max(1, prev.currentLevel);
-        return {
+        next = {
           ...prev,
           version: 4,
           experienceMode: "matrix",
           currentLevel: nextLevel,
           levelOneComplete: true,
         };
+      } else {
+        next = {
+          ...prev,
+          version: 4,
+          experienceMode: "wonderland",
+        };
       }
-      return {
-        ...prev,
-        version: 4,
-        experienceMode: "wonderland",
-      };
+      persistProgressionToStorage(next);
+      return next;
     });
   }, []);
 
@@ -272,9 +322,7 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
                 version: 4,
                 experienceMode: "wonderland",
               };
-        if (typeof window !== "undefined") {
-          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-        }
+        persistProgressionToStorage(next);
         return next;
       });
       router.push(path);
@@ -283,11 +331,15 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
   );
 
   const reopenExperienceChoice = useCallback(() => {
-    setState((prev) => ({
-      ...prev,
-      version: 4,
-      experienceMode: null,
-    }));
+    setState((prev) => {
+      const next: StoredProgression = {
+        ...prev,
+        version: 4,
+        experienceMode: null,
+      };
+      persistProgressionToStorage(next);
+      return next;
+    });
   }, []);
 
   const awardLevelEvent = useCallback((input: LevelEventInput): LevelEventResult => {
@@ -296,32 +348,25 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
     const rawKey = input.key?.trim().toLowerCase();
     const eventKey = rawKey || [type, source].filter(Boolean).join(":");
     const now = Date.now();
-    let result: LevelEventResult = { leveled: false, level: 0 };
+    const prev = stateRef.current;
+    let result: LevelEventResult = { leveled: false, level: prev.currentLevel, reason: "start" };
     let shouldOpenOverlay = false;
+    let nextState = prev;
 
-    setState((prev) => {
-      result = { leveled: false, level: prev.currentLevel };
-      if (!type || !eventKey || prev.currentLevel >= MAX_LEVEL) {
-        return prev;
-      }
-      if (prev.currentLevel === 0 && !LEVEL_ONE_EVENT_TYPES.has(type)) {
-        result = { leveled: false, level: prev.currentLevel };
-        return prev;
-      }
-      if (prev.awardedEventKeys.includes(eventKey)) {
-        result = { leveled: false, level: prev.currentLevel };
-        return prev;
-      }
+    if (!type || !eventKey || prev.currentLevel >= MAX_LEVEL) {
+      result = { leveled: false, level: prev.currentLevel, reason: "invalid-input-or-at-max" };
+    } else if (prev.currentLevel === 0 && !LEVEL_ONE_EVENT_TYPES.has(type)) {
+      result = { leveled: false, level: prev.currentLevel, reason: "blocked-level-zero-event-type" };
+    } else if (prev.awardedEventKeys.includes(eventKey)) {
+      result = { leveled: false, level: prev.currentLevel, reason: "duplicate-event-key" };
+    } else if (now - prev.lastAwardedAtMs < 140) {
       /** Short cooldown only to debounce duplicate pointer events; keep low so distinct interactions still level you up. */
-      if (now - prev.lastAwardedAtMs < 140) {
-        result = { leveled: false, level: prev.currentLevel };
-        return prev;
-      }
-
+      result = { leveled: false, level: prev.currentLevel, reason: "cooldown-window" };
+    } else {
       const nextLevel = Math.min(MAX_LEVEL, prev.currentLevel + 1);
-      result = { leveled: true, level: nextLevel };
+      result = { leveled: true, level: nextLevel, reason: "leveled" };
       shouldOpenOverlay = prev.experienceMode !== "matrix";
-      return {
+      nextState = {
         ...prev,
         version: 4,
         currentLevel: nextLevel,
@@ -329,7 +374,9 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
         awardedEventKeys: [...prev.awardedEventKeys, eventKey],
         lastAwardedAtMs: now,
       };
-    });
+      setState(nextState);
+      stateRef.current = nextState;
+    }
 
     if (result.leveled && shouldOpenOverlay) {
       setOverlayCollapsed(false);

@@ -9,8 +9,8 @@
     },
     "audioReactiveBackground": {
       "enabled": true,
-      "imageSrc": "",
-      "audioSrc": "",
+      "imageSrc": "/backgrounds/alice-parallax.png",
+      "audioSrc": "/audio/background.mp3",
       "showControls": true,
       "imageAlt": "Cyberpunk Wonderland city: Alice on the glowing Cheshire tail, rain and neon; left billboard Mad Hatter in the creator’s likeness with teacup, White Rabbit and pocket watch on the right"
     },
@@ -37,9 +37,9 @@
       { "label": "Work", "href": "#work", "navGroup": "anchor" },
       { "label": "Games", "href": "#games", "navGroup": "anchor" },
       { "label": "Dream Now (3D)", "href": "/oracle-3d", "navGroup": "page" },
-      { "label": "À la carte (website)", "href": "/build", "navGroup": "page" },
+      { "label": "À la carte (website)", "href": "/oracle-3d", "navGroup": "page" },
       { "label": "À la carte (social)", "href": "/social", "navGroup": "page" },
-      { "label": "À la carte (app)", "href": "/apps", "navGroup": "page" },
+      { "label": "À la carte (Android app)", "href": "/apps", "navGroup": "page" },
       { "label": "Contact", "href": "#contact", "navGroup": "anchor" },
       {
         "label": "GitHub",
@@ -65,14 +65,14 @@
     "tagline": "Crafting websites, apps, and games",
     "builderLink": {
       "label": "À la carte (website) — punch your scope",
-      "href": "/build"
+      "href": "/oracle-3d"
     },
     "socialPackagesLink": {
       "label": "À la carte (social media)",
       "href": "/social"
     },
     "appPackagesLink": {
-      "label": "À la carte (mobile app)",
+      "label": "À la carte (Android app)",
       "href": "/apps"
     }
   },
@@ -83,11 +83,11 @@
     "builderTeaser": {
       "text": "Prefer to line-item what you need before we talk?",
       "label": "Open à la carte (website)",
-      "href": "/build"
+      "href": "/oracle-3d"
     },
     "appPackagesTeaser": {
-      "text": "Shipping Flutter, React Native, or a store build instead?",
-      "label": "Open à la carte (app)",
+      "text": "Shipping an Android app, APK, or Play listing instead?",
+      "label": "Open à la carte (Android app)",
       "href": "/apps"
     },
     "vault": {
@@ -164,11 +164,11 @@
     "builderTeaser": {
       "text": "Need a scoped playable slice or promo build?",
       "label": "See game options (website à la carte)",
-      "href": "/build"
+      "href": "/oracle-3d"
     },
     "appPackagesTeaser": {
-      "text": "Need native shells, stores, or ASO for a game app?",
-      "label": "See app line items",
+      "text": "Need an Android shell, APK/Play release, or ASO for a game app?",
+      "label": "See Android app line items",
       "href": "/apps"
     },
     "vault": {
@@ -226,7 +226,9 @@
         "demoEnabled": true,
         "demoSlug": "dungeon-master-lite",
         "demoTitle": "Dungeon Master Lite (Godot Web)",
-        "demoNotes": "Godot HTML5 export: copy the entire export folder into public/demos/dungeon-master-lite/ so index.html, .js, .wasm, and .pck stay together. Replace this placeholder when your export is ready."
+        "demoNotes": "Godot 4 Web export (threads) lives in public/demos/dungeon-master-lite/. Use Hide demo to collapse the player.",
+        "demoRequiresProgression": false,
+        "demoDefaultOpen": true
       },
       {
         "id": 4,
@@ -252,7 +254,7 @@
     "builderTeaser": {
       "text": "Want to scope deliverables first? Prices on the builder are indicative only — not final quotes.",
       "label": "À la carte (website)",
-      "href": "/build"
+      "href": "/oracle-3d"
     },
     "email": "hello@example.com",
     "emailButtonLabel": "Email me",
@@ -263,7 +265,7 @@
         "href": "/social"
       },
       {
-        "label": "À la carte (mobile app)",
+        "label": "À la carte (Android app)",
         "href": "/apps"
       }
     ]
@@ -274,7 +276,7 @@
     "builderLink": {
       "line": "Website scope: line items with indicative pricing (not final quotes).",
       "label": "À la carte (website)",
-      "href": "/build"
+      "href": "/oracle-3d"
     },
     "socialPackagesLink": {
       "line": "Social scope: posts, platforms, cadence — same rules (indicative only).",
@@ -282,8 +284,8 @@
       "href": "/social"
     },
     "appPackagesLink": {
-      "line": "App scope: stacks, auth, stores, ASO — same rules (indicative only).",
-      "label": "À la carte (mobile app)",
+      "line": "Android app scope: stacks, auth, APK/Play, ASO — same rules (indicative only).",
+      "label": "À la carte (Android app)",
       "href": "/apps"
     }
   }

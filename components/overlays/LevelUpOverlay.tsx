@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import { useProgression, ORACLE_UNLOCK_LEVEL } from "@/lib/progression";
 
@@ -25,9 +25,41 @@ export function LevelUpOverlay() {
   const [claimEmail, setClaimEmail] = useState("");
   const [claimName, setClaimName] = useState("");
   const [claimError, setClaimError] = useState<string | null>(null);
+  const [liteCelebrationLevel, setLiteCelebrationLevel] = useState<number | null>(null);
+  const prevLevelRef = useRef(0);
 
-  const showFullOverlay = hydrated && !overlayCollapsed;
+  const isMilestoneLevel = currentLevel === 1 || currentLevel >= ORACLE_UNLOCK_LEVEL;
+  const showFullOverlay = hydrated && !overlayCollapsed && isMilestoneLevel;
+  const showLiteCelebration = liteCelebrationLevel !== null;
   const showFloatingPill = overlayCollapsed && currentLevel > 0;
+
+  useEffect(() => {
+    if (!hydrated || experienceMode === null || isMatrixMode) {
+      prevLevelRef.current = currentLevel;
+      return;
+    }
+    const prevLevel = prevLevelRef.current;
+    if (
+      currentLevel > prevLevel &&
+      currentLevel > 1 &&
+      currentLevel < ORACLE_UNLOCK_LEVEL
+    ) {
+      setLiteCelebrationLevel(currentLevel);
+      const t = window.setTimeout(() => {
+        setLiteCelebrationLevel(null);
+        collapseOverlay();
+      }, 2600);
+      prevLevelRef.current = currentLevel;
+      return () => window.clearTimeout(t);
+    }
+    prevLevelRef.current = currentLevel;
+  }, [
+    collapseOverlay,
+    currentLevel,
+    experienceMode,
+    hydrated,
+    isMatrixMode,
+  ]);
 
   const heading = useMemo(() => {
     if (!hydrated) return "Initializing wonderland";
@@ -180,6 +212,21 @@ export function LevelUpOverlay() {
           <ChevronUp className="h-4 w-4" />
           Level {currentLevel}
         </button>
+      ) : null}
+      {showLiteCelebration ? (
+        <div className="pointer-events-none fixed inset-x-4 top-4 z-[330]">
+          <div className="mx-auto w-full max-w-6xl rounded-2xl border border-fuchsia-400/55 bg-[#0a1022]/92 px-6 py-4 shadow-[0_20px_70px_rgba(168,85,247,0.42)] backdrop-blur-md">
+            <p className="text-center text-xs font-medium uppercase tracking-[0.34em] text-fuchsia-200/85">
+              Congratulations
+            </p>
+            <p className="mt-1 text-center text-xl font-semibold tracking-wide text-white sm:text-2xl">
+              Level {liteCelebrationLevel} Up
+            </p>
+            <p className="mt-1 text-center text-xs text-white/70 sm:text-sm">
+              Keep going to unlock Level {ORACLE_UNLOCK_LEVEL}.
+            </p>
+          </div>
+        </div>
       ) : null}
     </>
   );

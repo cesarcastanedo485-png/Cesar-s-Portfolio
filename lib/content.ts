@@ -33,6 +33,8 @@ export type WorkItem = {
   demoNotes?: string;
   /** Optional fallback for opening demo outside the card */
   demoFallbackHref?: string;
+  demoRequiresProgression?: boolean;
+  demoDefaultOpen?: boolean;
   /** When set, the work card media area shows this URL in an iframe (live site preview). */
   embedUrl?: string;
   /** Used when `imageSrc` is omitted — Tailwind utilities after `bg-gradient-to-br`, e.g. `from-cyan-600/90 to-slate-950` */
@@ -68,6 +70,13 @@ export type GameItem = {
   demoNotes?: string;
   /** Optional fallback for opening demo outside the card */
   demoFallbackHref?: string;
+  /**
+   * When false, Godot demo is visible without reaching progression Level 1.
+   * Omit or true: show “Demo locked” until the visitor levels up (default).
+   */
+  demoRequiresProgression?: boolean;
+  /** When true, the iframe loads expanded (“Launch demo” state) on first paint. */
+  demoDefaultOpen?: boolean;
 };
 
 export type AudioReactiveBackgroundConfig = {

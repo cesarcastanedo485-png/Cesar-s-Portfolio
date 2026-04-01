@@ -12,6 +12,10 @@ type GodotDemoEmbedProps = {
   demoNotes?: string;
   demoFallbackHref?: string;
   className?: string;
+  /** Default true: hide iframe behind progression Level 1. */
+  requiresProgression?: boolean;
+  /** Default false: when true, iframe section starts open. */
+  defaultOpen?: boolean;
 };
 
 export function GodotDemoEmbed({
@@ -21,8 +25,10 @@ export function GodotDemoEmbed({
   demoNotes,
   demoFallbackHref,
   className,
+  requiresProgression = true,
+  defaultOpen = false,
 }: GodotDemoEmbedProps) {
-  const [isOpen, setIsOpen] = useState(false);
+  const [isOpen, setIsOpen] = useState(defaultOpen);
   const { levelOneComplete, openOverlay } = useProgression();
 
   const src = useMemo(() => {
@@ -35,7 +41,7 @@ export function GodotDemoEmbed({
     return null;
   }
 
-  if (!levelOneComplete) {
+  if (requiresProgression && !levelOneComplete) {
     return (
       <div
         className={cn(

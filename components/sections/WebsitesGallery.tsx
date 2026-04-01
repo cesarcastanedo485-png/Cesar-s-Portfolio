@@ -300,6 +300,8 @@ export function WebsitesGallery() {
                         demoTitle={item.demoTitle}
                         demoNotes={item.demoNotes}
                         demoFallbackHref={item.demoFallbackHref}
+                        requiresProgression={item.demoRequiresProgression !== false}
+                        defaultOpen={item.demoDefaultOpen === true}
                       />
                       <WorkLinks links={item.links} />
                     </CardDetailsDisclosure>

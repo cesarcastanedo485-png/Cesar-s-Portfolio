@@ -1,14 +1,14 @@
 {
   "meta": {
-    "pageTitle": "App à la carte",
-    "pageDescription": "Scope a mobile or installable app build—stacks, auth, stores, and ASO. Indicative pricing only; final quotes after discovery.",
+    "pageTitle": "Android app à la carte",
+    "pageDescription": "Scope an Android app build—stacks, auth, APK / Play distribution, and ASO. Indicative pricing only; final quotes after discovery.",
     "heroTitle": "Underland Build Spore Terminal",
     "heroSubtitle": "Bioluminescent ticket lane for app builds: stack the caps you need on one glowing stem—still not a final quote, just spore-print hints until discovery locks the forest map.",
-    "stickyDisclaimer": "Indicative pricing only. Final quotes depend on platforms, backend, compliance, and store timelines. Prices change; this page may lag.",
+    "stickyDisclaimer": "Indicative pricing only. Final quotes depend on Android targets (APK vs Play), backend, compliance, and rollout timelines. Prices change; this page may lag.",
     "longDisclaimer": "Totals on this page are not binding. Developer program fees, store review outcomes, third-party SDKs, and infra are usually billed to you directly unless we agree otherwise in writing. Selecting items does not create an obligation for either party.",
     "ticketStation": "SEED",
-    "ticketDestination": "STORE",
-    "mailSubject": "À la carte app build — scope from portfolio"
+    "ticketDestination": "DELIVERY",
+    "mailSubject": "À la carte Android app build — scope from portfolio"
   },
   "questionnaire": {
     "title": "Phase 1 — app context",
@@ -18,8 +18,8 @@
         "id": "app-audience",
         "question": "Who is the primary user?",
         "options": [
-          { "id": "aud-consumer", "label": "Consumer / fans", "description": "Public app stores or sideload trials." },
-          { "id": "aud-internal", "label": "Internal ops / field", "description": "MDM, enterprise tracks, or private distribution." },
+          { "id": "aud-consumer", "label": "Consumer / fans", "description": "Google Play, testing tracks, or direct APK installs." },
+          { "id": "aud-internal", "label": "Internal ops / field", "description": "Android enterprise, MDM, or private APK distribution." },
           { "id": "aud-b2b", "label": "B2B clients", "description": "Accounts, roles, and rollout matter." }
         ]
       },
@@ -27,10 +27,10 @@
         "id": "app-stores",
         "question": "Target distribution?",
         "options": [
-          { "id": "dist-plan-both", "label": "iOS + Android stores", "description": "Full dual-store path." },
-          { "id": "dist-plan-ios", "label": "iOS first", "description": "Android later or not in v1." },
-          { "id": "dist-plan-android", "label": "Android first", "description": "Play or sideload focus." },
-          { "id": "dist-plan-internal", "label": "Internal / enterprise only", "description": "No public store in v1." }
+          { "id": "dist-plan-play", "label": "Google Play (public or testing track)", "description": "Production or internal/open/closed testing on Play." },
+          { "id": "dist-plan-apk-direct", "label": "APK / direct install only", "description": "No Play listing in v1—sideload, download portal, or your own channel." },
+          { "id": "dist-plan-play-plus-apk", "label": "Play + sideload / direct APK", "description": "Store presence plus enterprise-style or parallel APK delivery." },
+          { "id": "dist-plan-internal", "label": "Internal / private Android only", "description": "No public listing; devices you control." }
         ]
       },
       {
@@ -63,7 +63,7 @@
         {
           "id": "app-stack-flutter",
           "label": "Flutter (Dart)",
-          "description": "Cross-platform UI with Material/Cupertino; one codebase for mobile (+ web/desktop if scoped).",
+          "description": "Material-first UI for Android; Flutter can share a codebase for web/desktop if you add those later—this menu scopes Android APK / Play delivery.",
           "tags": ["Flutter", "Dart"],
           "excludes": ["app-stack-rn", "app-stack-pwa", "app-stack-webview"],
           "priceHint": { "display": "From ~$5,200", "basis": "Scales with screens, state, and plugin depth." }
@@ -79,7 +79,7 @@
         {
           "id": "app-stack-pwa",
           "label": "PWA + native shell (Capacitor-class)",
-          "description": "Web app wrapped for store listing with plugins for push, camera, etc.—not a substitute for heavy native UI.",
+          "description": "Web app wrapped for Play listing (or sideloaded shell) with plugins for push, camera, etc.—not a substitute for heavy native UI.",
           "tags": ["PWA", "Capacitor"],
           "excludes": ["app-stack-flutter", "app-stack-rn", "app-stack-webview"],
           "priceHint": { "display": "From ~$3,600", "basis": "Store compliance and plugin gaps move the quote." }
@@ -87,7 +87,7 @@
         {
           "id": "app-stack-webview",
           "label": "Thin native shell + WebView",
-          "description": "Loads your existing responsive web inside a minimal app for store presence—fastest when the web app is already strong.",
+          "description": "Loads your existing responsive web inside a minimal Android shell for Play or APK delivery—fastest when the web app is already strong.",
           "tags": ["WebView", "Shell"],
           "excludes": ["app-stack-flutter", "app-stack-rn", "app-stack-pwa"],
           "priceHint": { "display": "From ~$2,400", "basis": "Deep integrations still need native code." }
@@ -177,7 +177,7 @@
           "label": "No auth (guest / local)",
           "description": "No accounts; optional device-only IDs.",
           "tags": ["Guest"],
-          "excludes": ["app-auth-email", "app-auth-oauth", "app-auth-apple-google"],
+          "excludes": ["app-auth-email", "app-auth-oauth", "app-auth-google-signin"],
           "priceHint": { "display": "From $0", "basis": "Revisit when you need accounts." }
         },
         {
@@ -185,7 +185,7 @@
           "label": "Email magic link / password",
           "description": "Classic email flows with your provider or Firebase/Supabase auth.",
           "tags": ["Email"],
-          "excludes": ["app-auth-none", "app-auth-oauth", "app-auth-apple-google"],
+          "excludes": ["app-auth-none", "app-auth-oauth", "app-auth-google-signin"],
           "priceHint": { "display": "From ~$900", "basis": "MFA and risky flows add review time." }
         },
         {
@@ -193,44 +193,37 @@
           "label": "OAuth (social login)",
           "description": "One or more IdPs (e.g. Google, GitHub) via your stack’s OAuth patterns.",
           "tags": ["OAuth"],
-          "excludes": ["app-auth-none", "app-auth-email", "app-auth-apple-google"],
+          "excludes": ["app-auth-none", "app-auth-email", "app-auth-google-signin"],
           "priceHint": { "display": "From ~$1,100", "basis": "Each extra provider adds config and QA." }
         },
         {
-          "id": "app-auth-apple-google",
-          "label": "Apple + Google sign-in (store-friendly)",
-          "description": "The usual App Store pairing: Sign in with Apple plus Google where policy allows.",
-          "tags": ["Apple", "Google"],
+          "id": "app-auth-google-signin",
+          "label": "Google sign-in (Play-friendly)",
+          "description": "Google as primary social IdP—typical for Play-distributed apps; account linking scope in discovery.",
+          "tags": ["Google", "OAuth"],
           "excludes": ["app-auth-none", "app-auth-email", "app-auth-oauth"],
-          "priceHint": { "display": "From ~$1,450", "basis": "Account linking and edge cases add scope." }
+          "priceHint": { "display": "From ~$1,250", "basis": "Account linking and edge cases add scope." }
         }
       ]
     },
     {
       "id": "app-distribution",
-      "label": "Distribution & stores",
-      "description": "Ship lanes and submission help.",
+      "label": "Distribution & Play / APK",
+      "description": "Release APKs, Play tracks, and listing help—Android only.",
       "items": [
         {
-          "id": "app-dist-ios-internal",
-          "label": "iOS internal / TestFlight wiring",
-          "description": "Certs, profiles, build flavor, and first TestFlight upload notes—Apple dev account on you.",
-          "tags": ["iOS", "TestFlight"],
-          "priceHint": { "display": "From ~$520", "basis": "$99/yr Apple program billed to you." }
-        },
-        {
           "id": "app-dist-android-internal",
-          "label": "Android internal / Play tracks",
-          "description": "Signing config, internal testing track, and rollout checklist—Play account on you.",
-          "tags": ["Android", "Play"],
+          "label": "Android signing, release APK & Play tracks",
+          "description": "Keystore / Play App Signing notes, release vs debug flavors, internal/open/closed testing tracks, and rollout checklist—Play account and fees on you.",
+          "tags": ["Android", "Play", "APK"],
           "priceHint": { "display": "From ~$480", "basis": "Play fees and policy changes pass through." }
         },
         {
           "id": "app-dist-store-prep",
-          "label": "Store listing prep (both platforms)",
-          "description": "Screenshots template alignment, description drafts, content rating questionnaires outline—graphics finalization may be separate.",
-          "tags": ["ASO", "Listing"],
-          "priceHint": { "display": "From ~$620", "basis": "Per store if split; localization extra." }
+          "label": "Play listing prep (Android)",
+          "description": "Screenshots template alignment, short/full description drafts, content rating questionnaire outline—graphics finalization may be separate; sideload-only apps may skip.",
+          "tags": ["ASO", "Listing", "Play"],
+          "priceHint": { "display": "From ~$620", "basis": "Localization extra; not needed for APK-only lanes." }
         }
       ]
     },
@@ -256,14 +249,14 @@
         {
           "id": "app-q-push",
           "label": "Push notifications sketch",
-          "description": "FCM/APNs wiring outline, permission UX, and payload patterns—backend worker scope may be extra.",
+          "description": "FCM wiring outline for Android, notification channels, permission UX, and payload patterns—backend worker scope may be extra.",
           "tags": ["Push"],
           "priceHint": { "display": "From ~$550", "basis": "Rich media and topic fan-out add time." }
         },
         {
           "id": "app-q-deeplink",
           "label": "Deep links / app links",
-          "description": "Universal links and Android App Links verification checklist with your domains.",
+          "description": "Android App Links verification checklist with your domains (intent filters, assetlinks.json).",
           "tags": ["Deeplink"],
           "priceHint": { "display": "From ~$420", "basis": "Multi-domain or deferred deep links custom." }
         }
@@ -277,7 +270,7 @@
         {
           "id": "app-c-privacy-labels",
           "label": "Privacy labels & data inventory assist",
-          "description": "Questionnaire walkthrough aligned to App Store / Play privacy forms from the implemented SDK list.",
+          "description": "Questionnaire walkthrough aligned to Play Data safety and in-app disclosures from the implemented SDK list; sideload/Privacy Policy fit covered at high level—not legal advice.",
           "tags": ["Privacy"],
           "priceHint": { "display": "From ~$380", "basis": "Lawyer review still recommended for regulated data." }
         },
@@ -298,21 +291,21 @@
         {
           "id": "app-t-fastlane",
           "label": "Fastlane-style lane sketch",
-          "description": "Lanes for beta vs release, env files, and match/cert notes as fits your stack.",
+          "description": "Lanes for beta vs release APK/Bundle, env files, and Android signing notes as fits your stack.",
           "tags": ["Fastlane"],
           "priceHint": { "display": "From ~$520", "basis": "Monorepos and signing chaos add hours." }
         },
         {
           "id": "app-t-ci",
-          "label": "CI build (lint + assemble)",
-          "description": "GitHub Actions (or similar) to build PRs and artifacts—no full device farm.",
+          "label": "CI build (Android lint + assemble)",
+          "description": "GitHub Actions (or similar) for Android PR checks, lint, and debug/release APK or AAB artifacts—no full device farm.",
           "tags": ["CI"],
-          "priceHint": { "display": "From ~$420", "basis": "iOS runners or self-hosted Mac adds cost." }
+          "priceHint": { "display": "From ~$420", "basis": "Heavier matrix (flavors, ABI splits) adds time." }
         },
         {
           "id": "app-t-e2e",
           "label": "E2E smoke harness",
-          "description": "A handful of critical-path flows (e.g. login, checkout) with Maestro/Detox-class tooling—bounded count.",
+          "description": "A handful of critical-path flows (e.g. login, checkout) with Maestro-class Android UI tests or similar—bounded count.",
           "tags": ["E2E", "QA"],
           "priceHint": { "display": "From ~$680", "basis": "Flaky tests mean timeboxed stabilization." }
         }
@@ -321,7 +314,7 @@
     {
       "id": "app-aso",
       "label": "ASO & discovery (apps)",
-      "description": "Store search and conversion—not web SEO (see website à la carte for that).",
+      "description": "Play search and listing conversion—not web SEO (see website à la carte for that).",
       "selectionMode": "multi",
       "items": [
         {

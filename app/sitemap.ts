@@ -12,7 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       priority: 1,
     },
     {
-      url: `${base}/build`,
+      url: `${base}/oracle-3d`,
       lastModified: now,
       changeFrequency: "monthly",
       priority: 0.85,

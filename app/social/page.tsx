@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { socialMenuData } from "@/lib/social-menu";
 import { SocialPackagesClient } from "@/components/social/SocialPackagesClient";
+import { AlaCarteLevelGate } from "@/components/progression/AlaCarteLevelGate";
 
 const { meta } = socialMenuData;
 
@@ -10,5 +11,9 @@ export const metadata: Metadata = {
 };
 
 export default function SocialPackagesPage() {
-  return <SocialPackagesClient />;
+  return (
+    <AlaCarteLevelGate title="Social media à la carte">
+      <SocialPackagesClient />
+    </AlaCarteLevelGate>
+  );
 }

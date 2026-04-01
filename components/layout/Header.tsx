@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { nav, type NavLink } from "@/lib/content";
-import { useProgression } from "@/lib/progression";
 import { cn } from "@/lib/utils";
 
 function internalNavKind(link: NavLink): "anchor" | "page" {
@@ -21,10 +20,8 @@ function pageLinkClassName(href: string) {
 }
 
 export function Header() {
-  const { canAccessOracle } = useProgression();
   const internal = nav.links.filter((l) => {
     if (l.external) return false;
-    if (l.href === "/oracle-3d" && !canAccessOracle) return false;
     return true;
   });
   const external = nav.links.filter((l) => l.external);

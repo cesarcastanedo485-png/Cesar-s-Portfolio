@@ -125,7 +125,7 @@ export function AudioReactiveBackground({
       {/* Visual layers only: stacking context stays behind page content */}
       <div
         ref={containerRef}
-        className="pointer-events-none fixed inset-x-0 top-0 bottom-0 -z-20 min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-visual-mul:0.96] md:[--arp-visual-mul:1]"
+        className="pointer-events-none fixed inset-x-0 top-0 bottom-0 z-0 min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-visual-mul:0.96] md:[--arp-visual-mul:1]"
       >
         <audio
           ref={audioRef}
@@ -201,34 +201,34 @@ export function AudioReactiveBackground({
           {/* Mist — offset from viewport center + mask keeps hero column calmer; scroll amp ↑ for visible parallax */}
           <div
             aria-hidden
-            className="portfolio-smoke-parallax pointer-events-none absolute inset-0 mix-blend-screen opacity-95 max-md:opacity-[0.84]"
+            className="portfolio-smoke-parallax pointer-events-none absolute inset-0 mix-blend-screen opacity-[0.98] max-md:opacity-[0.94]"
             style={{
               WebkitMaskImage:
-                "radial-gradient(ellipse 74% 70% at 50% 44%, transparent 0%, transparent 26%, rgba(0,0,0,0.55) 52%, black 88%)",
+                "radial-gradient(ellipse 74% 70% at 50% 44%, transparent 0%, transparent 10%, rgba(0,0,0,0.42) 36%, black 82%)",
               maskImage:
-                "radial-gradient(ellipse 74% 70% at 50% 44%, transparent 0%, transparent 26%, rgba(0,0,0,0.55) 52%, black 88%)",
+                "radial-gradient(ellipse 74% 70% at 50% 44%, transparent 0%, transparent 10%, rgba(0,0,0,0.42) 36%, black 82%)",
               backgroundImage: `
-                radial-gradient(ellipse 88% 42% at calc(36% + var(--arp-scroll-x, 0vw) * 0.42) 52%, rgba(255,255,255,0.34) 0%, rgba(226,232,240,0.22) 30%, rgba(186,230,253,0.14) 48%, transparent 70%),
-                radial-gradient(ellipse 40% 30% at calc(64% + var(--arp-scroll-x, 0vw) * 0.28) 48%, rgba(255,250,255,0.22) 0%, rgba(255,255,255,0.1) 42%, transparent 62%)
+                radial-gradient(ellipse 88% 42% at calc(36% + var(--arp-scroll-x, 0vw) * 0.48) 52%, rgba(255,255,255,0.46) 0%, rgba(226,232,240,0.32) 32%, rgba(186,230,253,0.2) 54%, transparent 74%),
+                radial-gradient(ellipse 40% 30% at calc(64% + var(--arp-scroll-x, 0vw) * 0.34) 48%, rgba(255,250,255,0.3) 0%, rgba(255,255,255,0.16) 44%, transparent 64%)
               `,
               opacity:
-                "calc(0.38 + var(--arp-pulse, 0) * 0.24 + var(--arp-pulse-spike, 0) * 0.16)",
+                "calc(0.5 + var(--arp-pulse, 0) * 0.26 + var(--arp-pulse-spike, 0) * 0.18)",
             }}
           />
           <div
             aria-hidden
-            className="portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-screen max-md:opacity-[0.92]"
+            className="portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-screen opacity-[0.96] max-md:opacity-[0.94]"
             style={{
               WebkitMaskImage:
-                "radial-gradient(ellipse 78% 72% at 48% 50%, transparent 0%, transparent 22%, rgba(0,0,0,0.5) 50%, black 86%)",
+                "radial-gradient(ellipse 78% 72% at 48% 50%, transparent 0%, transparent 8%, rgba(0,0,0,0.38) 34%, black 80%)",
               maskImage:
-                "radial-gradient(ellipse 78% 72% at 48% 50%, transparent 0%, transparent 22%, rgba(0,0,0,0.5) 50%, black 86%)",
+                "radial-gradient(ellipse 78% 72% at 48% 50%, transparent 0%, transparent 8%, rgba(0,0,0,0.38) 34%, black 80%)",
               backgroundImage: `
-                radial-gradient(ellipse 82% 58% at calc(72% - var(--arp-scroll-x, 0vw) * 0.38) 58%, rgba(244,232,255,0.34) 0%, rgba(196,181,253,0.22) 44%, transparent 70%),
-                radial-gradient(ellipse 52% 40% at calc(28% - var(--arp-scroll-x, 0vw) * 0.32) 60%, rgba(255,255,255,0.18) 0%, transparent 58%)
+                radial-gradient(ellipse 82% 58% at calc(72% - var(--arp-scroll-x, 0vw) * 0.44) 58%, rgba(244,232,255,0.42) 0%, rgba(196,181,253,0.28) 46%, transparent 74%),
+                radial-gradient(ellipse 52% 40% at calc(28% - var(--arp-scroll-x, 0vw) * 0.36) 60%, rgba(255,255,255,0.26) 0%, transparent 60%)
               `,
               opacity:
-                "calc(0.48 + var(--arp-pulse, 0) * 0.2)",
+                "calc(0.55 + var(--arp-pulse, 0) * 0.22)",
             }}
           />
           {FORCE_CENTER_SMOKE_DEBUG ? (
@@ -244,7 +244,7 @@ export function AudioReactiveBackground({
         </div>
       </div>
 
-      {/* Controls sit above main content (not inside -z-20, so clicks work) */}
+      {/* Controls sit above main content (not inside z-0 bg layer, so clicks work) */}
       {showControls ? (
         <div
           className="pointer-events-none fixed inset-0 z-[200]"

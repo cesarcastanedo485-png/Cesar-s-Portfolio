@@ -1,14 +1,17 @@
 import type { Metadata } from "next";
-import { appMenuData } from "@/lib/app-menu";
-import { AppPackagesClient } from "@/components/app/AppPackagesClient";
-
-const { meta } = appMenuData;
+import { buildMenuData } from "@/lib/build-menu";
+import { BuildPageClient } from "@/components/build/BuildPageClient";
+import { AlaCarteLevelGate } from "@/components/progression/AlaCarteLevelGate";
 
 export const metadata: Metadata = {
-  title: meta.pageTitle,
-  description: meta.pageDescription,
+  title: `${buildMenuData.meta.pageTitle} (App)`,
+  description: buildMenuData.meta.pageDescription,
 };
 
 export default function AppPackagesPage() {
-  return <AppPackagesClient />;
+  return (
+    <AlaCarteLevelGate title="Android app à la carte">
+      <BuildPageClient />
+    </AlaCarteLevelGate>
+  );
 }

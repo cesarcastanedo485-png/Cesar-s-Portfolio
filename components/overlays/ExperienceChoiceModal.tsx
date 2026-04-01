@@ -61,7 +61,7 @@ export function ExperienceChoiceModal() {
             type="button"
             onClick={() => chooseExperience("wonderland")}
             className={cn(
-              "group rounded-xl border-2 border-red-500/55 bg-gradient-to-b from-red-950/50 to-black/80 px-4 py-5 text-left transition",
+              "group touch-manipulation rounded-xl border-2 border-red-500/55 bg-gradient-to-b from-red-950/50 to-black/80 px-4 py-5 text-left transition active:opacity-95",
               "shadow-[0_0_28px_rgba(239,68,68,0.22)] hover:border-red-400/80 hover:shadow-[0_0_36px_rgba(248,113,113,0.32)]",
               "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-400/80",
             )}
@@ -82,7 +82,7 @@ export function ExperienceChoiceModal() {
             type="button"
             onClick={() => chooseExperience("matrix")}
             className={cn(
-              "group rounded-xl border-2 border-sky-500/45 bg-gradient-to-b from-slate-900/80 to-black/80 px-4 py-5 text-left transition",
+              "group touch-manipulation rounded-xl border-2 border-sky-500/45 bg-gradient-to-b from-slate-900/80 to-black/80 px-4 py-5 text-left transition active:opacity-95",
               "shadow-[0_0_22px_rgba(56,189,248,0.18)] hover:border-sky-400/70 hover:shadow-[0_0_30px_rgba(125,211,252,0.25)]",
               "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400/70",
             )}
@@ -115,16 +115,16 @@ export function ExperienceChoiceModal() {
           <div className="mt-4 grid gap-3 sm:grid-cols-3">
             <button
               type="button"
-              onClick={() => chooseExperienceAndGo("matrix", "/build")}
+              onClick={() => chooseExperienceAndGo("matrix", "/oracle-3d")}
               className={cn(
                 "rounded-lg border border-cyan-500/40 bg-cyan-950/35 px-3 py-3 text-left text-sm font-medium text-cyan-50 transition",
                 "hover:border-cyan-300/55 hover:bg-cyan-900/40",
                 "focus-visible:outline focus-visible:ring-2 focus-visible:ring-cyan-400/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f1a]",
               )}
             >
-              Website packages
+              Website a la carte
               <span className="mt-1 block text-[11px] font-normal text-cyan-200/70">
-                À la carte (website) — line items & receipt
+                À la carte (website) — Fortune Teller / Oracle chamber
               </span>
             </button>
             <button
@@ -150,9 +150,9 @@ export function ExperienceChoiceModal() {
                 "focus-visible:outline focus-visible:ring-2 focus-visible:ring-emerald-400/55 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0f1a]",
               )}
             >
-              Mobile app packages
+              Android app packages
               <span className="mt-1 block text-[11px] font-normal text-emerald-200/70">
-                À la carte (app) — stacks, stores & ASO
+                À la carte (Android app) — stacks, APK/Play & ASO
               </span>
             </button>
           </div>

@@ -23,6 +23,28 @@ import { useProgression } from "@/lib/progression";
 import { GodotDemoEmbed } from "@/components/sections/GodotDemoEmbed";
 import { CardDetailsDisclosure } from "@/components/ui/card-details-disclosure";
 
+function gameDemoEmbedProps(game: GameItem) {
+  return {
+    demoEnabled: game.demoEnabled,
+    demoSlug: game.demoSlug,
+    demoTitle: game.demoTitle,
+    demoNotes: game.demoNotes,
+    demoFallbackHref: game.demoFallbackHref,
+    requiresProgression: game.demoRequiresProgression !== false,
+    defaultOpen: game.demoDefaultOpen === true,
+  };
+}
+
+/** Always-visible demo player (not hidden inside Details). Anchor: #demo-<demoSlug> */
+function GameDemoPanel({ game, className }: { game: GameItem; className?: string }) {
+  if (!game.demoEnabled || !game.demoSlug?.trim()) return null;
+  return (
+    <div id={`demo-${game.demoSlug.trim()}`} className={cn("scroll-mt-28", className)}>
+      <GodotDemoEmbed {...gameDemoEmbedProps(game)} />
+    </div>
+  );
+}
+
 const DEFAULT_GAMES_VAULT: WonderlandVaultCopy = {
   teaserTitle: "Down the rabbit hole",
   teaserBody: "Stream-first games and demos hide here until you open the vault.",
@@ -250,19 +272,17 @@ function FeaturedGameSpotlight({ game }: { game: GameItem }) {
               </ul>
             ) : null}
             <GameMeta game={game} />
-            <GodotDemoEmbed
-              demoEnabled={game.demoEnabled}
-              demoSlug={game.demoSlug}
-              demoTitle={game.demoTitle}
-              demoNotes={game.demoNotes}
-              demoFallbackHref={game.demoFallbackHref}
-            />
             {game.sourceAvailable && (
               <SourceAvailableButton href={game.sourceHref} />
             )}
           </CardDetailsDisclosure>
         </div>
       </div>
+      {game.demoEnabled ? (
+        <div className="border-t border-white/10 bg-black px-4 py-4 sm:px-6">
+          <GameDemoPanel game={game} />
+        </div>
+      ) : null}
     </Card>
   );
 }
@@ -287,15 +307,9 @@ function GameCard({ game }: { game: GameItem }) {
         </div>
         <div className="flex flex-col gap-2 border-t border-white/10 bg-black px-4 py-3">
           <p className="text-xs text-muted-foreground">{game.price}</p>
+          <GameDemoPanel game={game} />
           <CardDetailsDisclosure disclosureId={`game-details-${game.id}`}>
             <GameMeta game={game} />
-            <GodotDemoEmbed
-              demoEnabled={game.demoEnabled}
-              demoSlug={game.demoSlug}
-              demoTitle={game.demoTitle}
-              demoNotes={game.demoNotes}
-              demoFallbackHref={game.demoFallbackHref}
-            />
             {game.sourceAvailable && (
               <SourceAvailableButton href={game.sourceHref} />
             )}
@@ -318,15 +332,9 @@ function GameCard({ game }: { game: GameItem }) {
       </div>
       <CardFooter className="flex flex-col items-start gap-2 border-t border-white/10 bg-black p-4">
         <span className="text-sm font-medium text-foreground">{game.price}</span>
+        <GameDemoPanel className="w-full" game={game} />
         <CardDetailsDisclosure disclosureId={`game-details-${game.id}`}>
           <GameMeta game={game} />
-          <GodotDemoEmbed
-            demoEnabled={game.demoEnabled}
-            demoSlug={game.demoSlug}
-            demoTitle={game.demoTitle}
-            demoNotes={game.demoNotes}
-            demoFallbackHref={game.demoFallbackHref}
-          />
           {game.sourceAvailable && (
             <SourceAvailableButton href={game.sourceHref} />
           )}

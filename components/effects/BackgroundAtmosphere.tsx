@@ -67,7 +67,7 @@ export function BackgroundAtmosphere({
   if (matrixCalm) {
     return (
       <div
-        className="pointer-events-none fixed inset-0 -z-[15]"
+        className="pointer-events-none fixed inset-0 z-[1]"
         aria-hidden
       >
         <div
@@ -85,7 +85,7 @@ export function BackgroundAtmosphere({
     return (
       <div
         ref={elRef}
-        className="pointer-events-none fixed inset-0 -z-[15] [--atmo-scroll-t:0]"
+        className="pointer-events-none fixed inset-0 z-[1] [--atmo-scroll-t:0]"
         aria-hidden
       >
         <div
@@ -135,7 +135,7 @@ export function BackgroundAtmosphere({
   return (
     <div
       ref={elRef}
-      className="pointer-events-none fixed inset-0 -z-[15] [--atmo-scroll-t:0]"
+      className="pointer-events-none fixed inset-0 z-[1] [--atmo-scroll-t:0]"
       aria-hidden
     >
       {/* Scroll-linked grade: cooler top of page → warmer / magenta toward bottom */}

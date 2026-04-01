@@ -1,9 +1,8 @@
 /**
- * Panorama background layer + scroll pan. Wider min-width = more horizontal canvas for
- * scroll, but object-cover scales to fill that box — too large reads as extreme zoom-in.
- * Tune here vs scroll range (stay roughly within minWidth − 100vw).
+ * Guardrail: keep this near ~160-220vw so Wonderland billboards stay visible.
+ * Very high values (300vw+) over-zoom and hide left/right storytelling anchors.
  */
-export const BG_PANORAMA_MIN_WIDTH_VW = 380;
+export const BG_PANORAMA_MIN_WIDTH_VW = 175;
 
 /**
  * Passed to `useScrollDrivenShiftX`: shift = (0.5 − scrollProgress) * rangeVw

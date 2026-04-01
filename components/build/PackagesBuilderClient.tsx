@@ -34,7 +34,7 @@ function makeMailBody(
       ? "À la carte scope (from portfolio builder)"
       : variant === "social"
         ? "Social à la carte scope (from portfolio)"
-        : "App à la carte scope (from portfolio)",
+        : "Android app à la carte scope (from portfolio)",
   );
   lines.push("");
   lines.push(variant === "website" ? "— Context (optional questionnaire) —" : "— Context —");
@@ -148,28 +148,28 @@ export function PackagesBuilderClient({ variant, data }: PackagesBuilderClientPr
     : "border-fuchsia-500/20 bg-[#0a0514]/94";
 
   const brandLine = isApp
-    ? "Spore transit · à la carte (mobile app)"
+    ? "Spore transit · à la carte (Android app)"
     : isSocial
       ? "Social orbit · à la carte (social media)"
       : "Cheshire Transit · à la carte (website)";
 
-  const heroBadge = isApp ? "(mobile app)" : isSocial ? "(social media)" : "(website)";
+  const heroBadge = isApp ? "(Android app)" : isSocial ? "(social media)" : "(website)";
   const heroBadgeClass = isApp ? "text-emerald-200/85" : "text-fuchsia-200/80";
 
   const priceMenuTitle = isApp
-    ? "Price menu · app line items"
+    ? "Price menu · Android app line items"
     : isSocial
       ? "Price menu · social line items"
       : "Price menu · line items";
 
   const priceMenuBlurb = isApp
-    ? "Toggle stacks, stores, and ASO modules. Conflicting radios swap automatically—still not a final quote."
+    ? "Toggle stacks, APK/Play, and ASO modules. Conflicting radios swap automatically—still not a final quote."
     : isSocial
       ? "Toggle packages and add-ons. Nothing here is a final quote—email the receipt when you're ready."
       : "Toggle what you want explored. Conflicting options (like Square vs Stripe) swap automatically. Nothing here is a final quote.";
 
   const receiptHeading = isApp
-    ? "Running receipt · app menu"
+    ? "Running receipt · Android app menu"
     : isSocial
       ? "Running receipt · social menu"
       : "Running receipt · price menu";
@@ -252,23 +252,23 @@ export function PackagesBuilderClient({ variant, data }: PackagesBuilderClientPr
               ) : null}
               {variant === "website" ? (
                 <Link href="/apps" className={jumpClassMushroom}>
-                  À la carte (app)
+                  À la carte (Android app)
                 </Link>
               ) : null}
               {variant === "social" ? (
                 <>
-                  <Link href="/build" className={jumpClass}>
-                    Website packages
+                  <Link href="/oracle-3d" className={jumpClass}>
+                    Website a la carte
                   </Link>
                   <Link href="/apps" className={jumpClassMushroom}>
-                    App packages
+                    Android app packages
                   </Link>
                 </>
               ) : null}
               {variant === "app" ? (
                 <>
-                  <Link href="/build" className={jumpClass}>
-                    Website packages
+                  <Link href="/oracle-3d" className={jumpClass}>
+                    Website a la carte
                   </Link>
                   <Link href="/social" className={jumpClassDefault}>
                     Social packages
