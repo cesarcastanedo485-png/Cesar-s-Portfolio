@@ -43,8 +43,8 @@ export default function Home() {
               "max-md:pb-[calc(6.75rem+env(safe-area-inset-bottom,0px))]",
             useAudioReactive || bgVideoSrc
               ? useAudioReactive
-                ? "bg-gradient-to-b from-[#0a0e17]/48 via-[#0a0e17]/52 to-[#000000]/68"
-                : "bg-gradient-to-b from-[#0a0e168c] via-[#0a0e1794] to-[#000000b3]"
+                ? "bg-gradient-to-b from-[#0a0e17]/20 via-[#0a0e17]/22 to-[#000000]/38"
+                : "bg-gradient-to-b from-[#0a0e17]/28 via-[#0a0e17]/30 to-[#000000]/45"
               : "bg-gradient-to-b from-[#0a0e17] to-[#000]"
           )}
         >

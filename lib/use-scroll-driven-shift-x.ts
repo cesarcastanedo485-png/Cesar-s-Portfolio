@@ -7,15 +7,17 @@ type Options = {
   enabled: boolean;
   /** Total horizontal sweep in vw (e.g. 8 → −4vw at page top to +4vw at bottom). */
   rangeVw?: number;
+  /** Custom property on `containerRef` (default `--arp-scroll-x`). */
+  cssVarName?: string;
 };
 
 /**
- * Maps vertical scroll progress to `--arp-scroll-x` (vw) for parallax pan.
+ * Maps vertical scroll progress to a CSS variable (default `--arp-scroll-x`, vw) for parallax pan.
  * Updates via rAF; respects `enabled` (e.g. off when prefers-reduced-motion).
  */
 export function useScrollDrivenShiftX(
   containerRef: RefObject<HTMLElement | null>,
-  { enabled, rangeVw = 8 }: Options,
+  { enabled, rangeVw = 8, cssVarName = "--arp-scroll-x" }: Options,
 ) {
   const tickingRef = useRef(false);
   const rafRef = useRef(0);
@@ -28,7 +30,7 @@ export function useScrollDrivenShiftX(
 
     if (!enabled) {
       if (el) {
-        el.style.setProperty("--arp-scroll-x", "0vw");
+        el.style.setProperty(cssVarName, "0vw");
       }
       return;
     }
@@ -47,7 +49,7 @@ export function useScrollDrivenShiftX(
           ? 0.5
           : Math.min(1, Math.max(0, scrollTop / maxScroll));
       const shiftVw = (t - 0.5) * rangeVw;
-      target.style.setProperty("--arp-scroll-x", `${shiftVw}vw`);
+      target.style.setProperty(cssVarName, `${shiftVw}vw`);
     };
 
     const onScrollOrResize = () => {
@@ -67,8 +69,8 @@ export function useScrollDrivenShiftX(
       window.removeEventListener("resize", onScrollOrResize);
       cancelAnimationFrame(rafRef.current);
       if (containerRef.current) {
-        containerRef.current.style.setProperty("--arp-scroll-x", "0vw");
+        containerRef.current.style.setProperty(cssVarName, "0vw");
       }
     };
-  }, [containerRef, enabled, rangeVw]);
+  }, [containerRef, cssVarName, enabled, rangeVw]);
 }

@@ -13,11 +13,12 @@ import {
 import { useReducedMotion } from "framer-motion";
 import { useHydrated } from "@/lib/use-hydrated";
 import { useAudioReactiveDrive } from "@/lib/use-audio-reactive-drive";
+import {
+  BG_PANORAMA_MIN_WIDTH_VW,
+  BG_SCROLL_SHIFT_RANGE_VW,
+} from "@/lib/background-parallax";
 import { useScrollDrivenShiftX } from "@/lib/use-scroll-driven-shift-x";
 import { cn } from "@/lib/utils";
-
-/** Total horizontal pan in vw (top −half → bottom +half). Wider = see more of plate left/right. */
-const SCROLL_SHIFT_RANGE_VW = 24;
 
 type AudioReactiveBackgroundProps = {
   /** Empty: violet/indigo gradient pulse (add `/backgrounds/your.png` when ready). */
@@ -57,7 +58,7 @@ export function AudioReactiveBackground({
   const scrollParallaxEnabled = hydrated && reduceMotion !== true;
   useScrollDrivenShiftX(containerRef, {
     enabled: scrollParallaxEnabled,
-    rangeVw: SCROLL_SHIFT_RANGE_VW,
+    rangeVw: BG_SCROLL_SHIFT_RANGE_VW,
   });
 
   /** React `style` would reset imperative --arp-* vars every render; init once on the DOM node. */
@@ -135,8 +136,9 @@ export function AudioReactiveBackground({
                 decoding="async"
                 fetchPriority="low"
                 sizes="100vw"
-                className="absolute left-1/2 top-1/2 min-h-full min-w-full max-w-none object-cover will-change-transform"
+                className="absolute left-1/2 top-1/2 h-full min-h-full max-w-none object-cover will-change-transform"
                 style={{
+                  minWidth: `${BG_PANORAMA_MIN_WIDTH_VW}vw`,
                   transform:
                     "translate3d(calc(-50% + var(--arp-scroll-x, 0vw)), -50%, 0) scale(calc(1 + var(--arp-pulse, 0) * 0.24 * var(--arp-visual-mul, 1)))",
                   filter:
@@ -206,7 +208,7 @@ export function AudioReactiveBackground({
                 "calc(var(--arp-pulse, 0) * 0.55 + var(--arp-pulse-spike, 0) * 0.95)",
             }}
           />
-          {/* Readability scrim — ~60% so art stays visible */}
+          {/* Readability scrim — full width; tune opacity later */}
           <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e17]/60 via-[#0a0e17]/55 to-[#000]/62" />
         </div>
       </div>

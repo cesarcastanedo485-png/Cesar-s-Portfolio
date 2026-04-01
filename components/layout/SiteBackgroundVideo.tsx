@@ -1,14 +1,29 @@
 "use client";
 
+import type { CSSProperties } from "react";
+import { useRef } from "react";
 import { useReducedMotion } from "framer-motion";
 import { useHydrated } from "@/lib/use-hydrated";
+import {
+  BG_PANORAMA_MIN_WIDTH_VW,
+  BG_SCROLL_SHIFT_RANGE_VW,
+} from "@/lib/background-parallax";
+import { useScrollDrivenShiftX } from "@/lib/use-scroll-driven-shift-x";
 
 type SiteBackgroundVideoProps = {
   mp4Src?: string;
   posterSrc?: string;
 };
 
-/** Full-viewport loop behind the page. Respects reduced motion (static poster or off). */
+const mediaTransform =
+  "translate3d(calc(-50% + var(--sbg-scroll-x, 0vw)), -50%, 0)" as const;
+
+const mediaStyle: CSSProperties = {
+  minWidth: `${BG_PANORAMA_MIN_WIDTH_VW}vw`,
+  transform: mediaTransform,
+};
+
+/** Full-viewport loop behind the page. Scroll-parallax pan + respects reduced motion (static poster or off). */
 export function SiteBackgroundVideo({
   mp4Src,
   posterSrc,
@@ -17,6 +32,14 @@ export function SiteBackgroundVideo({
   const reduceMotion = useReducedMotion();
   const src = mp4Src?.trim();
   const poster = posterSrc?.trim();
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const scrollParallaxEnabled = hydrated && reduceMotion !== true;
+  useScrollDrivenShiftX(containerRef, {
+    enabled: scrollParallaxEnabled,
+    rangeVw: BG_SCROLL_SHIFT_RANGE_VW,
+    cssVarName: "--sbg-scroll-x",
+  });
 
   if (!src) {
     return null;
@@ -24,8 +47,12 @@ export function SiteBackgroundVideo({
 
   const preferStill = !hydrated || reduceMotion === true;
 
+  const mediaClassName =
+    "absolute left-1/2 top-1/2 h-full min-h-full max-w-none object-cover will-change-transform";
+
   return (
     <div
+      ref={containerRef}
       className="pointer-events-none fixed inset-0 -z-20 overflow-hidden"
       aria-hidden
     >
@@ -35,7 +62,8 @@ export function SiteBackgroundVideo({
           <img
             src={poster}
             alt=""
-            className="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover"
+            className={mediaClassName}
+            style={mediaStyle}
           />
           <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e17]/82 via-[#0a0e17]/76 to-[#000]/88" />
         </>
@@ -43,7 +71,8 @@ export function SiteBackgroundVideo({
       {!preferStill ? (
         <>
           <video
-            className="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover will-change-transform"
+            className={mediaClassName}
+            style={mediaStyle}
             src={src}
             poster={poster || undefined}
             muted
