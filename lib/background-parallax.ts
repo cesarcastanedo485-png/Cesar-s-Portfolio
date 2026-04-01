@@ -1,11 +1,11 @@
 /**
- * Panorama background layer + scroll pan. Intentionally extreme so scroll can reach
- * far left/right of the art; tighten later once the framing feels right.
+ * Panorama background layer + scroll pan. Wider min-width = more horizontal canvas for
+ * scroll, but object-cover scales to fill that box — too large reads as extreme zoom-in.
+ * Tune here vs scroll range (stay roughly within minWidth − 100vw).
  */
-export const BG_PANORAMA_MIN_WIDTH_VW = 3000;
+export const BG_PANORAMA_MIN_WIDTH_VW = 720;
 
 /**
  * Passed to `useScrollDrivenShiftX`: shift = (scrollProgress - 0.5) * rangeVw.
- * Needs ~≤ minWidthVw − 100vw so ±half-range does not outrun the bitmap.
  */
 export const BG_SCROLL_SHIFT_RANGE_VW = BG_PANORAMA_MIN_WIDTH_VW - 100;
