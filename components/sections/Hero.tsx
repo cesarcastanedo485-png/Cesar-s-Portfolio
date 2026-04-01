@@ -16,40 +16,42 @@ export function Hero({ content }: HeroProps) {
   return (
     <section className="relative py-24 text-center" aria-labelledby="hero-heading">
       <div className="container mx-auto max-w-5xl px-6">
-        <motion.h1
-          id="hero-heading"
-          className="mb-4 flex w-full flex-col items-center justify-center"
-          animate={
-            allowMotion
-              ? {
-                  scale: [1, 1.008, 1],
-                  opacity: [0.98, 1, 0.98],
-                }
-              : undefined
-          }
-          transition={{
-            duration: 3.6,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        >
-          <span className="sr-only">{content.screenReaderTitle}</span>
-          <span
-            aria-hidden
-            className="hero-neon-glow inline-flex flex-wrap items-center justify-center gap-x-1 sm:flex-nowrap sm:gap-x-1.5"
+        <div className="mx-auto flex max-w-full flex-col items-center rounded-2xl border border-white/12 bg-[#0a0e17]/82 px-5 py-5 shadow-[0_12px_48px_rgba(0,0,0,0.45)] backdrop-blur-md md:px-8 md:py-7">
+          <motion.h1
+            id="hero-heading"
+            className="mb-3 flex w-full flex-col items-center justify-center md:mb-4"
+            animate={
+              allowMotion
+                ? {
+                    scale: [1, 1.008, 1],
+                    opacity: [0.98, 1, 0.98],
+                  }
+                : undefined
+            }
+            transition={{
+              duration: 3.6,
+              repeat: Infinity,
+              ease: "easeInOut",
+            }}
           >
-            <span className="hero-neon-title text-5xl md:text-7xl lg:text-8xl">
-              {content.titlePart1}
+            <span className="sr-only">{content.screenReaderTitle}</span>
+            <span
+              aria-hidden
+              className="hero-neon-glow inline-flex flex-wrap items-center justify-center gap-x-1 sm:flex-nowrap sm:gap-x-1.5"
+            >
+              <span className="hero-neon-title text-5xl md:text-7xl lg:text-8xl">
+                {content.titlePart1}
+              </span>
+              <PortfolioO />
+              <span className="hero-neon-title text-5xl md:text-7xl lg:text-8xl">
+                {content.titlePart2}
+              </span>
             </span>
-            <PortfolioO />
-            <span className="hero-neon-title text-5xl md:text-7xl lg:text-8xl">
-              {content.titlePart2}
-            </span>
-          </span>
-        </motion.h1>
-        <p className="text-lg text-muted-foreground md:text-xl">
-          {content.tagline}
-        </p>
+          </motion.h1>
+          <p className="max-w-2xl text-pretty text-lg text-muted-foreground md:text-xl">
+            {content.tagline}
+          </p>
+        </div>
       </div>
     </section>
   );

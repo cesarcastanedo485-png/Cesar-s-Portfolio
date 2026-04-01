@@ -208,8 +208,6 @@ export function AudioReactiveBackground({
                 "calc(var(--arp-pulse, 0) * 0.55 + var(--arp-pulse-spike, 0) * 0.95)",
             }}
           />
-          {/* Readability scrim — full width; tune opacity later */}
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e17]/60 via-[#0a0e17]/55 to-[#000]/62" />
         </div>
       </div>
 

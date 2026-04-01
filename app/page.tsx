@@ -42,9 +42,7 @@ export default function Home() {
             useAudioReactive &&
               "max-md:pb-[calc(6.75rem+env(safe-area-inset-bottom,0px))]",
             useAudioReactive || bgVideoSrc
-              ? useAudioReactive
-                ? "bg-gradient-to-b from-[#0a0e17]/20 via-[#0a0e17]/22 to-[#000000]/38"
-                : "bg-gradient-to-b from-[#0a0e17]/28 via-[#0a0e17]/30 to-[#000000]/45"
+              ? "bg-transparent"
               : "bg-gradient-to-b from-[#0a0e17] to-[#000]"
           )}
         >

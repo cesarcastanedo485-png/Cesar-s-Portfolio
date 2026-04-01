@@ -65,7 +65,6 @@ export function SiteBackgroundVideo({
             className={mediaClassName}
             style={mediaStyle}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e17]/82 via-[#0a0e17]/76 to-[#000]/88" />
         </>
       ) : null}
       {!preferStill ? (
@@ -81,7 +80,6 @@ export function SiteBackgroundVideo({
             loop
             preload="auto"
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e17]/82 via-[#0a0e17]/76 to-[#000]/88" />
         </>
       ) : null}
       {preferStill && !poster ? (
