@@ -40,7 +40,9 @@ export default function Home() {
           className={cn(
             "min-h-screen space-y-24 px-6 py-12 outline-none md:space-y-32 md:px-12 md:py-16 lg:space-y-40 lg:px-20 lg:py-20",
             useAudioReactive || bgVideoSrc
-              ? "bg-gradient-to-b from-[#0a0e168c] via-[#0a0e1794] to-[#000000b3]"
+              ? useAudioReactive
+                ? "bg-gradient-to-b from-[#0a0e17]/48 via-[#0a0e17]/52 to-[#000000]/68"
+                : "bg-gradient-to-b from-[#0a0e168c] via-[#0a0e1794] to-[#000000b3]"
               : "bg-gradient-to-b from-[#0a0e17] to-[#000]"
           )}
         >

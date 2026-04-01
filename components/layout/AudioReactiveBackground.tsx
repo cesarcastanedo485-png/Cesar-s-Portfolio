@@ -98,9 +98,9 @@ export function AudioReactiveBackground({
                 className="absolute left-1/2 top-1/2 min-h-full min-w-full -translate-x-1/2 -translate-y-1/2 object-cover will-change-transform"
                 style={{
                   transform:
-                    "scale(calc(1 + var(--arp-pulse, 0) * 0.065))",
+                    "scale(calc(1 + var(--arp-pulse, 0) * 0.12)) translateZ(0)",
                   filter:
-                    "brightness(calc(0.84 + var(--arp-pulse, 0) * 0.24))",
+                    "brightness(calc(0.92 + var(--arp-pulse, 0) * 0.38)) contrast(calc(1 + var(--arp-pulse, 0) * 0.12)) saturate(calc(1 + var(--arp-pulse, 0) * 0.35))",
                 }}
               />
             </>
@@ -110,20 +110,36 @@ export function AudioReactiveBackground({
               className="absolute inset-0 bg-gradient-to-b from-violet-950 via-indigo-950 to-[#050810] will-change-transform"
               style={{
                 transform:
-                  "scale(calc(1 + var(--arp-pulse, 0) * 0.055))",
+                  "scale(calc(1 + var(--arp-pulse, 0) * 0.1)) translateZ(0)",
                 filter:
-                  "brightness(calc(0.88 + var(--arp-pulse, 0) * 0.2))",
+                  "brightness(calc(0.94 + var(--arp-pulse, 0) * 0.32)) saturate(calc(1 + var(--arp-pulse, 0) * 0.4))",
               }}
             />
           )}
+          {/* Base neon wash — always visible so magenta/cyan reads through scrim */}
           <div
             aria-hidden
-            className="absolute inset-0 mix-blend-screen bg-[radial-gradient(ellipse_at_50%_42%,rgba(168,85,247,0.45)_0%,transparent_55%)]"
+            className="absolute inset-0 mix-blend-screen"
             style={{
-              opacity: "calc(0.08 + var(--arp-pulse, 0) * 0.38)",
+              backgroundImage: `
+                radial-gradient(ellipse 95% 75% at 50% 36%, rgba(255, 60, 240, 0.5) 0%, rgba(168, 85, 247, 0.38) 32%, transparent 58%),
+                radial-gradient(ellipse 60% 50% at 50% 40%, rgba(34, 211, 238, 0.45) 0%, transparent 52%)
+              `,
+              opacity: "calc(0.4 + var(--arp-pulse, 0) * 0.58)",
             }}
           />
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e17]/82 via-[#0a0e17]/76 to-[#000]/88" />
+          {/* Beat flash — slams toward full opacity on kicks */}
+          <div
+            aria-hidden
+            className="absolute inset-0 mix-blend-screen"
+            style={{
+              background:
+                "radial-gradient(circle 65vmin at 50% 34%, rgba(255, 180, 255, 1) 0%, rgba(244, 114, 182, 0.65) 28%, transparent 55%)",
+              opacity: "calc(var(--arp-pulse, 0) * 0.98)",
+            }}
+          />
+          {/* Readability scrim — ~60% so art stays visible */}
+          <div className="absolute inset-0 bg-gradient-to-b from-[#0a0e17]/60 via-[#0a0e17]/55 to-[#000]/62" />
         </div>
       </div>
 

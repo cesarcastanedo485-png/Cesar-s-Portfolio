@@ -4,9 +4,9 @@ import { useCallback, useEffect, useRef } from "react";
 import type { RefObject } from "react";
 
 const BASS_BIN_COUNT = 12;
-const RAW_GAIN = 1.85;
-const ATTACK = 0.35;
-const RELEASE = 0.12;
+const RAW_GAIN = 2.45;
+const ATTACK = 0.45;
+const RELEASE = 0.1;
 
 export type UseAudioReactiveDriveOptions = {
   audioRef: RefObject<HTMLAudioElement | null>;
