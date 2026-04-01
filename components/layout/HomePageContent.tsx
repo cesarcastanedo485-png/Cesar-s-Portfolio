@@ -6,6 +6,7 @@ import { AudioReactiveBackground } from "@/components/layout/AudioReactiveBackgr
 import { WonderlandAtmosphereStub } from "@/components/layout/WonderlandAtmosphereStub";
 import { SiteBackgroundVideo } from "@/components/layout/SiteBackgroundVideo";
 import { BackgroundAtmosphere } from "@/components/effects/BackgroundAtmosphere";
+import { ForegroundSmokeParallax } from "@/components/effects/ForegroundSmokeParallax";
 import { SectionSparkles } from "@/components/effects/SectionSparkles";
 import { Hero } from "@/components/sections/Hero";
 import { WebsitesGallery } from "@/components/sections/WebsitesGallery";
@@ -23,6 +24,7 @@ export function HomePageContent() {
   const { isMatrixMode, hydrated, experienceMode } = useProgression();
   const bgVideoSrc = site.backgroundVideo?.src?.trim();
   const ar = site.audioReactiveBackground;
+  const foregroundSmoke = site.foregroundSmoke;
   const arImage = ar?.imageSrc?.trim();
   const arAudio = ar?.audioSrc?.trim();
   const useAudioReactive = Boolean(ar?.enabled && arAudio) && !isMatrixMode;
@@ -58,6 +60,17 @@ export function HomePageContent() {
       Boolean(ar?.enabled) ||
       experienceMode === "wonderland");
   const atmosphereLayerOn = atmosphereOn || isMatrixMode;
+  const backgroundMistLayersEnabled = !useAudioReactive;
+  /**
+   * Guardrail: Foreground smoke enablement is decided once here (not spread across components).
+   * This prevents "it worked, then disappeared" regressions from branch-specific conditions.
+   */
+  const foregroundSmokeEnabled =
+    hydrated &&
+    foregroundSmoke?.enabled !== false &&
+    ((!isMatrixMode && experienceMode === "wonderland") ||
+      (isMatrixMode && foregroundSmoke?.inMatrixMode === true));
+  const foregroundSmokeIntensity = foregroundSmoke?.intensity ?? "default";
   const showFixedBlackBackdrop =
     !isMatrixMode &&
     !bgVideoSrc?.trim() &&
@@ -113,7 +126,11 @@ export function HomePageContent() {
       <BackgroundAtmosphere
         enabled={atmosphereLayerOn}
         matrixCalm={isMatrixMode}
-        mistLayers={!useAudioReactive}
+        mistLayers={backgroundMistLayersEnabled}
+      />
+      <ForegroundSmokeParallax
+        enabled={foregroundSmokeEnabled}
+        intensity={foregroundSmokeIntensity}
       />
       {showWonderlandAtmosphereStub ? <WonderlandAtmosphereStub /> : null}
       <div className="relative z-10 min-h-screen">

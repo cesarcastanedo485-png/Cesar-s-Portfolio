@@ -90,6 +90,13 @@ export type AudioReactiveBackgroundConfig = {
   imageAlt?: string;
 };
 
+export type ForegroundSmokeConfig = {
+  enabled?: boolean;
+  intensity?: "low" | "default" | "high";
+  /** Defaults false; opt in only if you want smoke in Matrix mode too. */
+  inMatrixMode?: boolean;
+};
+
 /** Same mark everywhere: vault panels, footer, other surfaces — reuse this file on every site. */
 export type SiteWatermarkConfig = {
   imageSrc: string;
@@ -103,6 +110,8 @@ export const site = portfolio.site as typeof portfolio.site & {
   backgroundVideo?: { src?: string; poster?: string };
   /** Full-bleed image + Web Audio analyser pulse (fixed assets). */
   audioReactiveBackground?: AudioReactiveBackgroundConfig;
+  /** True foreground smoke overlay (can sit above cards/text when enabled). */
+  foregroundSmoke?: ForegroundSmokeConfig;
   /** Universal brand watermark (see `public/brand/site-watermark.svg`). */
   watermark?: SiteWatermarkConfig;
 };

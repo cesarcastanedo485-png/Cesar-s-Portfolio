@@ -14,6 +14,11 @@
       "showControls": true,
       "imageAlt": "Cyberpunk Wonderland city: Alice on the glowing Cheshire tail, rain and neon; left billboard Mad Hatter in the creator’s likeness with teacup, White Rabbit and pocket watch on the right"
     },
+    "foregroundSmoke": {
+      "enabled": true,
+      "intensity": "default",
+      "inMatrixMode": false
+    },
     "keywords": [
       "portfolio",
       "web developer",

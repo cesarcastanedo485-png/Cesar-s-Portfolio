@@ -17,6 +17,7 @@ import {
   BG_PANORAMA_MIN_WIDTH_VW,
   BG_SCROLL_SHIFT_RANGE_VW,
 } from "@/lib/background-parallax";
+import { AUDIO_SMOKE, SMOKE_MASKS } from "@/lib/smoke-parallax-presets";
 import { useScrollDrivenShiftX } from "@/lib/use-scroll-driven-shift-x";
 import { useProgression } from "@/lib/progression";
 import { cn } from "@/lib/utils";
@@ -201,34 +202,36 @@ export function AudioReactiveBackground({
           {/* Mist — offset from viewport center + mask keeps hero column calmer; scroll amp ↑ for visible parallax */}
           <div
             aria-hidden
-            className="portfolio-smoke-parallax pointer-events-none absolute inset-0 mix-blend-screen opacity-[0.98] max-md:opacity-[0.94]"
+            className={cn(
+              "portfolio-smoke-parallax pointer-events-none absolute inset-0 mix-blend-screen",
+              AUDIO_SMOKE.primary.desktopOpacityClass,
+              AUDIO_SMOKE.primary.mobileOpacityClass,
+            )}
             style={{
-              WebkitMaskImage:
-                "radial-gradient(ellipse 74% 70% at 50% 44%, transparent 0%, transparent 10%, rgba(0,0,0,0.42) 36%, black 82%)",
-              maskImage:
-                "radial-gradient(ellipse 74% 70% at 50% 44%, transparent 0%, transparent 10%, rgba(0,0,0,0.42) 36%, black 82%)",
+              WebkitMaskImage: SMOKE_MASKS.audioPrimary,
+              maskImage: SMOKE_MASKS.audioPrimary,
               backgroundImage: `
-                radial-gradient(ellipse 88% 42% at calc(36% + var(--arp-scroll-x, 0vw) * 0.48) 52%, rgba(255,255,255,0.46) 0%, rgba(226,232,240,0.32) 32%, rgba(186,230,253,0.2) 54%, transparent 74%),
-                radial-gradient(ellipse 40% 30% at calc(64% + var(--arp-scroll-x, 0vw) * 0.34) 48%, rgba(255,250,255,0.3) 0%, rgba(255,255,255,0.16) 44%, transparent 64%)
+                radial-gradient(ellipse 88% 42% at calc(36% + var(--arp-scroll-x, 0vw) * ${AUDIO_SMOKE.primary.xMotionA}) 52%, rgba(255,255,255,0.46) 0%, rgba(226,232,240,0.32) 32%, rgba(186,230,253,0.2) 54%, transparent 74%),
+                radial-gradient(ellipse 40% 30% at calc(64% + var(--arp-scroll-x, 0vw) * ${AUDIO_SMOKE.primary.xMotionB}) 48%, rgba(255,250,255,0.3) 0%, rgba(255,255,255,0.16) 44%, transparent 64%)
               `,
-              opacity:
-                "calc(0.5 + var(--arp-pulse, 0) * 0.26 + var(--arp-pulse-spike, 0) * 0.18)",
+              opacity: AUDIO_SMOKE.primary.opacity,
             }}
           />
           <div
             aria-hidden
-            className="portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-screen opacity-[0.96] max-md:opacity-[0.94]"
+            className={cn(
+              "portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-screen",
+              AUDIO_SMOKE.secondary.desktopOpacityClass,
+              AUDIO_SMOKE.secondary.mobileOpacityClass,
+            )}
             style={{
-              WebkitMaskImage:
-                "radial-gradient(ellipse 78% 72% at 48% 50%, transparent 0%, transparent 8%, rgba(0,0,0,0.38) 34%, black 80%)",
-              maskImage:
-                "radial-gradient(ellipse 78% 72% at 48% 50%, transparent 0%, transparent 8%, rgba(0,0,0,0.38) 34%, black 80%)",
+              WebkitMaskImage: SMOKE_MASKS.audioSecondary,
+              maskImage: SMOKE_MASKS.audioSecondary,
               backgroundImage: `
-                radial-gradient(ellipse 82% 58% at calc(72% - var(--arp-scroll-x, 0vw) * 0.44) 58%, rgba(244,232,255,0.42) 0%, rgba(196,181,253,0.28) 46%, transparent 74%),
-                radial-gradient(ellipse 52% 40% at calc(28% - var(--arp-scroll-x, 0vw) * 0.36) 60%, rgba(255,255,255,0.26) 0%, transparent 60%)
+                radial-gradient(ellipse 82% 58% at calc(72% - var(--arp-scroll-x, 0vw) * ${AUDIO_SMOKE.secondary.xMotionA}) 58%, rgba(244,232,255,0.42) 0%, rgba(196,181,253,0.28) 46%, transparent 74%),
+                radial-gradient(ellipse 52% 40% at calc(28% - var(--arp-scroll-x, 0vw) * ${AUDIO_SMOKE.secondary.xMotionB}) 60%, rgba(255,255,255,0.26) 0%, transparent 60%)
               `,
-              opacity:
-                "calc(0.55 + var(--arp-pulse, 0) * 0.22)",
+              opacity: AUDIO_SMOKE.secondary.opacity,
             }}
           />
           {FORCE_CENTER_SMOKE_DEBUG ? (

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef } from "react";
 import { useReducedMotion } from "framer-motion";
+import { ATMOSPHERE_SMOKE } from "@/lib/smoke-parallax-presets";
 
 type BackgroundAtmosphereProps = {
   /** Only when the main column is transparent over a photo/video bg. */
@@ -102,8 +103,8 @@ export function BackgroundAtmosphere({
               className="pointer-events-none absolute inset-0 mix-blend-screen opacity-90 max-md:opacity-[0.85]"
               style={{
                 backgroundImage: `
-            radial-gradient(ellipse 88% 44% at calc(50% + var(--atmo-scroll-t) * 18%) calc(52% + var(--atmo-scroll-t) * 6%), rgba(255,255,255,0.42) 0%, rgba(226,232,240,0.26) 30%, rgba(186,230,253,0.16) 50%, transparent 68%),
-            radial-gradient(ellipse 40% 34% at calc(50% + var(--atmo-scroll-t) * 14%) 50%, rgba(255,255,255,0.3) 0%, transparent 56%)
+            radial-gradient(ellipse 88% 44% at calc(50% + var(--atmo-scroll-t) * ${ATMOSPHERE_SMOKE.primary.xMotion}%) calc(52% + var(--atmo-scroll-t) * ${ATMOSPHERE_SMOKE.primary.yMotion}%), rgba(255,255,255,0.42) 0%, rgba(226,232,240,0.26) 30%, rgba(186,230,253,0.16) 50%, transparent 68%),
+            radial-gradient(ellipse 40% 34% at calc(50% + var(--atmo-scroll-t) * ${ATMOSPHERE_SMOKE.primary.xMotionB}%) 50%, rgba(255,255,255,0.3) 0%, transparent 56%)
           `,
               }}
             />
@@ -111,8 +112,8 @@ export function BackgroundAtmosphere({
               className="pointer-events-none absolute inset-0 mix-blend-screen opacity-[0.88] max-md:opacity-[0.82]"
               style={{
                 backgroundImage: `
-            radial-gradient(ellipse 78% 60% at calc(50% - var(--atmo-scroll-t) * 20%) 57%, rgba(244,232,255,0.42) 0%, rgba(168,85,247,0.28) 44%, transparent 68%),
-            radial-gradient(ellipse 62% 40% at calc(50% - var(--atmo-scroll-t) * 14%) 62%, rgba(255,255,255,0.24) 0%, transparent 58%)
+            radial-gradient(ellipse 78% 60% at calc(50% - var(--atmo-scroll-t) * ${ATMOSPHERE_SMOKE.secondary.xMotion}%) 57%, rgba(244,232,255,0.42) 0%, rgba(168,85,247,0.28) 44%, transparent 68%),
+            radial-gradient(ellipse 62% 40% at calc(50% - var(--atmo-scroll-t) * ${ATMOSPHERE_SMOKE.secondary.xMotionB}%) 62%, rgba(255,255,255,0.24) 0%, transparent 58%)
           `,
               }}
             />
@@ -160,8 +161,8 @@ export function BackgroundAtmosphere({
             className="portfolio-smoke-parallax pointer-events-none absolute inset-0 mix-blend-screen opacity-95 max-md:opacity-[0.9]"
             style={{
               backgroundImage: `
-            radial-gradient(ellipse 88% 44% at calc(50% + var(--atmo-scroll-t) * 18%) calc(52% + var(--atmo-scroll-t) * 6%), rgba(255,255,255,0.42) 0%, rgba(226,232,240,0.26) 30%, rgba(186,230,253,0.16) 50%, transparent 68%),
-            radial-gradient(ellipse 40% 34% at calc(50% + var(--atmo-scroll-t) * 14%) 50%, rgba(255,255,255,0.3) 0%, transparent 56%)
+            radial-gradient(ellipse 88% 44% at calc(50% + var(--atmo-scroll-t) * ${ATMOSPHERE_SMOKE.primary.xMotion}%) calc(52% + var(--atmo-scroll-t) * ${ATMOSPHERE_SMOKE.primary.yMotion}%), rgba(255,255,255,0.42) 0%, rgba(226,232,240,0.26) 30%, rgba(186,230,253,0.16) 50%, transparent 68%),
+            radial-gradient(ellipse 40% 34% at calc(50% + var(--atmo-scroll-t) * ${ATMOSPHERE_SMOKE.primary.xMotionB}%) 50%, rgba(255,255,255,0.3) 0%, transparent 56%)
           `,
             }}
             aria-hidden
@@ -170,8 +171,8 @@ export function BackgroundAtmosphere({
             className="portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-screen opacity-90 max-md:opacity-[0.86]"
             style={{
               backgroundImage: `
-            radial-gradient(ellipse 78% 60% at calc(50% - var(--atmo-scroll-t) * 20%) 57%, rgba(244,232,255,0.42) 0%, rgba(168,85,247,0.28) 44%, transparent 68%),
-            radial-gradient(ellipse 62% 40% at calc(50% - var(--atmo-scroll-t) * 14%) 62%, rgba(255,255,255,0.24) 0%, transparent 58%)
+            radial-gradient(ellipse 78% 60% at calc(50% - var(--atmo-scroll-t) * ${ATMOSPHERE_SMOKE.secondary.xMotion}%) 57%, rgba(244,232,255,0.42) 0%, rgba(168,85,247,0.28) 44%, transparent 68%),
+            radial-gradient(ellipse 62% 40% at calc(50% - var(--atmo-scroll-t) * ${ATMOSPHERE_SMOKE.secondary.xMotionB}%) 62%, rgba(255,255,255,0.24) 0%, transparent 58%)
           `,
             }}
             aria-hidden

@@ -149,6 +149,28 @@ body {
   will-change: transform;
 }
 
+.foreground-smoke-parallax {
+  animation: portfolio-smoke-drift 16s ease-in-out infinite;
+  will-change: transform;
+  opacity: var(--fg-smoke-primary-opacity, 0.26);
+}
+
+.foreground-smoke-parallax-slow {
+  animation: portfolio-smoke-drift-slow 24s ease-in-out infinite;
+  will-change: transform;
+  opacity: var(--fg-smoke-secondary-opacity, 0.2);
+}
+
+@media (max-width: 767px) {
+  .foreground-smoke-parallax {
+    opacity: var(--fg-smoke-primary-mobile-opacity, 0.21);
+  }
+
+  .foreground-smoke-parallax-slow {
+    opacity: var(--fg-smoke-secondary-mobile-opacity, 0.16);
+  }
+}
+
 .vault-tea-steam-wisp {
   animation: vault-tea-steam 2.8s ease-in-out infinite;
 }
@@ -206,6 +228,14 @@ body {
 
   .portfolio-smoke-parallax-slow {
     animation: portfolio-smoke-drift-gentle 58s ease-in-out infinite reverse;
+  }
+
+  .foreground-smoke-parallax {
+    animation: portfolio-smoke-drift-gentle 48s ease-in-out infinite;
+  }
+
+  .foreground-smoke-parallax-slow {
+    animation: portfolio-smoke-drift-gentle 64s ease-in-out infinite reverse;
   }
 
   .hero-neon-glow {
@@ -410,6 +440,19 @@ html.matrix-mode .vault-tea-steam-wisp {
 html.matrix-mode .portfolio-smoke-parallax,
 html.matrix-mode .portfolio-smoke-parallax-slow {
   animation: none !important;
+}
+
+html.matrix-mode .foreground-smoke-parallax,
+html.matrix-mode .foreground-smoke-parallax-slow {
+  animation: none !important;
+}
+
+html.matrix-mode .foreground-smoke-parallax {
+  opacity: calc(var(--fg-smoke-primary-opacity, 0.24) * 0.62);
+}
+
+html.matrix-mode .foreground-smoke-parallax-slow {
+  opacity: calc(var(--fg-smoke-secondary-opacity, 0.2) * 0.58);
 }
 
 html.matrix-mode .sparkle-dust,
