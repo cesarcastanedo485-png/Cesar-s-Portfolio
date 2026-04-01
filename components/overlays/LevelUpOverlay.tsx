@@ -18,6 +18,8 @@ export function LevelUpOverlay() {
   } = useProgression();
 
   const showFullOverlay = hydrated && !overlayCollapsed;
+  /** No corner pill at level 0 — progression UI first appears after atmosphere interaction levels you up. */
+  const showFloatingPill = overlayCollapsed && currentLevel > 0;
 
   const heading = useMemo(() => {
     if (!hydrated) return "Initializing wonderland";
@@ -83,7 +85,7 @@ export function LevelUpOverlay() {
             </div>
           </div>
         </div>
-      ) : (
+      ) : showFloatingPill ? (
         <button
           type="button"
           onClick={() => openOverlay({ openForm: false })}
@@ -93,7 +95,7 @@ export function LevelUpOverlay() {
           <ChevronUp className="h-4 w-4" />
           Level {currentLevel}
         </button>
-      )}
+      ) : null}
     </>
   );
 }

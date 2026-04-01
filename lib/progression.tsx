@@ -128,7 +128,8 @@ function makeId(prefix: string): string {
 
 export function ProgressionProvider({ children }: { children: React.ReactNode }) {
   const [hydrated, setHydrated] = useState(false);
-  const [overlayCollapsed, setOverlayCollapsed] = useState(false);
+  /** Start hidden so the level modal does not block the page until atmosphere (or another gate) opens it. */
+  const [overlayCollapsed, setOverlayCollapsed] = useState(true);
   const [playMode, setPlayMode] = useState(false);
   const [state, setState] = useState<StoredProgression>(emptyState);
 
