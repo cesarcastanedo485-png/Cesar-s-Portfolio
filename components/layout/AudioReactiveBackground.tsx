@@ -29,7 +29,7 @@ type AudioReactiveBackgroundProps = {
   imageAlt?: string;
 };
 
-const FORCE_CENTER_SMOKE_DEBUG = true;
+const FORCE_CENTER_SMOKE_DEBUG = false;
 
 /** Full-bleed background (z below content) + separate overlay controls (z above content). */
 export function AudioReactiveBackground({
@@ -207,14 +207,14 @@ export function AudioReactiveBackground({
           />
           <div
             aria-hidden
-            className="portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-soft-light opacity-[1.08] max-md:opacity-[0.95]"
+            className="portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-screen max-md:opacity-[0.92]"
             style={{
               backgroundImage: `
-                radial-gradient(ellipse 80% 60% at calc(52% - var(--arp-scroll-x, 0vw) * 0.17) 58%, rgba(244,232,255,0.4) 0%, rgba(196,181,253,0.22) 42%, transparent 68%),
-                radial-gradient(ellipse 56% 42% at calc(48% - var(--arp-scroll-x, 0vw) * 0.14) 62%, rgba(255,255,255,0.18) 0%, transparent 56%)
+                radial-gradient(ellipse 80% 60% at calc(52% - var(--arp-scroll-x, 0vw) * 0.17) 58%, rgba(244,232,255,0.48) 0%, rgba(196,181,253,0.3) 42%, transparent 68%),
+                radial-gradient(ellipse 56% 42% at calc(48% - var(--arp-scroll-x, 0vw) * 0.14) 62%, rgba(255,255,255,0.26) 0%, transparent 56%)
               `,
               opacity:
-                "calc(0.58 + var(--arp-pulse, 0) * 0.24)",
+                "calc(0.62 + var(--arp-pulse, 0) * 0.24)",
             }}
           />
           {FORCE_CENTER_SMOKE_DEBUG ? (

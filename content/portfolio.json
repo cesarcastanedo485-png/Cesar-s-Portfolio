@@ -31,13 +31,15 @@
     }
   },
   "nav": {
-    "brandLabel": "Cesar",
+    "brandLabel": "Cesar's Imagination Emporium",
+    "brandLabelShort": "Emporium",
     "links": [
-      { "label": "Work", "href": "#work" },
-      { "label": "Games", "href": "#games" },
-      { "label": "Dream Now", "href": "/oracle-3d" },
-      { "label": "À la carte", "href": "/build" },
-      { "label": "Contact", "href": "#contact" },
+      { "label": "Work", "href": "#work", "navGroup": "anchor" },
+      { "label": "Games", "href": "#games", "navGroup": "anchor" },
+      { "label": "Dream Now (3D)", "href": "/oracle-3d", "navGroup": "page" },
+      { "label": "À la carte (website)", "href": "/build", "navGroup": "page" },
+      { "label": "À la carte (social)", "href": "/social", "navGroup": "page" },
+      { "label": "Contact", "href": "#contact", "navGroup": "anchor" },
       {
         "label": "GitHub",
         "href": "https://github.com/cesarcastanedo485-png",
@@ -61,8 +63,12 @@
     "titlePart2": "folio",
     "tagline": "Crafting websites, apps, and games",
     "builderLink": {
-      "label": "Build à la carte — punch your scope",
+      "label": "À la carte (website) — punch your scope",
       "href": "/build"
+    },
+    "socialPackagesLink": {
+      "label": "À la carte (social media)",
+      "href": "/social"
     }
   },
   "websites": {
@@ -71,7 +77,7 @@
     "featuredBadge": "Featured",
     "builderTeaser": {
       "text": "Prefer to line-item what you need before we talk?",
-      "label": "Open the à la carte builder",
+      "label": "Open à la carte (website)",
       "href": "/build"
     },
     "vault": {
@@ -147,7 +153,7 @@
     "sectionEyebrow": "",
     "builderTeaser": {
       "text": "Need a scoped playable slice or promo build?",
-      "label": "See game options on the à la carte page",
+      "label": "See game options (website à la carte)",
       "href": "/build"
     },
     "vault": {
@@ -226,21 +232,31 @@
     "body": "Open to freelance and full-time roles that need strong UI, performance, and clear communication. Replace the placeholder email with yours before you ship.",
     "builderTeaser": {
       "text": "Want to scope deliverables first? Prices on the builder are indicative only — not final quotes.",
-      "label": "Build à la carte",
+      "label": "À la carte (website)",
       "href": "/build"
     },
     "email": "hello@example.com",
     "emailButtonLabel": "Email me",
     "emailSubject": "Hello — from your portfolio",
-    "secondaryLinks": []
+    "secondaryLinks": [
+      {
+        "label": "À la carte (social media)",
+        "href": "/social"
+      }
+    ]
   },
   "footer": {
     "copyright": "Cesar. All rights reserved.",
     "note": "Content lives in content/portfolio.json — edit there and push to redeploy (see docs/CONTENT_WORKFLOW.md).",
     "builderLink": {
-      "line": "Hire / scope: pick line items with indicative pricing (not final quotes).",
-      "label": "À la carte builder",
+      "line": "Website scope: line items with indicative pricing (not final quotes).",
+      "label": "À la carte (website)",
       "href": "/build"
+    },
+    "socialPackagesLink": {
+      "line": "Social scope: posts, platforms, cadence — same rules (indicative only).",
+      "label": "À la carte (social media)",
+      "href": "/social"
     }
   }
 }

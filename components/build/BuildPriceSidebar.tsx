@@ -19,6 +19,9 @@ type BuildPriceSidebarProps = {
   copied: boolean;
   onCopy: () => void;
   className?: string;
+  /** Defaults to `receipt` for anchor links on /build */
+  receiptDomId?: string;
+  receiptHeading?: string;
 };
 
 export function BuildPriceSidebar({
@@ -28,7 +31,10 @@ export function BuildPriceSidebar({
   copied,
   onCopy,
   className,
+  receiptDomId = "receipt",
+  receiptHeading = "Running receipt · price menu",
 }: BuildPriceSidebarProps) {
+  const headingId = `${receiptDomId}-heading`;
   return (
     <div className={cn("flex flex-col gap-6", className)}>
       <BuildTicketStrip
@@ -37,12 +43,12 @@ export function BuildPriceSidebar({
         punchedItems={selectedItems}
       />
       <aside
-        id="receipt"
+        id={receiptDomId}
         className="scroll-mt-24 space-y-4 rounded-xl border border-fuchsia-500/30 bg-[#0c0614]/95 p-4 shadow-[0_0_32px_rgba(168,85,247,0.12)] backdrop-blur-sm"
-        aria-labelledby="receipt-heading"
+        aria-labelledby={headingId}
       >
-        <h2 id="receipt-heading" className="text-sm font-semibold text-fuchsia-50/95">
-          Running receipt · price menu
+        <h2 id={headingId} className="text-sm font-semibold text-fuchsia-50/95">
+          {receiptHeading}
         </h2>
         <p className="build-alice-muted text-[11px] leading-relaxed text-fuchsia-100/80">
           {meta.stickyDisclaimer}

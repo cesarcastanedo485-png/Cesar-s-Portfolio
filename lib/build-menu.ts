@@ -82,12 +82,19 @@ export function findItem(
   return undefined;
 }
 
-export function listSelectedItemsInOrder(selectedIds: Set<string>): BuildMenuItem[] {
+export function listSelectedItemsInOrderFrom(
+  categories: BuildMenuCategory[],
+  selectedIds: Set<string>,
+): BuildMenuItem[] {
   const out: BuildMenuItem[] = [];
-  for (const cat of buildMenuData.categories) {
+  for (const cat of categories) {
     for (const item of cat.items) {
       if (selectedIds.has(item.id)) out.push(item);
     }
   }
   return out;
+}
+
+export function listSelectedItemsInOrder(selectedIds: Set<string>): BuildMenuItem[] {
+  return listSelectedItemsInOrderFrom(buildMenuData.categories, selectedIds);
 }

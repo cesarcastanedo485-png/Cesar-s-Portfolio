@@ -6,27 +6,29 @@ import { ArrowLeft } from "lucide-react";
 import { BuildExperienceBar } from "@/components/build/BuildExperienceBar";
 import { BuildPriceSidebar } from "@/components/build/BuildPriceSidebar";
 import {
-  buildMenuData,
-  listSelectedItemsInOrder,
+  listSelectedItemsInOrderFrom,
   type BuildMenuItem,
 } from "@/lib/build-menu";
 import { isItemDisabled, toggleModuleSelection } from "@/lib/build-selection";
+import { socialMenuData } from "@/lib/social-menu";
 import { contactContent } from "@/lib/content";
 import { cn } from "@/lib/utils";
 
+const categories = socialMenuData.categories;
+
 function setToOrderedIds(set: Set<string>): string[] {
-  return listSelectedItemsInOrder(set).map((i) => i.id);
+  return listSelectedItemsInOrderFrom(categories, set).map((i) => i.id);
 }
 
-function buildMailBody(args: {
+function socialMailBody(args: {
   selected: BuildMenuItem[];
   answers: Record<string, string>;
 }): string {
   const lines: string[] = [];
-  lines.push("À la carte scope (from portfolio builder)");
+  lines.push("Social à la carte scope (from portfolio)");
   lines.push("");
-  lines.push("— Context (optional questionnaire) —");
-  for (const step of buildMenuData.questionnaire.steps) {
+  lines.push("— Context —");
+  for (const step of socialMenuData.questionnaire.steps) {
     const optId = args.answers[step.id];
     const opt = step.options.find((o) => o.id === optId);
     lines.push(`${step.question}: ${opt?.label ?? "(not set)"}`);
@@ -43,29 +45,29 @@ function buildMailBody(args: {
     }
   }
   lines.push("");
-  lines.push(buildMenuData.meta.longDisclaimer);
+  lines.push(socialMenuData.meta.longDisclaimer);
   return lines.join("\n");
 }
 
 const jumpClass =
   "inline-flex rounded-full border border-fuchsia-500/35 bg-fuchsia-950/25 px-3 py-1.5 text-xs font-medium text-fuchsia-100/90 transition hover:border-cyan-400/40 hover:bg-cyan-950/20 hover:text-cyan-50 focus-visible:outline focus-visible:ring-2 focus-visible:ring-cyan-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0514]";
 
-export function BuildPageClient() {
-  const { meta, questionnaire, categories } = buildMenuData;
+export function SocialPackagesClient() {
+  const { meta, questionnaire } = socialMenuData;
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [copied, setCopied] = useState(false);
 
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
   const selectedItems = useMemo(
-    () => listSelectedItemsInOrder(selectedSet),
+    () => listSelectedItemsInOrderFrom(categories, selectedSet),
     [selectedSet],
   );
 
   const toggleItem = useCallback(
     (item: BuildMenuItem) => {
       const on = !selectedIds.includes(item.id);
-      const next = toggleModuleSelection(selectedSet, item.id, on);
+      const next = toggleModuleSelection(selectedSet, item.id, on, categories);
       setSelectedIds(setToOrderedIds(next));
     },
     [selectedIds, selectedSet],
@@ -74,13 +76,13 @@ export function BuildPageClient() {
   const mailto = useMemo(() => {
     const email = contactContent.email?.trim();
     if (!email?.includes("@")) return null;
-    const body = buildMailBody({ selected: selectedItems, answers });
+    const body = socialMailBody({ selected: selectedItems, answers });
     const subject = meta.mailSubject;
     return `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
   }, [answers, meta.mailSubject, selectedItems]);
 
   const copySummary = useCallback(async () => {
-    const text = buildMailBody({ selected: selectedItems, answers });
+    const text = socialMailBody({ selected: selectedItems, answers });
     try {
       await navigator.clipboard.writeText(text);
       setCopied(true);
@@ -95,23 +97,15 @@ export function BuildPageClient() {
       <header className="sticky top-0 z-40 border-b border-fuchsia-500/20 bg-[#0a0514]/94 backdrop-blur-md">
         <div className="mx-auto max-w-6xl space-y-3 px-4 py-3 sm:px-6">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <Link
-                href="/"
-                className="inline-flex items-center gap-2 rounded-md text-sm text-cyan-200/90 transition hover:text-cyan-50 focus-visible:outline focus-visible:ring-2 focus-visible:ring-fuchsia-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0514]"
-              >
-                <ArrowLeft className="size-4 shrink-0 opacity-80" aria-hidden />
-                Portfolio home
-              </Link>
-              <Link
-                href="/social"
-                className="rounded-full border border-pink-500/35 bg-pink-950/20 px-2.5 py-1 text-[11px] font-medium text-pink-100/90 transition hover:border-pink-400/50 hover:bg-pink-900/30 focus-visible:outline focus-visible:ring-2 focus-visible:ring-pink-400/45 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0514]"
-              >
-                À la carte (social)
-              </Link>
-            </div>
-            <p className="max-w-[min(100%,200px)] text-right font-mono text-[10px] uppercase leading-snug tracking-[0.18em] text-fuchsia-300/75 sm:max-w-none">
-              Cheshire Transit · à la carte (website)
+            <Link
+              href="/"
+              className="inline-flex items-center gap-2 rounded-md text-sm text-cyan-200/90 transition hover:text-cyan-50 focus-visible:outline focus-visible:ring-2 focus-visible:ring-fuchsia-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0514]"
+            >
+              <ArrowLeft className="size-4 shrink-0 opacity-80" aria-hidden />
+              Portfolio home
+            </Link>
+            <p className="max-w-[min(100%,220px)] text-right font-mono text-[10px] uppercase leading-snug tracking-[0.18em] text-fuchsia-300/75 sm:max-w-none">
+              Social orbit · à la carte (social media)
             </p>
           </div>
           <BuildExperienceBar />
@@ -130,24 +124,31 @@ export function BuildPageClient() {
         <div className="mb-8 border-b border-fuchsia-500/15 pb-8">
           <h1 className="build-alice-copy text-3xl font-semibold tracking-tight sm:text-4xl [font-family:var(--font-orbitron),system-ui,sans-serif]">
             {meta.heroTitle}{" "}
-            <span className="text-lg font-normal text-fuchsia-200/80 sm:text-xl">(website)</span>
+            <span className="text-lg font-normal text-fuchsia-200/80 sm:text-xl">(social media)</span>
           </h1>
           <p className="build-alice-muted mt-3 max-w-2xl text-sm leading-relaxed sm:text-base">
             {meta.heroSubtitle}
           </p>
-          <nav
-            className="mt-5 flex flex-wrap gap-2"
-            aria-label="On this page"
-          >
-            <a href="#prices" className={jumpClass}>
+          <div className="mt-4 rounded-lg border border-cyan-500/20 bg-[#0c1020]/80 p-4 text-sm text-cyan-100/85">
+            <p className="font-medium text-cyan-50/95">Orbit map</p>
+            <p className="build-alice-muted mt-1 text-xs">
+              Planet / moons art goes here when you&apos;re ready—this box is a placeholder for your
+              cyberpunk scene or Meshy export.
+            </p>
+          </div>
+          <nav className="mt-5 flex flex-wrap gap-2" aria-label="On this page">
+            <a href="#social-prices" className={jumpClass}>
               Price menu
             </a>
-            <a href="#receipt" className={jumpClass}>
+            <a href="#social-receipt" className={jumpClass}>
               Running receipt
             </a>
-            <a href="#build-context" className={jumpClass}>
+            <a href="#social-context" className={jumpClass}>
               Context questions
             </a>
+            <Link href="/build" className={jumpClass}>
+              Website packages
+            </Link>
           </nav>
           <p className="mt-4 rounded-md border border-fuchsia-500/30 bg-fuchsia-950/20 px-3 py-2 text-xs leading-relaxed text-fuchsia-100/90">
             {meta.stickyDisclaimer}
@@ -155,13 +156,13 @@ export function BuildPageClient() {
         </div>
 
         <div className="flex flex-col gap-10 xl:grid xl:grid-cols-[minmax(0,1fr)_300px] xl:items-start xl:gap-12">
-          <section id="prices" className="scroll-mt-28 min-w-0 space-y-3 xl:col-start-1">
+          <section id="social-prices" className="scroll-mt-28 min-w-0 space-y-3 xl:col-start-1">
             <h2 className="build-alice-copy text-xl font-semibold text-fuchsia-50/95 sm:text-2xl">
-              Price menu · line items
+              Price menu · social line items
             </h2>
             <p className="build-alice-muted text-sm">
-              Toggle what you want explored. Conflicting options (like Square vs Stripe) swap
-              automatically. Nothing here is a final quote.
+              Toggle packages and add-ons. Nothing here is a final quote—email the receipt when
+              you&apos;re ready.
             </p>
             <div className="mt-6 space-y-8">
               {categories.map((cat) => (
@@ -180,7 +181,7 @@ export function BuildPageClient() {
                   <ul className="space-y-3" role="list">
                     {cat.items.map((item) => {
                       const on = selectedIds.includes(item.id);
-                      const { disabled, reason } = isItemDisabled(item, selectedSet);
+                      const { disabled, reason } = isItemDisabled(item, selectedSet, categories);
                       const itemDisabled = disabled && !on;
                       return (
                         <li key={item.id} role="listitem">
@@ -240,11 +241,6 @@ export function BuildPageClient() {
                                   {item.priceHint.basis}
                                 </span>
                               ) : null}
-                              {item.monthlyNote ? (
-                                <span className="build-alice-muted mt-1 block text-[11px] text-sky-300/85">
-                                  {item.monthlyNote}
-                                </span>
-                              ) : null}
                             </span>
                           </button>
                           {reason ? (
@@ -271,14 +267,19 @@ export function BuildPageClient() {
             mailto={mailto}
             copied={copied}
             onCopy={() => void copySummary()}
+            receiptDomId="social-receipt"
+            receiptHeading="Running receipt · social menu"
           />
 
           <section
-            id="build-context"
+            id="social-context"
             className="scroll-mt-28 min-w-0 space-y-4 xl:col-start-1"
-            aria-labelledby="questionnaire-heading"
+            aria-labelledby="social-questionnaire-heading"
           >
-            <h2 id="questionnaire-heading" className="build-alice-copy text-lg font-semibold text-fuchsia-50/95">
+            <h2
+              id="social-questionnaire-heading"
+              className="build-alice-copy text-lg font-semibold text-fuchsia-50/95"
+            >
               {questionnaire.title}
             </h2>
             {questionnaire.description ? (
@@ -312,7 +313,7 @@ export function BuildPageClient() {
                         >
                           <input
                             type="radio"
-                            name={step.id}
+                            name={`social-${step.id}`}
                             value={opt.id}
                             checked={checked}
                             onChange={() =>

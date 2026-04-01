@@ -1,9 +1,12 @@
 import type { BuildMenuCategory, BuildMenuItem } from "@/lib/build-menu";
-import {
-  buildMenuData,
-  findItem,
-  getCategoryForItem,
-} from "@/lib/build-menu";
+import { buildMenuData, findItem } from "@/lib/build-menu";
+
+function categoryOf(
+  itemId: string,
+  categories: BuildMenuCategory[],
+): BuildMenuCategory | undefined {
+  return categories.find((c) => c.items.some((i) => i.id === itemId));
+}
 
 function removeIncompleteRequirements(next: Set<string>, categories: BuildMenuCategory[]): void {
   let changed = true;
@@ -40,7 +43,7 @@ export function toggleModuleSelection(
     return next;
   }
 
-  const cat = getCategoryForItem(itemId);
+  const cat = categoryOf(itemId, categories);
   if (cat?.selectionMode === "one") {
     for (const it of cat.items) {
       if (it.id !== itemId) next.delete(it.id);
@@ -54,9 +57,8 @@ export function toggleModuleSelection(
   next.add(itemId);
 
   for (const req of item.requires ?? []) {
-    const reqItem = findItem(req, categories);
-    const reqCat = getCategoryForItem(req);
-    if (reqCat?.selectionMode === "one" && reqItem) {
+    const reqCat = categoryOf(req, categories);
+    if (reqCat?.selectionMode === "one") {
       for (const it of reqCat.items) {
         if (it.id !== req) next.delete(it.id);
       }

@@ -4,6 +4,8 @@ export type NavLink = {
   label: string;
   href: string;
   external?: boolean;
+  /** In-page sections (#work) vs full routes (/build) — controls header styling. */
+  navGroup?: "anchor" | "page";
 };
 
 export type WorkLink = {
@@ -97,6 +99,8 @@ export const site = portfolio.site as typeof portfolio.site & {
 };
 export const nav = portfolio.nav as {
   brandLabel: string;
+  /** Optional shorter brand for very small screens */
+  brandLabelShort?: string;
   links: NavLink[];
 };
 export type BuilderLink = {
@@ -109,8 +113,10 @@ export const heroContent = portfolio.hero as {
   titlePart1: string;
   titlePart2: string;
   tagline: string;
-  /** Secondary CTA to the à la carte builder (optional). */
+  /** Secondary CTA to website à la carte (optional). */
   builderLink?: BuilderLink;
+  /** CTA to social à la carte (optional). */
+  socialPackagesLink?: BuilderLink;
 };
 
 export type HeroContentProps = typeof heroContent;
@@ -162,4 +168,5 @@ export const footerContent = portfolio.footer as {
   copyright: string;
   note: string;
   builderLink?: BuilderLink & { line: string };
+  socialPackagesLink?: BuilderLink & { line: string };
 };

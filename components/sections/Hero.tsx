@@ -62,15 +62,26 @@ export function Hero({ content }: HeroProps) {
           <p className="max-w-2xl text-pretty text-lg text-muted-foreground md:text-xl">
             {content.tagline}
           </p>
-          {content.builderLink?.href?.trim() && content.builderLink.label?.trim() ? (
-            <p className="mt-5 text-center">
-              <Link
-                href={content.builderLink.href}
-                className="inline-flex rounded-full border border-amber-500/35 bg-amber-950/25 px-4 py-2 text-sm font-medium text-amber-100/90 transition hover:border-amber-400/45 hover:bg-amber-900/35 focus-visible:outline focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]"
-              >
-                {content.builderLink.label}
-              </Link>
-            </p>
+          {(content.builderLink?.href?.trim() && content.builderLink.label?.trim()) ||
+          (content.socialPackagesLink?.href?.trim() && content.socialPackagesLink.label?.trim()) ? (
+            <div className="mt-5 flex flex-wrap items-center justify-center gap-2 sm:gap-3">
+              {content.builderLink?.href?.trim() && content.builderLink.label?.trim() ? (
+                <Link
+                  href={content.builderLink.href}
+                  className="inline-flex rounded-full border border-cyan-500/35 bg-cyan-950/25 px-4 py-2 text-sm font-medium text-cyan-100/90 transition hover:border-cyan-400/45 hover:bg-cyan-900/35 focus-visible:outline focus-visible:ring-2 focus-visible:ring-cyan-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]"
+                >
+                  {content.builderLink.label}
+                </Link>
+              ) : null}
+              {content.socialPackagesLink?.href?.trim() && content.socialPackagesLink.label?.trim() ? (
+                <Link
+                  href={content.socialPackagesLink.href}
+                  className="inline-flex rounded-full border border-pink-500/35 bg-pink-950/25 px-4 py-2 text-sm font-medium text-pink-100/90 transition hover:border-pink-400/45 hover:bg-pink-900/35 focus-visible:outline focus-visible:ring-2 focus-visible:ring-pink-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]"
+                >
+                  {content.socialPackagesLink.label}
+                </Link>
+              ) : null}
+            </div>
           ) : null}
         </div>
       </div>
@@ -121,7 +132,6 @@ function PortfolioO() {
           fill="none"
           stroke="url(#ringGradient)"
           strokeWidth="6"
-          className="drop-shadow-[0_0_10px_rgba(0,212,255,0.65)]"
         />
         <circle
           cx="32"

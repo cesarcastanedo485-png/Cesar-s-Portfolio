@@ -1,0 +1,229 @@
+{
+  "meta": {
+    "pageTitle": "Social à la carte",
+    "pageDescription": "Scope social media packages—indicative pricing only; final quotes after discovery.",
+    "heroTitle": "Social Orbit Terminal",
+    "heroSubtitle": "Wonderland cyber-lane for posts, clips, and platforms. Pick what you need (social media builds)—still not a final quote.",
+    "stickyDisclaimer": "Indicative pricing only. Final quotes depend on deliverables, platforms, posting cadence, and rights. Prices change; this page may lag.",
+    "longDisclaimer": "Totals here are not binding. Ad spend, platform fees, music licensing, and creator tools are usually billed separately unless we agree otherwise in writing.",
+    "ticketStation": "FEED",
+    "ticketDestination": "GROWTH",
+    "mailSubject": "Social à la carte — scope from portfolio"
+  },
+  "questionnaire": {
+    "title": "Quick context",
+    "description": "Helps the first call go faster.",
+    "steps": [
+      {
+        "id": "goal",
+        "question": "Main goal right now?",
+        "options": [
+          { "id": "awareness", "label": "Awareness / brand", "description": "Be seen and remembered." },
+          { "id": "leads", "label": "Leads or sales", "description": "Drive clicks, DMs, or bookings." },
+          { "id": "community", "label": "Community / fandom", "description": "Engage people who already care." },
+          { "id": "launch", "label": "Launch something new", "description": "Product, drop, event, or stream." }
+        ]
+      },
+      {
+        "id": "assets",
+        "question": "What do you already have?",
+        "options": [
+          { "id": "clips-ready", "label": "Raw clips or photos ready", "description": "You can hand me files." },
+          { "id": "need-shoot", "label": "Need filming or screen capture help", "description": "We plan capture together." },
+          { "id": "from-scratch", "label": "Start from ideas only", "description": "Concept to post pipeline." }
+        ]
+      }
+    ]
+  },
+  "categories": [
+    {
+      "id": "package",
+      "label": "Package tier",
+      "description": "Rough bundles—still customize below.",
+      "selectionMode": "one",
+      "items": [
+        {
+          "id": "soc-basic",
+          "label": "Basic — essentials",
+          "description": "Light rhythm: a few posts/reels per month, one platform focus, simple templates.",
+          "tags": ["Starter"],
+          "excludes": ["soc-growth", "soc-full"],
+          "priceHint": { "display": "From ~$400/mo", "basis": "Indicative; scope in discovery." }
+        },
+        {
+          "id": "soc-growth",
+          "label": "Medium — growth lane",
+          "description": "Multi-format edits, 2–3 platforms, weekly cadence, light strategy notes.",
+          "tags": ["Growth"],
+          "excludes": ["soc-basic", "soc-full"],
+          "priceHint": { "display": "From ~$900/mo", "basis": "Clips length and revision rounds move the quote." }
+        },
+        {
+          "id": "soc-full",
+          "label": "Full — the works (social)",
+          "description": "Daily or near-daily presence, multi-platform, reporting, heavier creative direction.",
+          "tags": ["Full"],
+          "excludes": ["soc-basic", "soc-growth"],
+          "priceHint": { "display": "From ~$2,200/mo", "basis": "Enterprise or paid-ads ops are separate." }
+        }
+      ]
+    },
+    {
+      "id": "content_role",
+      "label": "Who makes the posts?",
+      "selectionMode": "one",
+      "items": [
+        {
+          "id": "post-you-clips",
+          "label": "You send clips — I edit & post",
+          "description": "You record; I cut, caption, schedule.",
+          "excludes": ["post-i-create", "post-hybrid"],
+          "priceHint": { "display": "Often lowest lift", "basis": "If clips are messy, edit time goes up." }
+        },
+        {
+          "id": "post-hybrid",
+          "label": "Hybrid — we co-create",
+          "description": "Mix of your footage + graphics/templates I build.",
+          "excludes": ["post-you-clips", "post-i-create"],
+          "priceHint": { "display": "Mid range", "basis": "More design = more time." }
+        },
+        {
+          "id": "post-i-create",
+          "label": "I create most of it",
+          "description": "Concept, scripting hooks, B-roll plans, heavier production assist.",
+          "excludes": ["post-you-clips", "post-hybrid"],
+          "priceHint": { "display": "Premium lane", "basis": "Not unlimited shoots unless scoped." }
+        }
+      ]
+    },
+    {
+      "id": "profiles",
+      "label": "Accounts & setup",
+      "selectionMode": "one",
+      "items": [
+        {
+          "id": "profiles-existing",
+          "label": "Profiles already exist",
+          "description": "I get access or posting workflow only.",
+          "excludes": ["profiles-new", "profiles-full"],
+          "priceHint": { "display": "From $0", "basis": "Handoff time still billed if large." }
+        },
+        {
+          "id": "profiles-new",
+          "label": "New profiles — I set up basics",
+          "description": "Bio, highlights, link-in-bio, starter posts.",
+          "excludes": ["profiles-existing", "profiles-full"],
+          "priceHint": { "display": "From ~$280", "basis": "Per platform family." }
+        },
+        {
+          "id": "profiles-full",
+          "label": "Full brand kit on social",
+          "description": "Avatars, banners, story templates, pinned strategy.",
+          "excludes": ["profiles-existing", "profiles-new"],
+          "priceHint": { "display": "From ~$650", "basis": "Cross-platform consistency costs more." }
+        }
+      ]
+    },
+    {
+      "id": "platforms",
+      "label": "Platforms",
+      "description": "Pick every place you want covered.",
+      "items": [
+        {
+          "id": "plat-tiktok",
+          "label": "TikTok",
+          "description": "Short vertical video rhythm.",
+          "priceHint": { "display": "+time per cadence", "basis": "Trend research optional add-on." }
+        },
+        {
+          "id": "plat-instagram",
+          "label": "Instagram",
+          "description": "Feed, reels, stories as scoped.",
+          "priceHint": { "display": "+time per cadence", "basis": "Shopping tags / catalog wiring extra." }
+        },
+        {
+          "id": "plat-youtube",
+          "label": "YouTube",
+          "description": "Long or Shorts — say which in email.",
+          "priceHint": { "display": "+time per cadence", "basis": "Thumbnails and chapters add scope." }
+        },
+        {
+          "id": "plat-x",
+          "label": "X (Twitter)",
+          "description": "Threads, spaces hooks, newsroom pace.",
+          "priceHint": { "display": "+time per cadence", "basis": "High-frequency posting = higher." }
+        },
+        {
+          "id": "plat-facebook",
+          "label": "Facebook",
+          "description": "Page or group — clarify in discovery.",
+          "priceHint": { "display": "+time per cadence", "basis": "Ads not included unless added." }
+        },
+        {
+          "id": "plat-threads",
+          "label": "Threads",
+          "description": "Text-first companion posts.",
+          "priceHint": { "display": "+time per cadence", "basis": "Often bundled with IG." }
+        }
+      ]
+    },
+    {
+      "id": "cadence",
+      "label": "Posting rhythm",
+      "selectionMode": "one",
+      "items": [
+        {
+          "id": "cad-daily-one",
+          "label": "One hero platform — daily (or near-daily)",
+          "description": "All-in on one channel; others light or none.",
+          "excludes": ["cad-weekly-multi", "cad-custom"],
+          "priceHint": { "display": "High tempo", "basis": "Clips pipeline must keep up." }
+        },
+        {
+          "id": "cad-weekly-multi",
+          "label": "Several platforms — a few times a week each",
+          "description": "Breadth over single-platform burn.",
+          "excludes": ["cad-daily-one", "cad-custom"],
+          "priceHint": { "display": "Mid tempo", "basis": "More platforms = more variants." }
+        },
+        {
+          "id": "cad-custom",
+          "label": "Custom / campaign spikes",
+          "description": "Launches, drops, tour weeks — irregular intensity.",
+          "excludes": ["cad-daily-one", "cad-weekly-multi"],
+          "priceHint": { "display": "Quoted per sprint", "basis": "Retainer + event fees possible." }
+        }
+      ]
+    },
+    {
+      "id": "extras",
+      "label": "Add-ons",
+      "items": [
+        {
+          "id": "extra-dms",
+          "label": "DM / comment triage assist",
+          "description": "Light community desk — not 24/7 unless scoped.",
+          "priceHint": { "display": "From ~$350/mo", "basis": "Volume and tone guidelines matter." }
+        },
+        {
+          "id": "extra-newsletter",
+          "label": "Email newsletter companion",
+          "description": "Repurpose social beats into a simple mail rhythm.",
+          "priceHint": { "display": "From ~$280/mo", "basis": "Platform fees (e.g. Beehiiv) separate." }
+        },
+        {
+          "id": "extra-analytics",
+          "label": "Monthly analytics snapshot",
+          "description": "What worked, what to try next — short deck or Loom.",
+          "priceHint": { "display": "From ~$200/mo", "basis": "Deeper BI is custom." }
+        },
+        {
+          "id": "extra-ads",
+          "label": "Paid ads handoff (not media buy)",
+          "description": "Creative packs + UTMs + pixel notes; you or an agency run spend.",
+          "priceHint": { "display": "From ~$450/sprint", "basis": "Managing ad accounts is separate." }
+        }
+      ]
+    }
+  ]
+}

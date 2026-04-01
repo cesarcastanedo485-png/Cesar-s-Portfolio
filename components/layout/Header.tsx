@@ -1,8 +1,24 @@
 "use client";
 
 import Link from "next/link";
-import { nav } from "@/lib/content";
+import { nav, type NavLink } from "@/lib/content";
 import { useProgression } from "@/lib/progression";
+import { cn } from "@/lib/utils";
+
+function internalNavKind(link: NavLink): "anchor" | "page" {
+  if (link.navGroup) return link.navGroup;
+  return link.href.startsWith("#") ? "anchor" : "page";
+}
+
+function pageLinkClassName(href: string) {
+  if (href === "/oracle-3d") {
+    return "border-fuchsia-500/40 bg-fuchsia-950/25 text-fuchsia-100 hover:border-fuchsia-400/55 hover:bg-fuchsia-900/30";
+  }
+  if (href === "/social") {
+    return "border-pink-500/35 bg-pink-950/20 text-pink-100 hover:border-pink-400/50 hover:bg-pink-900/28";
+  }
+  return "border-cyan-500/35 bg-cyan-950/20 text-cyan-100 hover:border-cyan-400/50 hover:bg-cyan-900/28";
+}
 
 export function Header() {
   const { canAccessOracle } = useProgression();
@@ -12,6 +28,8 @@ export function Header() {
     return true;
   });
   const external = nav.links.filter((l) => l.external);
+  const anchorLinks = internal.filter((l) => internalNavKind(l) === "anchor");
+  const pageLinks = internal.filter((l) => internalNavKind(l) === "page");
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-fuchsia-500/15 bg-background/92 backdrop-blur-xl">
@@ -21,8 +39,11 @@ export function Header() {
           className="flex shrink-0 items-center gap-2.5 rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-500/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]"
         >
           <BrandMark />
-          <span className="header-brand-word text-lg md:text-xl">
-            {nav.brandLabel}
+          <span className="header-brand-word min-w-0 flex-1 text-left leading-tight md:flex-none">
+            <span className="block sm:hidden">
+              {nav.brandLabelShort?.trim() || nav.brandLabel}
+            </span>
+            <span className="hidden sm:block text-lg md:text-xl">{nav.brandLabel}</span>
           </span>
         </Link>
         <div className="flex w-full min-w-0 flex-col gap-2 md:w-auto md:flex-row md:flex-wrap md:items-center md:justify-end md:gap-x-3 md:gap-y-1">
@@ -30,11 +51,29 @@ export function Header() {
             className="flex flex-wrap items-center gap-1 sm:gap-2 md:justify-end"
             aria-label="Primary"
           >
-            {internal.map((link) => (
+            {anchorLinks.map((link) => (
               <Link
                 key={link.href + link.label}
                 href={link.href}
                 className="rounded-md px-2.5 py-1.5 text-sm text-muted-foreground transition-colors hover:text-fuchsia-100/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-500/45 sm:px-3 sm:py-2"
+              >
+                {link.label}
+              </Link>
+            ))}
+            {anchorLinks.length > 0 && pageLinks.length > 0 ? (
+              <span
+                className="mx-0.5 hidden h-4 w-px shrink-0 bg-gradient-to-b from-transparent via-fuchsia-500/35 to-transparent sm:block"
+                aria-hidden
+              />
+            ) : null}
+            {pageLinks.map((link) => (
+              <Link
+                key={link.href + link.label}
+                href={link.href}
+                className={cn(
+                  "rounded-full border px-2.5 py-1.5 text-xs font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-fuchsia-500/45 sm:px-3 sm:py-2 sm:text-sm",
+                  pageLinkClassName(link.href),
+                )}
               >
                 {link.label}
               </Link>

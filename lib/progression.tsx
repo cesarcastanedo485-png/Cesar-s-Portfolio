@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 export const STORAGE_KEY = "cesar-portfolio-progression-v1";
@@ -80,6 +81,11 @@ type ProgressionContextValue = {
   openOverlay: (options?: { openForm?: boolean }) => void;
   startPlay: () => void;
   chooseExperience: (mode: Exclude<ExperienceMode, null>) => void;
+  /**
+   * Saves experience + writes localStorage immediately, then navigates.
+   * Use for quick-start links so the next page never sees `experienceMode === null`.
+   */
+  chooseExperienceAndGo: (mode: Exclude<ExperienceMode, null>, path: string) => void;
   /** Sets experience to `null` so the red/blue pill modal appears again (opt-out / re-choose). */
   reopenExperienceChoice: () => void;
   awardLevelEvent: (input: LevelEventInput) => LevelEventResult;
@@ -194,6 +200,7 @@ function makeId(prefix: string): string {
 }
 
 export function ProgressionProvider({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
   const [hydrated, setHydrated] = useState(false);
   /** Start hidden so the level modal does not block the page until atmosphere (or another gate) opens it. */
   const [overlayCollapsed, setOverlayCollapsed] = useState(true);
@@ -246,6 +253,33 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
       };
     });
   }, []);
+
+  const chooseExperienceAndGo = useCallback(
+    (mode: Exclude<ExperienceMode, null>, path: string) => {
+      setState((prev) => {
+        const next: StoredProgression =
+          mode === "matrix"
+            ? {
+                ...prev,
+                version: 4,
+                experienceMode: "matrix",
+                currentLevel: Math.max(1, prev.currentLevel),
+                levelOneComplete: true,
+              }
+            : {
+                ...prev,
+                version: 4,
+                experienceMode: "wonderland",
+              };
+        if (typeof window !== "undefined") {
+          window.localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
+        }
+        return next;
+      });
+      router.push(path);
+    },
+    [router],
+  );
 
   const reopenExperienceChoice = useCallback(() => {
     setState((prev) => ({
@@ -428,6 +462,7 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
       openOverlay,
       startPlay,
       chooseExperience,
+      chooseExperienceAndGo,
       reopenExperienceChoice,
       awardLevelEvent,
       submitLevelOne,
@@ -447,6 +482,7 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
       openOverlay,
       startPlay,
       chooseExperience,
+      chooseExperienceAndGo,
       reopenExperienceChoice,
       awardLevelEvent,
       submitLevelOne,

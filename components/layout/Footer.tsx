@@ -33,13 +33,25 @@ export function Footer() {
       </p>
       {footerContent.builderLink?.href?.trim() &&
       footerContent.builderLink.label?.trim() ? (
-        <p className="mt-4 max-w-xl mx-auto text-xs text-amber-100/80">
+        <p className="mt-4 max-w-xl mx-auto text-xs text-cyan-100/80">
           {footerContent.builderLink.line}{" "}
           <Link
             href={footerContent.builderLink.href}
-            className="font-medium text-amber-200 underline decoration-amber-500/45 underline-offset-2 hover:text-amber-50"
+            className="font-medium text-cyan-200 underline decoration-cyan-500/45 underline-offset-2 hover:text-cyan-50"
           >
             {footerContent.builderLink.label}
+          </Link>
+        </p>
+      ) : null}
+      {footerContent.socialPackagesLink?.href?.trim() &&
+      footerContent.socialPackagesLink.label?.trim() ? (
+        <p className="mt-2 max-w-xl mx-auto text-xs text-pink-100/80">
+          {footerContent.socialPackagesLink.line}{" "}
+          <Link
+            href={footerContent.socialPackagesLink.href}
+            className="font-medium text-pink-200 underline decoration-pink-500/45 underline-offset-2 hover:text-pink-50"
+          >
+            {footerContent.socialPackagesLink.label}
           </Link>
         </p>
       ) : null}

@@ -10,7 +10,7 @@ type BackgroundAtmosphereProps = {
   matrixCalm?: boolean;
 };
 
-const FORCE_CENTER_SMOKE_DEBUG = true;
+const FORCE_CENTER_SMOKE_DEBUG = false;
 
 /**
  * Fixed layer behind page chrome: scroll-linked cool→warm grade + dual smoke.
@@ -89,6 +89,25 @@ export function BackgroundAtmosphere({
               "linear-gradient(180deg, rgba(56,189,248,0.06) 0%, transparent 55%, rgba(232,121,249,0.05) 100%)",
           }}
         />
+        {/* Same dual mist as full-motion; drift keyframes are off via prefers-reduced-motion / no animation classes */}
+        <div
+          className="pointer-events-none absolute inset-0 mix-blend-screen opacity-90 max-md:opacity-[0.85]"
+          style={{
+            backgroundImage: `
+            radial-gradient(ellipse 88% 44% at calc(50% + var(--atmo-scroll-t) * 8%) calc(52% + var(--atmo-scroll-t) * 4%), rgba(255,255,255,0.5) 0%, rgba(226,232,240,0.3) 30%, rgba(186,230,253,0.2) 50%, transparent 68%),
+            radial-gradient(ellipse 40% 34% at calc(50% + var(--atmo-scroll-t) * 6%) 50%, rgba(255,255,255,0.36) 0%, transparent 56%)
+          `,
+          }}
+        />
+        <div
+          className="pointer-events-none absolute inset-0 mix-blend-screen opacity-[0.88] max-md:opacity-[0.82]"
+          style={{
+            backgroundImage: `
+            radial-gradient(ellipse 78% 60% at calc(50% - var(--atmo-scroll-t) * 9%) 57%, rgba(244,232,255,0.5) 0%, rgba(168,85,247,0.32) 44%, transparent 68%),
+            radial-gradient(ellipse 62% 40% at calc(50% - var(--atmo-scroll-t) * 6%) 62%, rgba(255,255,255,0.28) 0%, transparent 58%)
+          `,
+          }}
+        />
         {FORCE_CENTER_SMOKE_DEBUG ? (
           <div
             className="absolute inset-0 opacity-[0.66]"
@@ -136,11 +155,11 @@ export function BackgroundAtmosphere({
         aria-hidden
       />
       <div
-        className="portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-soft-light opacity-[1.08] max-md:opacity-[1]"
+        className="portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-screen opacity-90 max-md:opacity-[0.86]"
         style={{
           backgroundImage: `
-            radial-gradient(ellipse 78% 60% at calc(50% - var(--atmo-scroll-t) * 9%) 57%, rgba(244,232,255,0.44) 0%, rgba(168,85,247,0.24) 44%, transparent 68%),
-            radial-gradient(ellipse 62% 40% at calc(50% - var(--atmo-scroll-t) * 6%) 62%, rgba(255,255,255,0.22) 0%, transparent 58%)
+            radial-gradient(ellipse 78% 60% at calc(50% - var(--atmo-scroll-t) * 9%) 57%, rgba(244,232,255,0.5) 0%, rgba(168,85,247,0.32) 44%, transparent 68%),
+            radial-gradient(ellipse 62% 40% at calc(50% - var(--atmo-scroll-t) * 6%) 62%, rgba(255,255,255,0.28) 0%, transparent 58%)
           `,
         }}
         aria-hidden
