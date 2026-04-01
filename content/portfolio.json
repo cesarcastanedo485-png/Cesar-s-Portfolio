@@ -151,7 +151,7 @@
         "tags": ["React", "Node.js", "WebSockets", "TikTok Live chat", "Twitch chat (placeholder)", "Social sim", "Economy"],
         "sourceAvailable": false,
         "gradient": "from-amber-600/80 to-orange-900/80",
-        "iconSrc": "/games/chatling-ranch.svg",
+        "iconSrc": "/games/chatling-ranch.png",
         "iconAlt": "Chatling Ranch — pixel pasture, tree with lantern, chat bubbles"
       },
       {
@@ -162,7 +162,7 @@
         "tags": ["React", "Chat UI", "TikTok Live chat", "Twitch chat (placeholder)", "AI API key"],
         "sourceAvailable": false,
         "gradient": "from-violet-600/80 to-purple-900/80",
-        "iconSrc": "/games/dungeon-master-lite.svg",
+        "iconSrc": "/games/dungeon-master-lite.png",
         "iconAlt": "Dungeon Master Lite — neon TikTok note in a glitchy crystal frame"
       },
       {
@@ -175,7 +175,7 @@
         "demoSlug": "cyoa-pilot",
         "demoTitle": "CYOA mini demo (Godot Web)",
         "demoNotes": "Pilot scene: click a choice to branch. Replace files in public/demos/cyoa-pilot/ with your Godot Web export.",
-        "iconSrc": "/games/choose-your-destiny.svg",
+        "iconSrc": "/games/choose-your-destiny.png",
         "iconAlt": "Choose Your Destiny — rainy neon city, branching arrows, synthwave title",
         "sourceAvailable": false,
         "gradient": "from-emerald-600/80 to-teal-900/90"
