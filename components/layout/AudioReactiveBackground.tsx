@@ -168,6 +168,7 @@ export function AudioReactiveBackground({
     ? SMOKE_OVERLAY_WIDTH_MOBILE
     : SMOKE_OVERLAY_WIDTH_DESKTOP;
   const mobileObjectPosition = narrowViewport ? "0% 0%" : "left top";
+  const mobileObjectFit = narrowViewport ? "contain" : "cover";
   const mobilePulseScale = narrowViewport ? 0 : 0.1;
   const flashGain =
     typeof beatFlashOpacityGain === "number" && Number.isFinite(beatFlashOpacityGain)
@@ -207,6 +208,7 @@ export function AudioReactiveBackground({
           flashGain,
           smokeOverlayWidth,
           mobileObjectPosition,
+          mobileObjectFit,
           mobilePulseScale,
         },
         timestamp: Date.now(),
@@ -230,6 +232,7 @@ export function AudioReactiveBackground({
     rainVideoFailed,
     smokeOverlayWidth,
     mobileObjectPosition,
+    mobileObjectFit,
     mobilePulseScale,
   ]);
 
@@ -365,6 +368,7 @@ export function AudioReactiveBackground({
                   width: panoramaWidth,
                   minWidth: panoramaWidth,
                   objectPosition: mobileObjectPosition,
+                  objectFit: mobileObjectFit,
                   transform:
                     `translate3d(var(--arp-scroll-x, 0vw), 0, 0) scale(calc(1 + var(--arp-pulse, 0) * ${mobilePulseScale} * var(--arp-visual-mul, 1)))`,
                   filter:
@@ -384,6 +388,7 @@ export function AudioReactiveBackground({
                     width: panoramaWidth,
                     minWidth: panoramaWidth,
                     objectPosition: mobileObjectPosition,
+                    objectFit: mobileObjectFit,
                     transform:
                       "translate3d(var(--arp-scroll-x, 0vw), 0, 0)",
                     opacity: playing
