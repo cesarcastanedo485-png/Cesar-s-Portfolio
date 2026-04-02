@@ -6,6 +6,7 @@ import { ChevronUp, Mail } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { contactContent } from "@/lib/content";
+import { CONTACT_UNLOCK_LEVEL, useProgression } from "@/lib/progression";
 
 function buildMailto(email: string, subject?: string) {
   const base = `mailto:${email.trim()}`;
@@ -15,6 +16,7 @@ function buildMailto(email: string, subject?: string) {
 
 export function ContactSection() {
   const [open, setOpen] = useState(false);
+  const { experienceMode, currentLevel, redPillUnlocks } = useProgression();
   const {
     sectionEyebrow,
     headline,
@@ -27,6 +29,7 @@ export function ContactSection() {
   } = contactContent;
 
   const mailto = email?.includes("@") ? buildMailto(email, emailSubject) : null;
+  const contactLocked = experienceMode === "wonderland" && !redPillUnlocks.contact;
 
   return (
     <section
@@ -52,7 +55,11 @@ export function ContactSection() {
             </h2>
             <button
               type="button"
-              onClick={() => setOpen((v) => !v)}
+              onClick={() => {
+                if (contactLocked) return;
+                setOpen((v) => !v);
+              }}
+              disabled={contactLocked}
               className={cn(
                 "mx-auto shrink-0 rounded-full border-2 px-5 py-2 text-sm font-bold uppercase tracking-wide transition md:mx-0",
                 "shadow-[0_0_18px_rgba(59,130,246,0.45),0_0_2px_rgba(147,197,253,0.9)]",
@@ -60,20 +67,27 @@ export function ContactSection() {
                 "hover:border-sky-300 hover:bg-[#152a45]/90 hover:shadow-[0_0_26px_rgba(56,189,248,0.55)]",
                 "focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400/80",
                 open && "border-sky-200 bg-[#1a3050]/95 text-sky-100",
+                contactLocked &&
+                  "cursor-not-allowed border-sky-600/60 bg-[#0b1320]/80 text-sky-300/60 hover:border-sky-600/60 hover:bg-[#0b1320]/80 hover:shadow-[0_0_18px_rgba(59,130,246,0.2)]",
               )}
               aria-expanded={open}
               aria-controls="contact-panel"
             >
-              {open ? (
+              {open && !contactLocked ? (
                 <span className="inline-flex items-center gap-1.5">
                   <ChevronUp className="size-4" aria-hidden />
                   Close
                 </span>
               ) : (
-                "Build"
+                "Contact"
               )}
             </button>
           </div>
+          {contactLocked ? (
+            <p className="mt-2 text-center text-xs text-cyan-200/70 md:text-left">
+              Contact unlocks at Level {CONTACT_UNLOCK_LEVEL}. Current Level: {currentLevel}.
+            </p>
+          ) : null}
 
           <div id="contact-panel" hidden={!open}>
             <p className="mb-4 mt-6 text-center text-xs font-medium uppercase tracking-[0.2em] text-cyan-200/70 md:text-left">

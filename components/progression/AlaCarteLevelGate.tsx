@@ -6,6 +6,7 @@ import { ORACLE_UNLOCK_LEVEL, useProgression } from "@/lib/progression";
 
 type AlaCarteLevelGateProps = {
   title: string;
+  requiredLevel?: number;
   children: ReactNode;
 };
 
@@ -13,7 +14,11 @@ type AlaCarteLevelGateProps = {
  * Guardrail: In Red-pill mode, all a la carte routes stay locked until Level 5.
  * Blue-pill visitors keep normal access.
  */
-export function AlaCarteLevelGate({ title, children }: AlaCarteLevelGateProps) {
+export function AlaCarteLevelGate({
+  title,
+  requiredLevel = ORACLE_UNLOCK_LEVEL,
+  children,
+}: AlaCarteLevelGateProps) {
   const { hydrated, experienceMode, currentLevel } = useProgression();
 
   if (!hydrated || experienceMode === null) {
@@ -26,7 +31,7 @@ export function AlaCarteLevelGate({ title, children }: AlaCarteLevelGateProps) {
     );
   }
 
-  const redPillLocked = experienceMode === "wonderland" && currentLevel < ORACLE_UNLOCK_LEVEL;
+  const redPillLocked = experienceMode === "wonderland" && currentLevel < requiredLevel;
   if (redPillLocked) {
     return (
       <main className="min-h-screen bg-[#060a13] px-4 py-8 text-white sm:px-8">
@@ -35,10 +40,10 @@ export function AlaCarteLevelGate({ title, children }: AlaCarteLevelGateProps) {
             A la Carte Locked
           </p>
           <h1 className="mt-2 text-2xl font-semibold tracking-tight sm:text-3xl">
-            Reach Level {ORACLE_UNLOCK_LEVEL} to open {title}
+            Reach Level {requiredLevel} to open {title}
           </h1>
           <p className="vault-neon-instruction mx-auto mt-3 max-w-xl text-sm">
-            Current progression: Level {currentLevel} / {ORACLE_UNLOCK_LEVEL}. Keep leveling on
+            Current progression: Level {currentLevel} / {requiredLevel}. Keep leveling on
             the portfolio to unlock all a la carte scenes.
           </p>
           <Link

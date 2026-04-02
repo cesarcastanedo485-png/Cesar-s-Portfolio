@@ -90,6 +90,9 @@ body {
   background-clip: text;
   color: transparent;
   -webkit-text-fill-color: transparent;
+  filter: brightness(
+    calc(1 + var(--arp-pulse, 0) * 0.42 + var(--arp-pulse-spike, 0) * 0.22)
+  );
 }
 
 /* Scroll- and pulse-linked mist (BackgroundAtmosphere + AudioReactiveBackground) */
@@ -361,7 +364,8 @@ body {
     0 0 1px rgba(255, 255, 255, 0.85),
     0 0 10px rgba(232, 121, 249, 0.65),
     0 0 22px rgba(236, 72, 153, 0.45),
-    0 0 36px rgba(168, 85, 247, 0.35);
+    0 0 36px rgba(168, 85, 247, 0.35),
+    0 0 calc(10px + var(--arp-pulse, 0) * 22px) rgba(244, 114, 182, 0.4);
   -webkit-text-stroke: 0.35px rgba(232, 121, 249, 0.35);
 }
 
@@ -369,46 +373,6 @@ body {
   filter: drop-shadow(0 0 6px rgba(236, 72, 153, 0.75))
     drop-shadow(0 0 14px rgba(168, 85, 247, 0.55))
     drop-shadow(0 0 22px rgba(232, 121, 249, 0.35));
-}
-
-/* SectionSparkles — medium “half-disco” twinkle */
-@keyframes sparkle-dust-twinkle {
-  0%,
-  100% {
-    opacity: 0.14;
-    transform: scale(0.38);
-  }
-  38% {
-    opacity: 0.82;
-    transform: scale(1.02);
-  }
-  58% {
-    opacity: 0.92;
-    transform: scale(1.14);
-  }
-}
-
-.sparkle-dust {
-  animation-name: sparkle-dust-twinkle;
-}
-
-.sparkle-dust--idle {
-  animation-play-state: paused;
-  opacity: 0.1;
-  transform: scale(0.45);
-}
-
-.sparkle-dust--on {
-  animation-play-state: running;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .sparkle-dust,
-  .sparkle-dust--on {
-    animation: none !important;
-    opacity: 0.12;
-    transform: scale(0.6);
-  }
 }
 
 /* QuoteSection — turquoise / cyan neon (distinct from body-copy cyan) */
@@ -419,10 +383,21 @@ body {
     0 0 2px rgba(255, 255, 255, 0.65),
     0 0 10px rgba(34, 211, 238, 0.78),
     0 0 22px rgba(45, 212, 191, 0.52),
-    0 0 38px rgba(13, 148, 136, 0.32);
+    0 0 38px rgba(13, 148, 136, 0.32),
+    0 0 calc(8px + var(--arp-pulse, 0) * 18px) rgba(34, 211, 238, 0.42);
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .hero-neon-title {
+    filter: none;
+  }
+
+  .header-brand-word {
+    text-shadow:
+      0 0 1px rgba(255, 255, 255, 0.75),
+      0 0 8px rgba(232, 121, 249, 0.45);
+  }
+
   .quote-neon-turquoise {
     text-shadow: 0 0 10px rgba(34, 211, 238, 0.55);
   }
@@ -441,6 +416,7 @@ html.matrix-mode .hero-neon-title {
     #a5b4fc 72%,
     #c4b5fd 100%
   );
+  filter: none;
 }
 
 html.matrix-mode .neon-sign-body {
@@ -506,11 +482,6 @@ html.matrix-mode .foreground-smoke-parallax {
 
 html.matrix-mode .foreground-smoke-parallax-slow {
   opacity: calc(var(--fg-smoke-secondary-opacity, 0.2) * 0.58);
-}
-
-html.matrix-mode .sparkle-dust,
-html.matrix-mode .sparkle-dust--on {
-  display: none !important;
 }
 
 /* Build à la carte — ticket punch holes */

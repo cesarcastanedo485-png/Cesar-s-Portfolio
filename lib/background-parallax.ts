@@ -1,7 +1,7 @@
 /**
  * Desktop / large viewports: lower vw = more zoomed out (billboards stay readable).
  */
-export const BG_PANORAMA_MIN_WIDTH_VW = 138;
+export const BG_PANORAMA_MIN_WIDTH_VW = 132;
 
 /**
  * Mobile-first: lower vw = more zoomed out on phones so left/right billboard copy

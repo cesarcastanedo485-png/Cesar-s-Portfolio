@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { socialMenuData } from "@/lib/social-menu";
 import { SocialPackagesClient } from "@/components/social/SocialPackagesClient";
 import { AlaCarteLevelGate } from "@/components/progression/AlaCarteLevelGate";
+import { SOCIAL_UNLOCK_LEVEL } from "@/lib/progression";
 
 const { meta } = socialMenuData;
 
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
 
 export default function SocialPackagesPage() {
   return (
-    <AlaCarteLevelGate title="Social media à la carte">
+    <AlaCarteLevelGate title="Social media à la carte" requiredLevel={SOCIAL_UNLOCK_LEVEL}>
       <SocialPackagesClient />
     </AlaCarteLevelGate>
   );

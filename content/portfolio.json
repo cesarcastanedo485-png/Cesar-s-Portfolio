@@ -77,17 +77,17 @@
     "screenReaderTitle": "Portfolio",
     "titlePart1": "Port",
     "titlePart2": "folio",
-    "tagline": "Crafting websites, apps, and games",
+    "tagline": "Crafting websites apps and games",
     "builderLink": {
-      "label": "À la carte (website) — punch your scope",
+      "label": "Website portal",
       "href": "/oracle-3d"
     },
     "socialPackagesLink": {
-      "label": "À la carte (social media)",
+      "label": "Social media portal",
       "href": "/social"
     },
     "appPackagesLink": {
-      "label": "À la carte (Android app)",
+      "label": "Android app portal",
       "href": "/apps"
     }
   },
@@ -96,7 +96,7 @@
     "sectionIntro": "",
     "featuredBadge": "Featured",
     "builderTeaser": {
-      "text": "Prefer to line-item what you need before we talk?",
+      "text": "Progress to unlock line-item menus before we talk scope.",
       "label": "Open à la carte (website)",
       "href": "/oracle-3d"
     },
@@ -240,8 +240,9 @@
         "iconAlt": "Dungeon Master Lite — neon TikTok note in a glitchy crystal frame",
         "demoEnabled": true,
         "demoSlug": "dungeon-master-lite",
+        "demoUrl": "https://dungeon-master-lite.vercel.app/",
         "demoTitle": "Dungeon Master Lite (Godot Web)",
-        "demoNotes": "Godot 4 Web export (threads) lives in public/demos/dungeon-master-lite/. Use Hide demo to collapse the player.",
+        "demoNotes": "Live Vercel build. Use Hide demo to collapse the player.",
         "demoRequiresProgression": false,
         "demoDefaultOpen": true
       },
@@ -267,7 +268,7 @@
     "headline": "Let’s build something",
     "body": "Open to freelance and full-time roles that need strong UI, performance, and clear communication. Replace the placeholder email with yours before you ship.",
     "builderTeaser": {
-      "text": "Want to scope deliverables first? Prices on the builder are indicative only — not final quotes.",
+      "text": "After unlock, scope deliverables first. Prices are indicative only — not final quotes.",
       "label": "À la carte (website)",
       "href": "/oracle-3d"
     },
@@ -289,17 +290,17 @@
     "copyright": "Cesar. All rights reserved.",
     "note": "Content lives in content/portfolio.json — edit there and push to redeploy (see docs/CONTENT_WORKFLOW.md).",
     "builderLink": {
-      "line": "Website scope: line items with indicative pricing (not final quotes).",
+      "line": "Website scope unlocks by progression level: line items with indicative pricing (not final quotes).",
       "label": "À la carte (website)",
       "href": "/oracle-3d"
     },
     "socialPackagesLink": {
-      "line": "Social scope: posts, platforms, cadence — same rules (indicative only).",
+      "line": "Social scope unlocks by progression level: posts, platforms, cadence (indicative only).",
       "label": "À la carte (social media)",
       "href": "/social"
     },
     "appPackagesLink": {
-      "line": "Android app scope: stacks, auth, APK/Play, ASO — same rules (indicative only).",
+      "line": "Android app scope unlocks by progression level: stacks, auth, APK/Play, ASO (indicative only).",
       "label": "À la carte (Android app)",
       "href": "/apps"
     }

@@ -2,7 +2,21 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ChevronDown, ChevronUp, Sparkles } from "lucide-react";
-import { useProgression, ORACLE_UNLOCK_LEVEL } from "@/lib/progression";
+import {
+  APPS_UNLOCK_LEVEL,
+  CONTACT_UNLOCK_LEVEL,
+  ORACLE_UNLOCK_LEVEL,
+  SOCIAL_UNLOCK_LEVEL,
+  useProgression,
+} from "@/lib/progression";
+
+function unlockCopyForLevel(level: number): string | null {
+  if (level >= ORACLE_UNLOCK_LEVEL) return "Website a la carte unlocked (Mad Hatter Oracle Chamber).";
+  if (level >= CONTACT_UNLOCK_LEVEL) return "Contact button unlocked.";
+  if (level >= SOCIAL_UNLOCK_LEVEL) return "Social media packages unlocked.";
+  if (level >= APPS_UNLOCK_LEVEL) return "Android app packages unlocked.";
+  return null;
+}
 
 export function LevelUpOverlay() {
   const {
@@ -69,6 +83,17 @@ export function LevelUpOverlay() {
     if (!levelOneComplete) return "Level 1: Wake the atmosphere";
     return `Level ${currentLevel} reached${username ? `, ${username}` : ""}`;
   }, [canAccessOracle, currentLevel, hydrated, levelOneComplete, username]);
+  const currentUnlockCopy = unlockCopyForLevel(currentLevel);
+  const nextUnlockCopy = useMemo(() => {
+    if (currentLevel < APPS_UNLOCK_LEVEL) return `Next unlock at Level ${APPS_UNLOCK_LEVEL}: Android app packages.`;
+    if (currentLevel < SOCIAL_UNLOCK_LEVEL)
+      return `Next unlock at Level ${SOCIAL_UNLOCK_LEVEL}: Social media packages.`;
+    if (currentLevel < CONTACT_UNLOCK_LEVEL)
+      return `Next unlock at Level ${CONTACT_UNLOCK_LEVEL}: Contact button.`;
+    if (currentLevel < ORACLE_UNLOCK_LEVEL)
+      return `Next unlock at Level ${ORACLE_UNLOCK_LEVEL}: Website a la carte.`;
+    return "All red-pill unlock milestones reached.";
+  }, [currentLevel]);
 
   if (!hydrated || experienceMode === null || isMatrixMode) {
     return null;
@@ -117,6 +142,12 @@ export function LevelUpOverlay() {
                     ? `Level ${ORACLE_UNLOCK_LEVEL} complete. Oracle access is now unlocked.`
                     : `Keep interacting to reach Level ${ORACLE_UNLOCK_LEVEL}: open vaults or expand project details.`}
               </p>
+              {levelOneComplete && currentUnlockCopy ? (
+                <p className="mt-2 text-xs text-emerald-300/95">{currentUnlockCopy}</p>
+              ) : null}
+              {levelOneComplete ? (
+                <p className="mt-1 text-xs text-fuchsia-100/80">{nextUnlockCopy}</p>
+              ) : null}
             </div>
             <div className="space-y-3">
               <p className="vault-neon-instruction text-sm">
@@ -223,7 +254,8 @@ export function LevelUpOverlay() {
               Level {liteCelebrationLevel} Up
             </p>
             <p className="mt-1 text-center text-xs text-white/70 sm:text-sm">
-              Keep going to unlock Level {ORACLE_UNLOCK_LEVEL}.
+              {unlockCopyForLevel(liteCelebrationLevel) ??
+                `Keep going to unlock Level ${ORACLE_UNLOCK_LEVEL}.`}
             </p>
           </div>
         </div>

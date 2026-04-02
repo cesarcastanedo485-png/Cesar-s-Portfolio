@@ -6,6 +6,9 @@ import { submitLeadToBackend } from "@/lib/submit-lead-remote";
 
 export const STORAGE_KEY = "cesar-portfolio-progression-v1";
 export const MAX_LEVEL = 5;
+export const APPS_UNLOCK_LEVEL = 2;
+export const SOCIAL_UNLOCK_LEVEL = 3;
+export const CONTACT_UNLOCK_LEVEL = 4;
 /** Oracle chamber link stays locked below this level (independent of future MAX_LEVEL tweaks). */
 export const ORACLE_UNLOCK_LEVEL = 5;
 
@@ -71,6 +74,13 @@ export type LevelEventResult = {
   reason?: string;
 };
 
+export type RedPillUnlocks = {
+  apps: boolean;
+  social: boolean;
+  contact: boolean;
+  oracle: boolean;
+};
+
 type ProgressionContextValue = {
   hydrated: boolean;
   overlayCollapsed: boolean;
@@ -82,6 +92,7 @@ type ProgressionContextValue = {
   maxLevel: number;
   levelOneComplete: boolean;
   canAccessOracle: boolean;
+  redPillUnlocks: RedPillUnlocks;
   username: string;
   leads: LeadRecord[];
   briefs: DreamBrief[];
@@ -110,6 +121,16 @@ const ProgressionContext = createContext<ProgressionContextValue | null>(null);
 export function getEligibleDiscountPercent(level: number): number {
   const n = Math.max(0, Math.min(MAX_LEVEL, Math.round(level)));
   return Math.min(25, n * 5);
+}
+
+export function getRedPillUnlocks(level: number): RedPillUnlocks {
+  const current = Math.max(0, Math.min(MAX_LEVEL, Math.round(level)));
+  return {
+    apps: current >= APPS_UNLOCK_LEVEL,
+    social: current >= SOCIAL_UNLOCK_LEVEL,
+    contact: current >= CONTACT_UNLOCK_LEVEL,
+    oracle: current >= ORACLE_UNLOCK_LEVEL,
+  };
 }
 
 const emptyState: StoredProgression = {
@@ -510,6 +531,7 @@ export function ProgressionProvider({ children }: { children: React.ReactNode })
       maxLevel: MAX_LEVEL,
       levelOneComplete: state.levelOneComplete,
       canAccessOracle: state.currentLevel >= ORACLE_UNLOCK_LEVEL,
+      redPillUnlocks: getRedPillUnlocks(state.currentLevel),
       username: state.username,
       leads: state.leads,
       briefs: state.briefs,

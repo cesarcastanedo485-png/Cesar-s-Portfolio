@@ -28,6 +28,8 @@ export type WorkItem = {
   demoEnabled?: boolean;
   /** Slug that maps to `/demos/<slug>/index.html` */
   demoSlug?: string;
+  /** Absolute URL for externally hosted demos (used instead of demoSlug when set). */
+  demoUrl?: string;
   demoTitle?: string;
   /** Optional controls/help text shown near the demo */
   demoNotes?: string;
@@ -65,6 +67,8 @@ export type GameItem = {
   demoEnabled?: boolean;
   /** Slug that maps to `/demos/<slug>/index.html` */
   demoSlug?: string;
+  /** Absolute URL for externally hosted demos (used instead of demoSlug when set). */
+  demoUrl?: string;
   demoTitle?: string;
   /** Optional controls/help text shown near the demo */
   demoNotes?: string;

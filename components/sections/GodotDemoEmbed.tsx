@@ -8,6 +8,7 @@ import { useProgression } from "@/lib/progression";
 type GodotDemoEmbedProps = {
   demoEnabled?: boolean;
   demoSlug?: string;
+  demoUrl?: string;
   demoTitle?: string;
   demoNotes?: string;
   demoFallbackHref?: string;
@@ -21,6 +22,7 @@ type GodotDemoEmbedProps = {
 export function GodotDemoEmbed({
   demoEnabled,
   demoSlug,
+  demoUrl,
   demoTitle,
   demoNotes,
   demoFallbackHref,
@@ -32,10 +34,12 @@ export function GodotDemoEmbed({
   const { levelOneComplete, openOverlay } = useProgression();
 
   const src = useMemo(() => {
+    const external = demoUrl?.trim();
+    if (external) return external;
     const slug = demoSlug?.trim();
     if (!slug) return undefined;
     return `/demos/${slug}/index.html`;
-  }, [demoSlug]);
+  }, [demoSlug, demoUrl]);
 
   if (!demoEnabled || !src) {
     return null;

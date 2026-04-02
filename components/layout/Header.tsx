@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { nav, type NavLink } from "@/lib/content";
+import { useProgression } from "@/lib/progression";
 import { cn } from "@/lib/utils";
 
 function internalNavKind(link: NavLink): "anchor" | "page" {
@@ -20,13 +21,23 @@ function pageLinkClassName(href: string) {
 }
 
 export function Header() {
+  const { hydrated, experienceMode, redPillUnlocks } = useProgression();
   const internal = nav.links.filter((l) => {
     if (l.external) return false;
     return true;
   });
   const external = nav.links.filter((l) => l.external);
   const anchorLinks = internal.filter((l) => internalNavKind(l) === "anchor");
-  const pageLinks = internal.filter((l) => internalNavKind(l) === "page");
+  const pageLinks = internal
+    .filter((l) => internalNavKind(l) === "page")
+    .filter((link) => {
+      if (!hydrated) return false;
+      if (experienceMode !== "wonderland") return true;
+      if (link.href === "/apps") return redPillUnlocks.apps;
+      if (link.href === "/social") return redPillUnlocks.social;
+      if (link.href === "/oracle-3d") return redPillUnlocks.oracle;
+      return true;
+    });
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-fuchsia-500/15 bg-background/92 backdrop-blur-xl">

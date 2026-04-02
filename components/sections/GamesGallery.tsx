@@ -27,6 +27,7 @@ function gameDemoEmbedProps(game: GameItem) {
   return {
     demoEnabled: game.demoEnabled,
     demoSlug: game.demoSlug,
+    demoUrl: game.demoUrl,
     demoTitle: game.demoTitle,
     demoNotes: game.demoNotes,
     demoFallbackHref: game.demoFallbackHref,
@@ -37,9 +38,10 @@ function gameDemoEmbedProps(game: GameItem) {
 
 /** Always-visible demo player (not hidden inside Details). Anchor: #demo-<demoSlug> */
 function GameDemoPanel({ game, className }: { game: GameItem; className?: string }) {
-  if (!game.demoEnabled || !game.demoSlug?.trim()) return null;
+  if (!game.demoEnabled || (!game.demoSlug?.trim() && !game.demoUrl?.trim())) return null;
+  const anchor = game.demoSlug?.trim() || `game-${game.id}`;
   return (
-    <div id={`demo-${game.demoSlug.trim()}`} className={cn("scroll-mt-28", className)}>
+    <div id={`demo-${anchor}`} className={cn("scroll-mt-28", className)}>
       <GodotDemoEmbed {...gameDemoEmbedProps(game)} />
     </div>
   );

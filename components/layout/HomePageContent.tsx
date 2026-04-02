@@ -7,7 +7,6 @@ import { WonderlandAtmosphereStub } from "@/components/layout/WonderlandAtmosphe
 import { SiteBackgroundVideo } from "@/components/layout/SiteBackgroundVideo";
 import { BackgroundAtmosphere } from "@/components/effects/BackgroundAtmosphere";
 import { ForegroundSmokeParallax } from "@/components/effects/ForegroundSmokeParallax";
-import { SectionSparkles } from "@/components/effects/SectionSparkles";
 import { Hero } from "@/components/sections/Hero";
 import { WebsitesGallery } from "@/components/sections/WebsitesGallery";
 import { QuoteSection } from "@/components/sections/QuoteSection";
@@ -105,7 +104,6 @@ export function HomePageContent() {
         <AudioReactiveBackground
           imageSrc={arImage ?? ""}
           mushroomImageSrc={arMushroomImage ?? ""}
-          audioSrc={arAudio}
           rainVideoSrc={ar?.rainVideoSrc?.trim() ?? ""}
           rainVideoBlend={ar?.rainVideoBlend}
           rainVideoKey={ar?.rainVideoKey}
@@ -113,7 +111,6 @@ export function HomePageContent() {
           rainVideoLumaSoften={ar?.rainVideoLumaSoften}
           rainVideoLumaCeiling={ar?.rainVideoLumaCeiling}
           rainVideoLumaCeilingSoften={ar?.rainVideoLumaCeilingSoften}
-          showControls={ar?.showControls !== false}
           imageAlt={ar?.imageAlt?.trim() ?? ""}
           mushroomImageAlt={ar?.mushroomImageAlt?.trim() ?? ""}
         />
@@ -161,9 +158,7 @@ export function HomePageContent() {
       />
       {showWonderlandAtmosphereStub ? <WonderlandAtmosphereStub /> : null}
       <div className="relative z-10 min-h-screen">
-        <SectionSparkles>
-          <Header />
-        </SectionSparkles>
+        <Header />
         <main
           id="main-content"
           tabIndex={-1}
@@ -180,28 +175,14 @@ export function HomePageContent() {
               : "bg-black",
           )}
         >
-          <SectionSparkles>
-            <Hero content={heroContent} />
-          </SectionSparkles>
-          <SectionSparkles>
-            <WebsitesGallery />
-          </SectionSparkles>
-          <SectionSparkles layout="scatter">
-            <QuoteSection />
-          </SectionSparkles>
-          <SectionSparkles>
-            <GamesGallery />
-          </SectionSparkles>
-          <SectionSparkles>
-            <DreamNowSection />
-          </SectionSparkles>
-          <SectionSparkles>
-            <ContactSection />
-          </SectionSparkles>
+          <Hero content={heroContent} />
+          <WebsitesGallery />
+          <QuoteSection />
+          <GamesGallery />
+          <DreamNowSection />
+          <ContactSection />
         </main>
-        <SectionSparkles>
-          <Footer />
-        </SectionSparkles>
+        <Footer />
       </div>
     </div>
   );
