@@ -10,8 +10,8 @@ export const BG_PANORAMA_MIN_WIDTH_VW = 132;
 export const BG_PANORAMA_MIN_WIDTH_VW_MOBILE = 136;
 
 /**
- * Mobile scroll framing for alice-parallax, centered and horizontal-only.
- * Keep the subject framed while sweeping left -> right.
+ * Mobile scroll framing for alice-parallax, left-anchored and horizontal-only.
+ * Start on left billboard and sweep to right billboard.
  */
 export const MOBILE_ARP_SHIFT_START_VW = 0;
 export const MOBILE_ARP_SHIFT_END_VW = -(BG_PANORAMA_MIN_WIDTH_VW_MOBILE - 100);
