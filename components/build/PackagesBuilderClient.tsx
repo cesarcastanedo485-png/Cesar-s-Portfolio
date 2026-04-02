@@ -97,6 +97,9 @@ export function PackagesBuilderClient({ variant, data }: PackagesBuilderClientPr
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [copied, setCopied] = useState(false);
+  const [openCategoryId, setOpenCategoryId] = useState<string>(
+    () => categories[0]?.id ?? "",
+  );
 
   const selectedSet = useMemo(() => new Set(selectedIds), [selectedIds]);
   const selectedItems = useMemo(
@@ -359,87 +362,114 @@ export function PackagesBuilderClient({ variant, data }: PackagesBuilderClientPr
             <div className="mt-6 space-y-8">
               {categories.map((cat) => (
                 <fieldset key={cat.id} className={fieldsetShell}>
-                  <legend className={legendClass}>{cat.label}</legend>
-                  {cat.description ? (
-                    <p className="build-alice-muted mb-4 mt-1 text-xs sm:text-sm">{cat.description}</p>
-                  ) : null}
-                  <ul className="space-y-3" role="list">
-                    {cat.items.map((item) => {
-                      const on = selectedIds.includes(item.id);
-                      const { disabled, reason } = isItemDisabled(item, selectedSet, categories);
-                      const itemDisabled = disabled && !on;
-                      return (
-                        <li key={item.id} role="listitem">
-                          <button
-                            type="button"
-                            role="checkbox"
-                            aria-checked={on}
-                            disabled={itemDisabled}
-                            aria-describedby={reason ? `${item.id}-hint` : undefined}
-                            onClick={() => {
-                              if (itemDisabled) return;
-                              toggleItem(item);
-                            }}
-                            className={cn(
-                              "flex w-full gap-3 rounded-lg border px-3 py-3 text-left text-sm transition",
-                              on ? itemOn : itemOff,
-                              itemDisabled && "cursor-not-allowed opacity-45 hover:border-white/10",
-                            )}
-                          >
-                            <span
-                              className={cn(
-                                "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded border-2 font-mono text-[11px]",
-                                on ? checkOn : checkOff,
-                              )}
-                              aria-hidden
-                            >
-                              {on ? "●" : ""}
-                            </span>
-                            <span className="min-w-0 flex-1">
-                              <span className="block font-medium leading-snug">{item.label}</span>
-                              <span className="build-alice-muted mt-1 block text-xs leading-relaxed">
-                                {item.description}
-                              </span>
-                              <span className="mt-2 flex flex-wrap items-center gap-2">
+                  <legend className="sr-only">{cat.label}</legend>
+                  <button
+                    type="button"
+                    className={cn(
+                      "flex w-full items-center justify-between gap-3 rounded-md px-1 py-1 text-left transition",
+                      isApp
+                        ? "text-emerald-100/95 hover:text-emerald-50"
+                        : "text-fuchsia-100/95 hover:text-fuchsia-50",
+                    )}
+                    aria-expanded={openCategoryId === cat.id}
+                    onClick={() => setOpenCategoryId(cat.id)}
+                  >
+                    <span className={legendClass}>{cat.label}</span>
+                    <span
+                      className={cn(
+                        "rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wide",
+                        isApp
+                          ? "border-emerald-500/35 bg-emerald-950/25 text-emerald-200/90"
+                          : "border-fuchsia-500/30 bg-fuchsia-950/20 text-fuchsia-200/90",
+                      )}
+                    >
+                      {cat.items.filter((item) => selectedSet.has(item.id)).length} selected
+                    </span>
+                  </button>
+                  {openCategoryId === cat.id ? (
+                    <>
+                      {cat.description ? (
+                        <p className="build-alice-muted mb-4 mt-1 text-xs sm:text-sm">{cat.description}</p>
+                      ) : null}
+                      <ul className="space-y-3" role="list">
+                        {cat.items.map((item) => {
+                          const on = selectedIds.includes(item.id);
+                          const { disabled, reason } = isItemDisabled(item, selectedSet, categories);
+                          const itemDisabled = disabled && !on;
+                          return (
+                            <li key={item.id} role="listitem">
+                              <button
+                                type="button"
+                                role="checkbox"
+                                aria-checked={on}
+                                disabled={itemDisabled}
+                                aria-describedby={reason ? `${item.id}-hint` : undefined}
+                                onClick={() => {
+                                  if (itemDisabled) return;
+                                  toggleItem(item);
+                                }}
+                                className={cn(
+                                  "flex w-full gap-3 rounded-lg border px-3 py-3 text-left text-sm transition",
+                                  on ? itemOn : itemOff,
+                                  itemDisabled && "cursor-not-allowed opacity-45 hover:border-white/10",
+                                )}
+                              >
                                 <span
                                   className={cn(
-                                    "font-mono text-[11px] font-semibold",
-                                    monoPrice,
+                                    "mt-0.5 flex size-5 shrink-0 items-center justify-center rounded border-2 font-mono text-[11px]",
+                                    on ? checkOn : checkOff,
                                   )}
+                                  aria-hidden
                                 >
-                                  {item.priceHint.display}
+                                  {on ? "●" : ""}
                                 </span>
-                                {item.tags?.length ? (
-                                  <span className="flex flex-wrap gap-1">
-                                    {item.tags.map((t) => (
-                                      <span key={t} className={tagPill}>
-                                        {t}
-                                      </span>
-                                    ))}
+                                <span className="min-w-0 flex-1">
+                                  <span className="block font-medium leading-snug">{item.label}</span>
+                                  <span className="build-alice-muted mt-1 block text-xs leading-relaxed">
+                                    {item.description}
                                   </span>
-                                ) : null}
-                              </span>
-                              {item.priceHint.basis ? (
-                                <span className="build-alice-muted mt-1 block text-[11px] text-slate-500">
-                                  {item.priceHint.basis}
+                                  <span className="mt-2 flex flex-wrap items-center gap-2">
+                                    <span
+                                      className={cn(
+                                        "font-mono text-[11px] font-semibold",
+                                        monoPrice,
+                                      )}
+                                    >
+                                      {item.priceHint.display}
+                                    </span>
+                                    {item.tags?.length ? (
+                                      <span className="flex flex-wrap gap-1">
+                                        {item.tags.map((t) => (
+                                          <span key={t} className={tagPill}>
+                                            {t}
+                                          </span>
+                                        ))}
+                                      </span>
+                                    ) : null}
+                                  </span>
+                                  {item.priceHint.basis ? (
+                                    <span className="build-alice-muted mt-1 block text-[11px] text-slate-500">
+                                      {item.priceHint.basis}
+                                    </span>
+                                  ) : null}
+                                  {item.monthlyNote ? (
+                                    <span className="build-alice-muted mt-1 block text-[11px] text-sky-300/85">
+                                      {item.monthlyNote}
+                                    </span>
+                                  ) : null}
                                 </span>
+                              </button>
+                              {reason ? (
+                                <p id={`${item.id}-hint`} className="mt-1 pl-8 text-xs text-amber-300/85">
+                                  {reason}
+                                </p>
                               ) : null}
-                              {item.monthlyNote ? (
-                                <span className="build-alice-muted mt-1 block text-[11px] text-sky-300/85">
-                                  {item.monthlyNote}
-                                </span>
-                              ) : null}
-                            </span>
-                          </button>
-                          {reason ? (
-                            <p id={`${item.id}-hint`} className="mt-1 pl-8 text-xs text-amber-300/85">
-                              {reason}
-                            </p>
-                          ) : null}
-                        </li>
-                      );
-                    })}
-                  </ul>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </>
+                  ) : null}
                 </fieldset>
               ))}
             </div>
