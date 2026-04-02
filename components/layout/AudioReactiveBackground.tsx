@@ -168,7 +168,7 @@ export function AudioReactiveBackground({
     ? SMOKE_OVERLAY_WIDTH_MOBILE
     : SMOKE_OVERLAY_WIDTH_DESKTOP;
   const mobileObjectPosition = narrowViewport ? "0% 0%" : "left top";
-  const mobileObjectFit = narrowViewport ? "contain" : "cover";
+  const mobileObjectFit = "cover";
   const mobilePulseScale = narrowViewport ? 0 : 0.1;
   const flashGain =
     typeof beatFlashOpacityGain === "number" && Number.isFinite(beatFlashOpacityGain)
