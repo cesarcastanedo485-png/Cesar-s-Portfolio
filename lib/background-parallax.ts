@@ -14,11 +14,7 @@ export const BG_PANORAMA_MIN_WIDTH_VW_MOBILE = 156;
  * Start on left billboard and sweep to right billboard.
  */
 export const MOBILE_ARP_SHIFT_START_VW = 0;
-/**
- * Extra travel compensates for object-cover crop on tall phones so bottom scroll
- * can still reach the right billboard (White Rabbit) instead of landing mid-scene.
- */
-export const MOBILE_ARP_SHIFT_END_VW = -(BG_PANORAMA_MIN_WIDTH_VW_MOBILE - 100) - 18;
+export const MOBILE_ARP_SHIFT_END_VW = -(BG_PANORAMA_MIN_WIDTH_VW_MOBILE - 100);
 export const MOBILE_ARP_SHIFT_START_VH = 0;
 export const MOBILE_ARP_SHIFT_END_VH = 0;
 
