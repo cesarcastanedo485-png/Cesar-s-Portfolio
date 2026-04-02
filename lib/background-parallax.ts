@@ -7,7 +7,7 @@ export const BG_PANORAMA_MIN_WIDTH_VW = 132;
  * Mobile-first: lower vw = more zoomed out on phones so left/right billboard copy
  * can fit while scrolling (paired with MOBILE_ARP_SHIFT_*).
  */
-export const BG_PANORAMA_MIN_WIDTH_VW_MOBILE = 136;
+export const BG_PANORAMA_MIN_WIDTH_VW_MOBILE = 220;
 
 /**
  * Mobile scroll framing for alice-parallax, left-anchored and horizontal-only.

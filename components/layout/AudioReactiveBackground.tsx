@@ -167,13 +167,8 @@ export function AudioReactiveBackground({
   const smokeOverlayWidth = narrowViewport
     ? SMOKE_OVERLAY_WIDTH_MOBILE
     : SMOKE_OVERLAY_WIDTH_DESKTOP;
-  const viewportWidth = typeof window === "undefined" ? 0 : window.innerWidth;
-  const mobileObjectPosition =
-    narrowViewport && viewportWidth > 0
-      ? viewportWidth <= 430
-        ? "42% 0%"
-        : "48% 8%"
-      : "left top";
+  const mobileObjectPosition = narrowViewport ? "0% 0%" : "left top";
+  const mobilePulseScale = narrowViewport ? 0 : 0.1;
   const flashGain =
     typeof beatFlashOpacityGain === "number" && Number.isFinite(beatFlashOpacityGain)
       ? Math.min(2, Math.max(0, beatFlashOpacityGain))
@@ -212,7 +207,7 @@ export function AudioReactiveBackground({
           flashGain,
           smokeOverlayWidth,
           mobileObjectPosition,
-          viewportWidth,
+          mobilePulseScale,
         },
         timestamp: Date.now(),
       }),
@@ -235,7 +230,7 @@ export function AudioReactiveBackground({
     rainVideoFailed,
     smokeOverlayWidth,
     mobileObjectPosition,
-    viewportWidth,
+    mobilePulseScale,
   ]);
 
   useEffect(() => {
@@ -371,7 +366,7 @@ export function AudioReactiveBackground({
                   minWidth: panoramaWidth,
                   objectPosition: mobileObjectPosition,
                   transform:
-                    "translate3d(var(--arp-scroll-x, 0vw), 0, 0) scale(calc(1 + var(--arp-pulse, 0) * 0.1 * var(--arp-visual-mul, 1)))",
+                    `translate3d(var(--arp-scroll-x, 0vw), 0, 0) scale(calc(1 + var(--arp-pulse, 0) * ${mobilePulseScale} * var(--arp-visual-mul, 1)))`,
                   filter:
                     "brightness(calc(0.9 + var(--arp-pulse, 0) * 0.22 * var(--arp-visual-mul, 1))) contrast(calc(1 + var(--arp-pulse, 0) * 0.09 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.26 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 9deg))",
                 }}
@@ -479,7 +474,7 @@ export function AudioReactiveBackground({
               className="absolute inset-0 bg-black will-change-transform"
               style={{
                 transform:
-                  "scale(calc(1 + var(--arp-pulse, 0) * 0.1 * var(--arp-visual-mul, 1))) translateZ(0)",
+                  `scale(calc(1 + var(--arp-pulse, 0) * ${mobilePulseScale} * var(--arp-visual-mul, 1))) translateZ(0)`,
                 filter:
                   "brightness(calc(0.92 + var(--arp-pulse, 0) * 0.22 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.28 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 8deg))",
               }}
