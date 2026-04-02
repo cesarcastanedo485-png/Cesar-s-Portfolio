@@ -118,6 +118,7 @@ export function AudioReactiveBackground({
     : BG_PANORAMA_MIN_WIDTH_VW;
   const scrollRangeVw = panoramaScrollRangeVw(panoramaMinWidthVw);
   const scrollRangeVh = panoramaScrollRangeVh(BG_SCROLL_SHIFT_RANGE_VH);
+  const panoramaWidth = `${panoramaMinWidthVw}vw`;
   useScrollDrivenShiftX(containerRef, {
     enabled: scrollParallaxEnabled,
     mirrorVarToDocumentElement: hasRainVideo,
@@ -243,7 +244,8 @@ export function AudioReactiveBackground({
                 sizes="100vw"
                 className="absolute left-0 top-0 h-full min-h-full max-w-none object-cover will-change-transform max-md:object-[50%_16%] md:object-top-left"
                 style={{
-                  minWidth: `${panoramaMinWidthVw}vw`,
+                  width: panoramaWidth,
+                  minWidth: panoramaWidth,
                   transform:
                     "translate3d(var(--arp-scroll-x, 0vw), 0, 0) scale(calc(1 + var(--arp-pulse, 0) * 0.1 * var(--arp-visual-mul, 1)))",
                   filter:
@@ -260,7 +262,8 @@ export function AudioReactiveBackground({
                   sizes="100vw"
                   className="pointer-events-none absolute left-0 top-0 h-full min-h-full max-w-none object-cover mix-blend-screen will-change-transform max-md:object-[50%_16%] md:object-top-left"
                   style={{
-                    minWidth: `${panoramaMinWidthVw}vw`,
+                    width: panoramaWidth,
+                    minWidth: panoramaWidth,
                     transform:
                       "translate3d(var(--arp-scroll-x, 0vw), 0, 0)",
                     opacity: playing
@@ -279,8 +282,8 @@ export function AudioReactiveBackground({
                   opacity: playing
                     ? narrowViewport
                       ? reduceMotion
-                        ? "calc(0.14 + var(--arp-pulse, 0) * 0.28 + var(--arp-pulse-spike, 0) * 0.38)"
-                        : "calc(0.2 + var(--arp-pulse, 0) * 0.38 + var(--arp-pulse-spike, 0) * 0.48)"
+                        ? "calc(0.24 + var(--arp-pulse, 0) * 0.34 + var(--arp-pulse-spike, 0) * 0.44)"
+                        : "calc(0.34 + var(--arp-pulse, 0) * 0.46 + var(--arp-pulse-spike, 0) * 0.58)"
                       : reduceMotion
                         ? "calc(0.04 + var(--arp-pulse, 0) * 0.14 + var(--arp-pulse-spike, 0) * 0.22)"
                         : "calc(0.06 + var(--arp-pulse, 0) * 0.2 + var(--arp-pulse-spike, 0) * 0.3)"
