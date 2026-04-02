@@ -242,7 +242,7 @@ export function AudioReactiveBackground({
                 decoding="async"
                 fetchPriority="low"
                 sizes="100vw"
-                className="absolute left-0 top-0 h-full min-h-full max-w-none object-cover will-change-transform max-md:object-[50%_16%] md:object-top-left"
+                className="absolute left-0 top-0 h-full min-h-full max-w-none object-cover object-top-left will-change-transform"
                 style={{
                   width: panoramaWidth,
                   minWidth: panoramaWidth,
@@ -260,7 +260,7 @@ export function AudioReactiveBackground({
                   decoding="async"
                   fetchPriority="low"
                   sizes="100vw"
-                  className="pointer-events-none absolute left-0 top-0 h-full min-h-full max-w-none object-cover mix-blend-screen will-change-transform max-md:object-[50%_16%] md:object-top-left"
+                  className="pointer-events-none absolute left-0 top-0 h-full min-h-full max-w-none object-cover object-top-left mix-blend-screen will-change-transform"
                   style={{
                     width: panoramaWidth,
                     minWidth: panoramaWidth,
