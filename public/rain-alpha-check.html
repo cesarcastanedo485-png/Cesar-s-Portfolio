@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Rain WebM alpha check</title>
+    <style>
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        background: linear-gradient(135deg, #ff0080, #00ffcc 50%, #8000ff);
+        display: grid;
+        place-items: center;
+      }
+      p {
+        position: fixed;
+        top: 12px;
+        left: 12px;
+        right: 12px;
+        margin: 0;
+        font: 14px/1.4 system-ui, sans-serif;
+        color: #0a0a0a;
+        text-shadow: 0 0 6px #fff;
+      }
+      video {
+        width: min(92vw, 960px);
+        max-height: 78vh;
+        background: transparent;
+      }
+    </style>
+  </head>
+  <body>
+    <p>
+      Gradient visible through the rain = alpha OK. Solid black/gray = opaque RGB; tune
+      <code>rainVideoBlend</code> / <code>rainVideoKey</code> in portfolio.json or re-export with alpha.
+    </p>
+    <video src="/backgrounds/rain-on-glass.webm" autoplay muted loop playsinline></video>
+  </body>
+</html>

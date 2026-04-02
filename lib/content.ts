@@ -92,6 +92,20 @@ export type AudioReactiveBackgroundConfig = {
   imageAlt?: string;
   /** Optional alt for mushroom overlay; empty string keeps it decorative. */
   mushroomImageAlt?: string;
+  /** Rain clip under `public/`; opacity follows music. */
+  rainVideoSrc?: string;
+  /** `screen` / `plus-lighter` for dark backplates; with `luma` key, applies to canvas output. */
+  rainVideoBlend?: "normal" | "screen" | "plus-lighter";
+  /** `luma`: canvas key from hidden video. Tune in portfolio.json. */
+  rainVideoKey?: "none" | "luma";
+  /** Luma key floor (0–1). */
+  rainVideoLumaThreshold?: number;
+  /** Soft band above floor (0–1). */
+  rainVideoLumaSoften?: number;
+  /** High-luma fade (0–1); use 1 to disable. */
+  rainVideoLumaCeiling?: number;
+  /** Band below ceiling (0–1). */
+  rainVideoLumaCeilingSoften?: number;
 };
 
 export type ForegroundSmokeConfig = {

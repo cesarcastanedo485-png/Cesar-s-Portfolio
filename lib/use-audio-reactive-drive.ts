@@ -20,6 +20,8 @@ export type UseAudioReactiveDriveOptions = {
   analyse: boolean;
   /** Multiply final pulse (0–1) for prefers-reduced-motion without disabling analyser. */
   pulseDampen?: number;
+  /** Mirror pulse CSS vars onto `document.documentElement` (portaled rain). */
+  mirrorPulseToDocumentElement?: boolean;
 };
 
 /**
@@ -31,6 +33,7 @@ export function useAudioReactiveDrive({
   containerRef,
   analyse,
   pulseDampen = 1,
+  mirrorPulseToDocumentElement = false,
 }: UseAudioReactiveDriveOptions) {
   const ctxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -80,6 +83,10 @@ export function useAudioReactiveDrive({
       if (el) {
         el.style.setProperty("--arp-pulse", "0");
         el.style.setProperty("--arp-pulse-spike", "0");
+      }
+      if (mirrorPulseToDocumentElement) {
+        document.documentElement.style.removeProperty("--arp-pulse");
+        document.documentElement.style.removeProperty("--arp-pulse-spike");
       }
       spikeRef.current = 0;
       return;
@@ -142,8 +149,14 @@ export function useAudioReactiveDrive({
           1,
           Math.max(0, spikeRef.current * pulseDampen * 0.58),
         );
-        target.style.setProperty("--arp-pulse", out.toFixed(4));
-        target.style.setProperty("--arp-pulse-spike", spikeOut.toFixed(4));
+        const p = out.toFixed(4);
+        const s = spikeOut.toFixed(4);
+        target.style.setProperty("--arp-pulse", p);
+        target.style.setProperty("--arp-pulse-spike", s);
+        if (mirrorPulseToDocumentElement) {
+          document.documentElement.style.setProperty("--arp-pulse", p);
+          document.documentElement.style.setProperty("--arp-pulse-spike", s);
+        }
       }
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -157,8 +170,18 @@ export function useAudioReactiveDrive({
         containerRef.current.style.setProperty("--arp-pulse", "0");
         containerRef.current.style.setProperty("--arp-pulse-spike", "0");
       }
+      if (mirrorPulseToDocumentElement) {
+        document.documentElement.style.removeProperty("--arp-pulse");
+        document.documentElement.style.removeProperty("--arp-pulse-spike");
+      }
     };
-  }, [analyse, audioRef, containerRef, pulseDampen]);
+  }, [
+    analyse,
+    audioRef,
+    containerRef,
+    mirrorPulseToDocumentElement,
+    pulseDampen,
+  ]);
 
   return { ensureGraph, resumeContext };
 }

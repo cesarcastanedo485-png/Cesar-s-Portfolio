@@ -32,6 +32,8 @@ function main() {
   addPath(urls, site.backgroundVideo?.src);
   addPath(urls, site.backgroundVideo?.poster);
   addPath(urls, site.audioReactiveBackground?.imageSrc);
+  addPath(urls, site.audioReactiveBackground?.mushroomImageSrc);
+  addPath(urls, site.audioReactiveBackground?.rainVideoSrc);
   addPath(urls, site.audioReactiveBackground?.audioSrc);
   addPath(urls, site.watermark?.imageSrc);
   addPath(urls, site.ogImage);

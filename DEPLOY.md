@@ -29,3 +29,5 @@ In Vercel → Project → **Settings → Domains**, add your domain and follow D
 Ensure everything under **`public/`** (e.g. `public/games/*`) is committed so production serves icons and images.
 
 `npm run build` runs **`verify:assets`** first: it reads **`content/portfolio.json`** and fails if any referenced `/path` is missing under **`public/`**. That stops broken hero images, audio, icons, and Godot demo folders from reaching production. Either commit the file or leave the field empty until the asset exists.
+
+Rain / atmosphere video: tune **`rainVideoBlend`**, **`rainVideoKey`**, and luma fields in **`content/portfolio.json`**. Optional alpha check: **`/rain-alpha-check.html`** with `npm run dev`.

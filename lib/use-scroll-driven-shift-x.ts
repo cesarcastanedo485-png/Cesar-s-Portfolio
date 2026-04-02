@@ -19,6 +19,8 @@ type Options = {
   shiftEndVw?: number;
   /** Custom property on `containerRef` (default `--arp-scroll-x`). */
   cssVarName?: string;
+  /** Mirror `--arp-scroll-x` onto `document.documentElement` (portaled layers). */
+  mirrorVarToDocumentElement?: boolean;
 };
 
 /**
@@ -33,6 +35,7 @@ export function useScrollDrivenShiftX(
     shiftStartVw,
     shiftEndVw,
     cssVarName = "--arp-scroll-x",
+    mirrorVarToDocumentElement = false,
   }: Options,
 ) {
   const tickingRef = useRef(false);
@@ -47,6 +50,9 @@ export function useScrollDrivenShiftX(
     if (!enabled) {
       if (el) {
         el.style.setProperty(cssVarName, "0vw");
+      }
+      if (mirrorVarToDocumentElement) {
+        document.documentElement.style.removeProperty(cssVarName);
       }
       return;
     }
@@ -69,7 +75,11 @@ export function useScrollDrivenShiftX(
       const shiftVw = useLinear
         ? shiftStartVw + t * (shiftEndVw - shiftStartVw)
         : (0.5 - t) * rangeVw;
-      target.style.setProperty(cssVarName, `${shiftVw}vw`);
+      const value = `${shiftVw}vw`;
+      target.style.setProperty(cssVarName, value);
+      if (mirrorVarToDocumentElement) {
+        document.documentElement.style.setProperty(cssVarName, value);
+      }
     };
 
     const onScrollOrResize = () => {
@@ -91,6 +101,17 @@ export function useScrollDrivenShiftX(
       if (containerRef.current) {
         containerRef.current.style.setProperty(cssVarName, "0vw");
       }
+      if (mirrorVarToDocumentElement) {
+        document.documentElement.style.removeProperty(cssVarName);
+      }
     };
-  }, [containerRef, cssVarName, enabled, rangeVw, shiftStartVw, shiftEndVw]);
+  }, [
+    containerRef,
+    cssVarName,
+    enabled,
+    mirrorVarToDocumentElement,
+    rangeVw,
+    shiftStartVw,
+    shiftEndVw,
+  ]);
 }

@@ -114,6 +114,73 @@ body {
 		<script>
 const GODOT_CONFIG = {"args":[],"canvasResizePolicy":2,"emscriptenPoolSize":8,"ensureCrossOriginIsolationHeaders":true,"executable":"Dungeon master lite","experimentalVK":false,"fileSizes":{"Dungeon master lite.pck":5078980,"Dungeon master lite.wasm":1605674},"focusCanvas":true,"gdextensionLibs":[],"godotPoolSize":4,"serviceWorker":"Dungeon master lite.service.worker.js"};
 const GODOT_THREADS_ENABLED = true;
+// #region agent log
+(function agentDbg() {
+	function send(msg, data, hypothesisId) {
+		fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
+			method: "POST",
+			headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2caf1b" },
+			body: JSON.stringify({
+				sessionId: "2caf1b",
+				location: "public/demos/dungeon-master-lite/index.html",
+				message: msg,
+				data: data || {},
+				timestamp: Date.now(),
+				hypothesisId: hypothesisId || "H0",
+			}),
+		}).catch(function () {});
+	}
+	var inIframe = false;
+	try {
+		inIframe = window.self !== window.top;
+	} catch (e) {
+		inIframe = true;
+	}
+	var coi =
+		typeof crossOriginIsolated !== "undefined" ? !!crossOriginIsolated : null;
+	Promise.all([
+		fetch("Dungeon%20master%20lite.wasm", { method: "HEAD" })
+			.then(function (r) {
+				return { wasmStatus: r.status, wasmOk: r.ok };
+			})
+			.catch(function (e) {
+				return { wasmStatus: "fetch_err", wasmErr: String(e && e.message) };
+			}),
+		fetch("Dungeon%20master%20lite.pck", { method: "HEAD" })
+			.then(function (r) {
+				return { pckStatus: r.status, pckOk: r.ok };
+			})
+			.catch(function (e) {
+				return { pckStatus: "fetch_err", pckErr: String(e && e.message) };
+			}),
+		fetch("Dungeon%20master%20lite.side.wasm", { method: "HEAD" })
+			.then(function (r) {
+				return { sideWasmStatus: r.status, sideWasmOk: r.ok };
+			})
+			.catch(function (e) {
+				return { sideWasmStatus: "fetch_err", sideWasmErr: String(e && e.message) };
+			}),
+	]).then(function (parts) {
+		var merged = {};
+		parts.forEach(function (p) {
+			Object.assign(merged, p);
+		});
+		send(
+			"godot_bootstrap_probe",
+			Object.assign(
+				{
+					crossOriginIsolated: coi,
+					inIframe: inIframe,
+					href: String(location.href || ""),
+				},
+				merged,
+			),
+			"H1",
+		);
+	});
+	window.__agentGodotDbg = send;
+})();
+// #endregion
 const engine = new Engine(GODOT_CONFIG);
 
 (function () {
@@ -151,6 +218,21 @@ const engine = new Engine(GODOT_CONFIG);
 	}
 
 	function displayFailureNotice(err) {
+		// #region agent log
+		if (typeof window.__agentGodotDbg === "function") {
+			var msg =
+				err instanceof Error
+					? err.message
+					: typeof err === "string"
+						? err
+						: "non_error_failure";
+			window.__agentGodotDbg(
+				"godot_display_failure",
+				{ failureMessage: String(msg).slice(0, 500) },
+				"H4",
+			);
+		}
+		// #endregion
 		console.error(err);
 		if (err instanceof Error) {
 			setStatusNotice(err.message);
@@ -166,6 +248,15 @@ const engine = new Engine(GODOT_CONFIG);
 	const missing = Engine.getMissingFeatures({
 		threads: GODOT_THREADS_ENABLED,
 	});
+	// #region agent log
+	if (typeof window.__agentGodotDbg === "function") {
+		window.__agentGodotDbg(
+			"godot_missing_features",
+			{ missingCount: missing.length, missing: missing.slice() },
+			"H2",
+		);
+	}
+	// #endregion
 
 	if (missing.length !== 0) {
 		if (GODOT_CONFIG['serviceWorker'] && GODOT_CONFIG['ensureCrossOriginIsolationHeaders'] && 'serviceWorker' in navigator) {

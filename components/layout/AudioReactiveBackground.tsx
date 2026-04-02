@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import type { CSSProperties } from "react";
 import {
   ChevronDown,
@@ -20,32 +21,42 @@ import {
   MOBILE_ARP_SHIFT_START_VW,
   panoramaScrollRangeVw,
 } from "@/lib/background-parallax";
-import { useDocumentScrollProgress } from "@/lib/use-document-scroll-progress";
 import { useIsNarrowViewport } from "@/lib/use-max-width-media";
 import { useProgression } from "@/lib/progression";
 import { useScrollDrivenShiftX } from "@/lib/use-scroll-driven-shift-x";
 import { cn } from "@/lib/utils";
+import { RainLumaKeyCanvas } from "@/components/effects/RainLumaKeyCanvas";
 
 type AudioReactiveBackgroundProps = {
-  /** Base panorama image (Alice scene). */
   imageSrc: string;
-  /** Optional second overlay layer (foreground mushrooms). */
   mushroomImageSrc?: string;
   audioSrc: string;
+  rainVideoSrc?: string;
+  rainVideoBlend?: "normal" | "screen" | "plus-lighter";
+  rainVideoKey?: "none" | "luma";
+  rainVideoLumaThreshold?: number;
+  rainVideoLumaSoften?: number;
+  rainVideoLumaCeiling?: number;
+  rainVideoLumaCeilingSoften?: number;
   showControls?: boolean;
   imageAlt?: string;
   mushroomImageAlt?: string;
 };
 
-const MUSHROOM_WIDTH = "min(148vw, 92rem)";
-const MUSHROOM_HIDE_FRAC = 0.38;
-const MUSHROOM_BOTTOM_SINK_PERCENT = 22;
+const SMOKE_OVERLAY_WIDTH_DESKTOP = "max(140vw, 96rem)";
+const SMOKE_OVERLAY_WIDTH_MOBILE = "max(185vw, 72rem)";
 
-/** Full-bleed background (z below content) + separate overlay controls (z above content). */
 export function AudioReactiveBackground({
   imageSrc,
   mushroomImageSrc = "",
   audioSrc,
+  rainVideoSrc = "",
+  rainVideoBlend = "normal",
+  rainVideoKey = "none",
+  rainVideoLumaThreshold = 0.12,
+  rainVideoLumaSoften = 0.06,
+  rainVideoLumaCeiling = 1,
+  rainVideoLumaCeilingSoften = 0.05,
   showControls = true,
   imageAlt = "",
   mushroomImageAlt = "",
@@ -54,15 +65,46 @@ export function AudioReactiveBackground({
   const reduceMotion = useReducedMotion();
   const narrowViewport = useIsNarrowViewport();
   const audioRef = useRef<HTMLAudioElement>(null);
+  const rainVideoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [playing, setPlaying] = useState(false);
   const [dockOpen, setDockOpen] = useState(true);
   const [baseImageFailed, setBaseImageFailed] = useState(false);
   const [mushroomImageFailed, setMushroomImageFailed] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [rainVideoFailed, setRainVideoFailed] = useState(false);
   const { awardLevelEvent } = useProgression();
   const hasBaseImage = Boolean(imageSrc?.trim()) && !baseImageFailed;
   const hasMushroomImage = Boolean(mushroomImageSrc?.trim()) && !mushroomImageFailed;
+  const hasRainVideo = Boolean(rainVideoSrc?.trim()) && !rainVideoFailed;
+
+  const rainBlendRaw = (rainVideoBlend ?? "normal").toString().trim().toLowerCase();
+  const rainBlendMode: "normal" | "screen" | "plus-lighter" =
+    rainBlendRaw === "screen" || rainBlendRaw === "plus-lighter"
+      ? rainBlendRaw
+      : "normal";
+  const useLumaKey =
+    (rainVideoKey ?? "none").toString().trim().toLowerCase() === "luma";
+  const lumaThr =
+    typeof rainVideoLumaThreshold === "number" &&
+    Number.isFinite(rainVideoLumaThreshold)
+      ? Math.min(1, Math.max(0, rainVideoLumaThreshold))
+      : 0.12;
+  const lumaSoft =
+    typeof rainVideoLumaSoften === "number" &&
+    Number.isFinite(rainVideoLumaSoften)
+      ? Math.min(1, Math.max(0, rainVideoLumaSoften))
+      : 0.06;
+  const lumaCeil =
+    typeof rainVideoLumaCeiling === "number" &&
+    Number.isFinite(rainVideoLumaCeiling)
+      ? Math.min(1, Math.max(0, rainVideoLumaCeiling))
+      : 1;
+  const lumaCeilSoft =
+    typeof rainVideoLumaCeilingSoften === "number" &&
+    Number.isFinite(rainVideoLumaCeilingSoften)
+      ? Math.min(1, Math.max(0, rainVideoLumaCeilingSoften))
+      : 0.05;
 
   useEffect(() => {
     setBaseImageFailed(false);
@@ -70,6 +112,9 @@ export function AudioReactiveBackground({
   useEffect(() => {
     setMushroomImageFailed(false);
   }, [mushroomImageSrc]);
+  useEffect(() => {
+    setRainVideoFailed(false);
+  }, [rainVideoSrc]);
 
   /** Only dampen when OS explicitly requests reduced motion — never block analyser on `null`. */
   const pulseDampen = reduceMotion === true ? 0.32 : 1;
@@ -80,6 +125,7 @@ export function AudioReactiveBackground({
     containerRef,
     analyse,
     pulseDampen,
+    mirrorPulseToDocumentElement: hasRainVideo,
   });
 
   const scrollParallaxEnabled = hydrated;
@@ -89,6 +135,7 @@ export function AudioReactiveBackground({
   const scrollRangeVw = panoramaScrollRangeVw(panoramaMinWidthVw);
   useScrollDrivenShiftX(containerRef, {
     enabled: scrollParallaxEnabled,
+    mirrorVarToDocumentElement: hasRainVideo,
     ...(narrowViewport
       ? {
           shiftStartVw: MOBILE_ARP_SHIFT_START_VW,
@@ -96,11 +143,6 @@ export function AudioReactiveBackground({
         }
       : { rangeVw: scrollRangeVw }),
   });
-  useDocumentScrollProgress(containerRef, {
-    enabled: hydrated,
-    cssVarName: "--arp-scroll-t",
-  });
-
   /** React `style` would reset imperative --arp-* vars every render; init once on the DOM node. */
   useLayoutEffect(() => {
     const el = containerRef.current;
@@ -118,6 +160,23 @@ export function AudioReactiveBackground({
     ensureGraph();
     void resumeContext();
   }, [ensureGraph, hydrated, playing, resumeContext]);
+
+  useEffect(() => {
+    const v = rainVideoRef.current;
+    if (!v || !rainVideoSrc?.trim() || rainVideoFailed) {
+      return;
+    }
+    if (playing) {
+      void v.play().catch(() => {});
+    } else {
+      v.pause();
+      try {
+        v.currentTime = 0;
+      } catch {
+        /* ignore */
+      }
+    }
+  }, [playing, rainVideoSrc, rainVideoFailed]);
 
   const togglePlayback = useCallback(async () => {
     const audio = audioRef.current;
@@ -147,19 +206,73 @@ export function AudioReactiveBackground({
 
   const crossOrigin = audioSrc.startsWith("http") ? "anonymous" : undefined;
   const panoramaCenterY = narrowViewport ? "-40%" : "-50%";
-  const mushroomHidePercent = reduceMotion === true ? 0 : MUSHROOM_HIDE_FRAC * 100;
-  const mushroomBaseOpacity = reduceMotion === true ? 0.34 : 0.24;
-
+  const smokeOverlayWidth = narrowViewport
+    ? SMOKE_OVERLAY_WIDTH_MOBILE
+    : SMOKE_OVERLAY_WIDTH_DESKTOP;
   /** Mobile-first safe insets (thumb + notches). */
   const insetLeft = "max(0.75rem,env(safe-area-inset-left,0px))";
   const insetBottom = "max(1rem,env(safe-area-inset-bottom,0px))";
+
+  const rainOpacityStyle: CSSProperties = {
+    opacity: playing
+      ? reduceMotion
+        ? "calc(0.07 + var(--arp-pulse, 0) * 0.22 + var(--arp-pulse-spike, 0) * 0.16)"
+        : "calc(0.14 + var(--arp-pulse, 0) * 0.42 + var(--arp-pulse-spike, 0) * 0.36)"
+      : 0,
+  };
+
+  const rainVideoStyle: CSSProperties = useLumaKey
+    ? { opacity: 0 }
+    : {
+        ...rainOpacityStyle,
+        ...(rainBlendMode !== "normal"
+          ? { mixBlendMode: rainBlendMode }
+          : {}),
+      };
+
+  const rainCanvasStyle: CSSProperties = {
+    ...rainOpacityStyle,
+    ...(useLumaKey && rainBlendMode !== "normal"
+      ? { mixBlendMode: rainBlendMode }
+      : {}),
+  };
+
+  const rainPortalLayer = hasRainVideo ? (
+      <div
+        className="portfolio-rain-overlay pointer-events-none fixed inset-0 z-[520] min-h-[100svh] min-h-[100dvh] overflow-hidden"
+        aria-hidden
+      >
+        <div className="portfolio-rain-video-wrap pointer-events-none absolute inset-0 overflow-hidden">
+          <video
+            ref={rainVideoRef}
+            className="portfolio-rain-video"
+            src={rainVideoSrc.trim()}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            style={rainVideoStyle}
+            onError={() => setRainVideoFailed(true)}
+          />
+          <RainLumaKeyCanvas
+            videoRef={rainVideoRef}
+            enabled={useLumaKey && playing}
+            lumaThreshold={lumaThr}
+            soften={lumaSoft}
+            lumaCeiling={lumaCeil}
+            lumaCeilingSoften={lumaCeilSoft}
+            style={rainCanvasStyle}
+          />
+        </div>
+      </div>
+  ) : null;
 
   return (
     <>
       {/* Visual layers only: stacking context stays behind page content */}
       <div
         ref={containerRef}
-        className="audio-reactive-bg-root pointer-events-none fixed inset-x-0 top-0 bottom-0 z-0 min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-scroll-t:0] [--arp-visual-mul:0.96] md:[--arp-visual-mul:1]"
+        className="audio-reactive-bg-root pointer-events-none fixed inset-x-0 top-0 bottom-0 z-0 min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-visual-mul:0.96] md:[--arp-visual-mul:1]"
       >
         <audio
           ref={audioRef}
@@ -193,45 +306,28 @@ export function AudioReactiveBackground({
                 onError={() => setBaseImageFailed(true)}
               />
               {hasMushroomImage ? (
-                <>
-                  {/* eslint-disable-next-line @next/next/no-img-element -- decorative bottom-anchored layer */}
-                  <img
-                    src={mushroomImageSrc.trim()}
-                    alt={mushroomImageAlt || ""}
-                    decoding="async"
-                    fetchPriority="low"
-                    sizes="100vw"
-                    className="absolute bottom-0 left-1/2 max-w-none object-contain object-bottom mix-blend-screen will-change-transform"
-                    style={{
-                      width: MUSHROOM_WIDTH,
-                      transform: `translate3d(-50%, calc(${MUSHROOM_BOTTOM_SINK_PERCENT}% + (1 - var(--arp-scroll-t, 0)) * ${mushroomHidePercent}%), 0) scaleX(1.08)`,
-                      opacity: `calc(${mushroomBaseOpacity} + var(--arp-pulse, 0) * 0.2 + var(--arp-pulse-spike, 0) * 0.16)`,
-                      filter:
-                        "brightness(calc(0.9 + var(--arp-pulse, 0) * 0.2)) contrast(1.28) saturate(calc(1.04 + var(--arp-pulse, 0) * 0.3))",
-                    }}
-                    onError={() => setMushroomImageFailed(true)}
-                  />
-                  <div
-                    aria-hidden
-                    className="pointer-events-none absolute inset-0 mix-blend-soft-light"
-                    style={{
-                      WebkitMaskImage: `url(${mushroomImageSrc.trim()})`,
-                      maskImage: `url(${mushroomImageSrc.trim()})`,
-                      WebkitMaskRepeat: "no-repeat",
-                      maskRepeat: "no-repeat",
-                      WebkitMaskPosition: "center bottom",
-                      maskPosition: "center bottom",
-                      WebkitMaskSize: `${MUSHROOM_WIDTH} auto`,
-                      maskSize: `${MUSHROOM_WIDTH} auto`,
-                      opacity: "calc(var(--arp-pulse-spike, 0) * 0.34)",
-                      transform:
-                        "translate3d(0, calc(120% - var(--arp-pulse-spike, 0) * 220%), 0)",
-                      filter: "blur(1.6px)",
-                      backgroundImage:
-                        "linear-gradient(180deg, transparent 0%, transparent 44%, rgba(255,255,255,0.7) 49%, rgba(255,255,255,0.24) 52%, transparent 58%, transparent 100%)",
-                    }}
-                  />
-                </>
+                /* eslint-disable-next-line @next/next/no-img-element -- centered reactive smoke, hidden until music plays */
+                <img
+                  src={mushroomImageSrc.trim()}
+                  alt={mushroomImageAlt || ""}
+                  decoding="async"
+                  fetchPriority="low"
+                  sizes="100vw"
+                  className="pointer-events-none absolute bottom-0 left-1/2 max-w-none object-contain object-bottom mix-blend-screen will-change-transform"
+                  style={{
+                    width: smokeOverlayWidth,
+                    transform:
+                      "translate3d(calc(-50% - var(--arp-scroll-x, 0vw) * 0.16), 22%, 0) scale(calc(0.95 + var(--arp-pulse, 0) * 0.1 + var(--arp-pulse-spike, 0) * 0.07))",
+                    opacity: playing
+                      ? reduceMotion
+                        ? "calc(var(--arp-pulse, 0) * 0.2 + var(--arp-pulse-spike, 0) * 0.28)"
+                        : "calc(var(--arp-pulse, 0) * 0.34 + var(--arp-pulse-spike, 0) * 0.58)"
+                      : "0",
+                    filter:
+                      "brightness(calc(0.84 + var(--arp-pulse, 0) * 0.36 + var(--arp-pulse-spike, 0) * 0.24)) contrast(1.34) saturate(calc(1.06 + var(--arp-pulse, 0) * 0.44))",
+                  }}
+                  onError={() => setMushroomImageFailed(true)}
+                />
               ) : null}
             </>
           ) : (
@@ -248,6 +344,10 @@ export function AudioReactiveBackground({
           )}
         </div>
       </div>
+
+      {hydrated && rainPortalLayer
+        ? createPortal(rainPortalLayer, document.body)
+        : null}
 
       {/* Controls sit above main content (not inside z-0 bg layer, so clicks work) */}
       {showControls ? (

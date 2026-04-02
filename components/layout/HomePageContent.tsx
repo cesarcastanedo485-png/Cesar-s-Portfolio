@@ -106,6 +106,13 @@ export function HomePageContent() {
           imageSrc={arImage ?? ""}
           mushroomImageSrc={arMushroomImage ?? ""}
           audioSrc={arAudio}
+          rainVideoSrc={ar?.rainVideoSrc?.trim() ?? ""}
+          rainVideoBlend={ar?.rainVideoBlend}
+          rainVideoKey={ar?.rainVideoKey}
+          rainVideoLumaThreshold={ar?.rainVideoLumaThreshold}
+          rainVideoLumaSoften={ar?.rainVideoLumaSoften}
+          rainVideoLumaCeiling={ar?.rainVideoLumaCeiling}
+          rainVideoLumaCeilingSoften={ar?.rainVideoLumaCeilingSoften}
           showControls={ar?.showControls !== false}
           imageAlt={ar?.imageAlt?.trim() ?? ""}
           mushroomImageAlt={ar?.mushroomImageAlt?.trim() ?? ""}

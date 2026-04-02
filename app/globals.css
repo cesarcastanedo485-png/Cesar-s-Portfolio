@@ -139,6 +139,50 @@ body {
   }
 }
 
+.portfolio-rain-overlay {
+  isolation: isolate;
+}
+
+.portfolio-rain-video-wrap {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.portfolio-rain-video {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  transform: translate3d(
+    calc(-50% + var(--arp-scroll-x, 0vw) * 0.16),
+    -50%,
+    0
+  );
+  object-fit: cover;
+  will-change: opacity;
+}
+
+.portfolio-rain-canvas {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  transform: translate3d(
+    calc(-50% + var(--arp-scroll-x, 0vw) * 0.16),
+    -50%,
+    0
+  );
+  will-change: opacity;
+}
+
 .portfolio-smoke-parallax {
   animation: portfolio-smoke-drift 18s ease-in-out infinite;
   will-change: transform;
@@ -236,6 +280,15 @@ body {
 
   .foreground-smoke-parallax-slow {
     animation: portfolio-smoke-drift-gentle 64s ease-in-out infinite reverse;
+  }
+
+  .portfolio-rain-video,
+  .portfolio-rain-canvas {
+    transform: translate3d(
+      calc(-50% + var(--arp-scroll-x, 0vw) * 0.08),
+      -50%,
+      0
+    );
   }
 
   .hero-neon-glow {

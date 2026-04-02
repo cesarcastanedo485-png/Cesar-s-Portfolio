@@ -10,11 +10,18 @@
     "audioReactiveBackground": {
       "enabled": true,
       "imageSrc": "/backgrounds/alice-parallax-sharp.png",
-      "mushroomImageSrc": "/backgrounds/mushrooms-parallax.png",
+      "mushroomImageSrc": "/backgrounds/center-smoke-overlay.png",
       "audioSrc": "/audio/background.mp3",
       "showControls": true,
       "imageAlt": "Cyberpunk Wonderland city: Alice on the glowing Cheshire tail, rain and neon; left billboard Mad Hatter in the creator’s likeness with teacup, White Rabbit and pocket watch on the right",
-      "mushroomImageAlt": "Cheshire black-base parallax overlay"
+      "mushroomImageAlt": "Centered reactive smoke overlay",
+      "rainVideoSrc": "/backgrounds/rain-on-glass.webm",
+      "rainVideoBlend": "screen",
+      "rainVideoKey": "luma",
+      "rainVideoLumaThreshold": 0.32,
+      "rainVideoLumaSoften": 0.08,
+      "rainVideoLumaCeiling": 1,
+      "rainVideoLumaCeilingSoften": 0.05
     },
     "foregroundSmoke": {
       "enabled": false,
