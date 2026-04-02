@@ -20,6 +20,7 @@ import {
   MOBILE_ARP_SHIFT_START_VW,
   panoramaScrollRangeVw,
 } from "@/lib/background-parallax";
+import { useDocumentScrollProgress } from "@/lib/use-document-scroll-progress";
 import { useIsNarrowViewport } from "@/lib/use-max-width-media";
 import { useProgression } from "@/lib/progression";
 import { useScrollDrivenShiftX } from "@/lib/use-scroll-driven-shift-x";
@@ -36,8 +37,9 @@ type AudioReactiveBackgroundProps = {
   mushroomImageAlt?: string;
 };
 
-const CAT_OVERLAY_WIDTH_DESKTOP = "min(62vw, 44rem)";
-const CAT_OVERLAY_WIDTH_MOBILE = "min(92vw, 36rem)";
+const MUSHROOM_WIDTH = "min(148vw, 92rem)";
+const MUSHROOM_HIDE_FRAC = 0.38;
+const MUSHROOM_BOTTOM_SINK_PERCENT = 22;
 
 /** Full-bleed background (z below content) + separate overlay controls (z above content). */
 export function AudioReactiveBackground({
@@ -94,6 +96,10 @@ export function AudioReactiveBackground({
         }
       : { rangeVw: scrollRangeVw }),
   });
+  useDocumentScrollProgress(containerRef, {
+    enabled: hydrated,
+    cssVarName: "--arp-scroll-t",
+  });
 
   /** React `style` would reset imperative --arp-* vars every render; init once on the DOM node. */
   useLayoutEffect(() => {
@@ -141,9 +147,8 @@ export function AudioReactiveBackground({
 
   const crossOrigin = audioSrc.startsWith("http") ? "anonymous" : undefined;
   const panoramaCenterY = narrowViewport ? "-40%" : "-50%";
-  const catOverlayWidth = narrowViewport
-    ? CAT_OVERLAY_WIDTH_MOBILE
-    : CAT_OVERLAY_WIDTH_DESKTOP;
+  const mushroomHidePercent = reduceMotion === true ? 0 : MUSHROOM_HIDE_FRAC * 100;
+  const mushroomBaseOpacity = reduceMotion === true ? 0.34 : 0.24;
 
   /** Mobile-first safe insets (thumb + notches). */
   const insetLeft = "max(0.75rem,env(safe-area-inset-left,0px))";
@@ -154,7 +159,7 @@ export function AudioReactiveBackground({
       {/* Visual layers only: stacking context stays behind page content */}
       <div
         ref={containerRef}
-        className="audio-reactive-bg-root pointer-events-none fixed inset-x-0 top-0 bottom-0 z-0 min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-visual-mul:0.96] md:[--arp-visual-mul:1]"
+        className="audio-reactive-bg-root pointer-events-none fixed inset-x-0 top-0 bottom-0 z-0 min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-scroll-t:0] [--arp-visual-mul:0.96] md:[--arp-visual-mul:1]"
       >
         <audio
           ref={audioRef}
@@ -188,26 +193,45 @@ export function AudioReactiveBackground({
                 onError={() => setBaseImageFailed(true)}
               />
               {hasMushroomImage ? (
-                /* eslint-disable-next-line @next/next/no-img-element -- decorative centered reactive overlay */
-                <img
-                  src={mushroomImageSrc.trim()}
-                  alt={mushroomImageAlt || ""}
-                  decoding="async"
-                  fetchPriority="low"
-                  sizes="100vw"
-                  className="pointer-events-none absolute left-1/2 top-1/2 max-w-none object-contain mix-blend-screen will-change-transform"
-                  style={{
-                    width: catOverlayWidth,
-                    transform:
-                      "translate3d(calc(-50% + var(--arp-scroll-x, 0vw) * 0.18), -50%, 0) scale(calc(0.96 + var(--arp-pulse, 0) * 0.08 + var(--arp-pulse-spike, 0) * 0.06))",
-                    opacity: reduceMotion
-                      ? "calc(var(--arp-pulse, 0) * 0.18 + var(--arp-pulse-spike, 0) * 0.26)"
-                      : "calc(var(--arp-pulse, 0) * 0.32 + var(--arp-pulse-spike, 0) * 0.56)",
-                    filter:
-                      "brightness(calc(0.82 + var(--arp-pulse, 0) * 0.35 + var(--arp-pulse-spike, 0) * 0.22)) contrast(1.42) saturate(calc(1.05 + var(--arp-pulse, 0) * 0.45))",
-                  }}
-                  onError={() => setMushroomImageFailed(true)}
-                />
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- decorative bottom-anchored layer */}
+                  <img
+                    src={mushroomImageSrc.trim()}
+                    alt={mushroomImageAlt || ""}
+                    decoding="async"
+                    fetchPriority="low"
+                    sizes="100vw"
+                    className="absolute bottom-0 left-1/2 max-w-none object-contain object-bottom mix-blend-screen will-change-transform"
+                    style={{
+                      width: MUSHROOM_WIDTH,
+                      transform: `translate3d(-50%, calc(${MUSHROOM_BOTTOM_SINK_PERCENT}% + (1 - var(--arp-scroll-t, 0)) * ${mushroomHidePercent}%), 0) scaleX(1.08)`,
+                      opacity: `calc(${mushroomBaseOpacity} + var(--arp-pulse, 0) * 0.2 + var(--arp-pulse-spike, 0) * 0.16)`,
+                      filter:
+                        "brightness(calc(0.9 + var(--arp-pulse, 0) * 0.2)) contrast(1.28) saturate(calc(1.04 + var(--arp-pulse, 0) * 0.3))",
+                    }}
+                    onError={() => setMushroomImageFailed(true)}
+                  />
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 mix-blend-soft-light"
+                    style={{
+                      WebkitMaskImage: `url(${mushroomImageSrc.trim()})`,
+                      maskImage: `url(${mushroomImageSrc.trim()})`,
+                      WebkitMaskRepeat: "no-repeat",
+                      maskRepeat: "no-repeat",
+                      WebkitMaskPosition: "center bottom",
+                      maskPosition: "center bottom",
+                      WebkitMaskSize: `${MUSHROOM_WIDTH} auto`,
+                      maskSize: `${MUSHROOM_WIDTH} auto`,
+                      opacity: "calc(var(--arp-pulse-spike, 0) * 0.34)",
+                      transform:
+                        "translate3d(0, calc(120% - var(--arp-pulse-spike, 0) * 220%), 0)",
+                      filter: "blur(1.6px)",
+                      backgroundImage:
+                        "linear-gradient(180deg, transparent 0%, transparent 44%, rgba(255,255,255,0.7) 49%, rgba(255,255,255,0.24) 52%, transparent 58%, transparent 100%)",
+                    }}
+                  />
+                </>
               ) : null}
             </>
           ) : (
