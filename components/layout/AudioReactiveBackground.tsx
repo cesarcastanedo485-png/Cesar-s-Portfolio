@@ -60,6 +60,7 @@ export function AudioReactiveBackground({
   const narrowViewport = useIsNarrowViewport();
   const rainVideoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const baseImageRef = useRef<HTMLImageElement>(null);
   const [baseImageFailed, setBaseImageFailed] = useState(false);
   const [beatFlashImageFailed, setBeatFlashImageFailed] = useState(false);
   const [mushroomImageFailed, setMushroomImageFailed] = useState(false);
@@ -166,10 +167,131 @@ export function AudioReactiveBackground({
   const smokeOverlayWidth = narrowViewport
     ? SMOKE_OVERLAY_WIDTH_MOBILE
     : SMOKE_OVERLAY_WIDTH_DESKTOP;
+  const viewportWidth = typeof window === "undefined" ? 0 : window.innerWidth;
+  const mobileObjectPosition =
+    narrowViewport && viewportWidth > 0
+      ? viewportWidth <= 430
+        ? "42% 0%"
+        : "48% 8%"
+      : "left top";
   const flashGain =
     typeof beatFlashOpacityGain === "number" && Number.isFinite(beatFlashOpacityGain)
       ? Math.min(2, Math.max(0, beatFlashOpacityGain))
       : 1;
+
+  useEffect(() => {
+    // #region agent log
+    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Debug-Session-Id": "2431dd",
+      },
+      body: JSON.stringify({
+        sessionId: "2431dd",
+        runId: "pre-fix",
+        hypothesisId: "H2_H3_H4",
+        location: "AudioReactiveBackground.tsx:layer-snapshot",
+        message: "audio reactive layer config snapshot",
+        data: {
+          hydrated,
+          narrowViewport,
+          playing,
+          hasBaseImage,
+          hasBeatFlashImage,
+          hasMushroomImage,
+          hasRainVideo,
+          baseImageFailed,
+          beatFlashImageFailed,
+          mushroomImageFailed,
+          rainVideoFailed,
+          panoramaMinWidthVw,
+          panoramaWidth,
+          mobileShiftStartVw: MOBILE_ARP_SHIFT_START_VW,
+          mobileShiftEndVw: MOBILE_ARP_SHIFT_END_VW,
+          flashGain,
+          smokeOverlayWidth,
+          mobileObjectPosition,
+          viewportWidth,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
+  }, [
+    baseImageFailed,
+    beatFlashImageFailed,
+    flashGain,
+    hasBaseImage,
+    hasBeatFlashImage,
+    hasMushroomImage,
+    hasRainVideo,
+    hydrated,
+    mushroomImageFailed,
+    narrowViewport,
+    panoramaMinWidthVw,
+    panoramaWidth,
+    playing,
+    rainVideoFailed,
+    smokeOverlayWidth,
+    mobileObjectPosition,
+    viewportWidth,
+  ]);
+
+  useEffect(() => {
+    if (!hydrated || !narrowViewport || !hasBaseImage) {
+      return;
+    }
+    const frame = requestAnimationFrame(() => {
+      const container = containerRef.current;
+      const baseImage = baseImageRef.current;
+      if (!container || !baseImage) {
+        return;
+      }
+      const containerRect = container.getBoundingClientRect();
+      const imageRect = baseImage.getBoundingClientRect();
+      const computedImage = window.getComputedStyle(baseImage);
+      const computedContainer = window.getComputedStyle(container);
+      // #region agent log
+      fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Debug-Session-Id": "2431dd",
+        },
+        body: JSON.stringify({
+          sessionId: "2431dd",
+          runId: "pre-fix",
+          hypothesisId: "H6_H7_H8",
+          location: "AudioReactiveBackground.tsx:mobile-frame-metrics",
+          message: "mobile frame and crop metrics",
+          data: {
+            playing,
+            panoramaWidth,
+            viewportWidth: window.innerWidth,
+            viewportHeight: window.innerHeight,
+            visualViewportHeight: window.visualViewport?.height ?? null,
+            containerHeight: containerRect.height,
+            containerWidth: containerRect.width,
+            imageWidth: imageRect.width,
+            imageHeight: imageRect.height,
+            imageTop: imageRect.top,
+            imageBottom: imageRect.bottom,
+            objectPosition: computedImage.objectPosition,
+            objectFit: computedImage.objectFit,
+            transform: computedImage.transform,
+            arpScrollX: computedContainer.getPropertyValue("--arp-scroll-x").trim(),
+            arpPulse: computedContainer.getPropertyValue("--arp-pulse").trim(),
+            naturalWidth: baseImage.naturalWidth,
+            naturalHeight: baseImage.naturalHeight,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [hasBaseImage, hydrated, narrowViewport, panoramaWidth, playing]);
 
   const rainOpacityStyle: CSSProperties = {
     opacity: playing
@@ -239,13 +361,15 @@ export function AudioReactiveBackground({
               <img
                 src={imageSrc.trim()}
                 alt={imageAlt || ""}
+                ref={baseImageRef}
                 decoding="async"
                 fetchPriority="low"
                 sizes="100vw"
-                className="absolute left-0 top-0 h-full min-h-full max-w-none object-cover will-change-transform max-md:object-[0%_8%] md:object-top-left"
+                className="absolute left-0 top-0 h-full min-h-full max-w-none object-cover will-change-transform max-md:object-[50%_18%] md:object-top-left"
                 style={{
                   width: panoramaWidth,
                   minWidth: panoramaWidth,
+                  objectPosition: mobileObjectPosition,
                   transform:
                     "translate3d(var(--arp-scroll-x, 0vw), 0, 0) scale(calc(1 + var(--arp-pulse, 0) * 0.1 * var(--arp-visual-mul, 1)))",
                   filter:
@@ -260,10 +384,11 @@ export function AudioReactiveBackground({
                   decoding="async"
                   fetchPriority="low"
                   sizes="100vw"
-                  className="pointer-events-none absolute left-0 top-0 h-full min-h-full max-w-none object-cover mix-blend-screen will-change-transform max-md:object-[0%_8%] md:object-top-left"
+                  className="pointer-events-none absolute left-0 top-0 h-full min-h-full max-w-none object-cover mix-blend-screen will-change-transform max-md:object-[50%_18%] md:object-top-left"
                   style={{
                     width: panoramaWidth,
                     minWidth: panoramaWidth,
+                    objectPosition: mobileObjectPosition,
                     transform:
                       "translate3d(var(--arp-scroll-x, 0vw), 0, 0)",
                     opacity: playing

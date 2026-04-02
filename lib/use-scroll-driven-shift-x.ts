@@ -78,6 +78,28 @@ export function useScrollDrivenShiftX(
         }),
       }).catch(() => {});
       // #endregion
+      // #region agent log
+      fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Debug-Session-Id": "2431dd",
+        },
+        body: JSON.stringify({
+          sessionId: "2431dd",
+          runId: "pre-fix",
+          hypothesisId: "H3_H4",
+          location: "use-scroll-driven-shift-x.ts:disabled",
+          message: "scroll hook disabled for target",
+          data: {
+            enabled: false,
+            cssVarName,
+            cssVarNameY,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
       if (el) {
         el.style.setProperty(cssVarName, "0vw");
         el.style.setProperty(cssVarNameY, "0vh");
@@ -182,6 +204,36 @@ export function useScrollDrivenShiftX(
             timestamp: Date.now(),
           }),
         }).catch(() => {});
+        // #region agent log
+        fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Debug-Session-Id": "2431dd",
+          },
+          body: JSON.stringify({
+            sessionId: "2431dd",
+            runId: "pre-fix",
+            hypothesisId: "H3_H5",
+            location: "use-scroll-driven-shift-x.ts:update-sample",
+            message: "scroll parallax computed sample",
+            data: {
+              t,
+              scrollTop,
+              maxScroll,
+              useLinear,
+              useLinearY,
+              shiftStartVw,
+              shiftEndVw,
+              shiftVw,
+              shiftVh,
+              cssVarX: cs.getPropertyValue(cssVarName).trim(),
+              cssVarY: cs.getPropertyValue(cssVarNameY).trim(),
+            },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+        // #endregion
       }
       // #endregion
       if (mirrorVarToDocumentElement) {

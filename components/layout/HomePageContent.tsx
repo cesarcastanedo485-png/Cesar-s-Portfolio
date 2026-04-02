@@ -24,7 +24,7 @@ import {
 } from "@/lib/background-parallax";
 import { heroContent, site } from "@/lib/content";
 import { useIsNarrowViewport } from "@/lib/use-max-width-media";
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useScrollDrivenShiftX } from "@/lib/use-scroll-driven-shift-x";
 
 export function HomePageContent() {
@@ -93,6 +93,53 @@ export function HomePageContent() {
     !bgVideoSrc?.trim() &&
     !useAudioReactive &&
     !showFallbackWonderlandBackground;
+
+  useEffect(() => {
+    // #region agent log
+    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Debug-Session-Id": "2431dd",
+      },
+      body: JSON.stringify({
+        sessionId: "2431dd",
+        runId: "pre-fix",
+        hypothesisId: "H1_H2",
+        location: "HomePageContent.tsx:mode-gates",
+        message: "homepage background mode gates snapshot",
+        data: {
+          hydrated,
+          experienceMode,
+          isMatrixMode,
+          windowInnerWidth: typeof window !== "undefined" ? window.innerWidth : null,
+          mobileMatch: typeof window !== "undefined"
+            ? window.matchMedia("(max-width: 767px)").matches
+            : null,
+          narrowViewport,
+          useAudioReactive,
+          arEnabled: Boolean(ar?.enabled),
+          hasArAudio: Boolean(arAudio),
+          showFallbackWonderlandBackground,
+          showWonderlandAtmosphereStub,
+          atmosphereLayerOn,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
+  }, [
+    ar?.enabled,
+    arAudio,
+    atmosphereLayerOn,
+    experienceMode,
+    hydrated,
+    isMatrixMode,
+    narrowViewport,
+    showFallbackWonderlandBackground,
+    showWonderlandAtmosphereStub,
+    useAudioReactive,
+  ]);
 
   return (
     <div className="relative min-h-screen">
