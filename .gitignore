@@ -43,3 +43,5 @@ BrokenSource/
 node_modules._trash_*/
 debug-*.log
 .cursor/
+
+.vercel
