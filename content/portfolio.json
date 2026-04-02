@@ -10,9 +10,11 @@
     "audioReactiveBackground": {
       "enabled": true,
       "imageSrc": "/backgrounds/alice-parallax-sharp.png",
+      "mushroomImageSrc": "/backgrounds/cheshire-overlay.png",
       "audioSrc": "/audio/background.mp3",
       "showControls": true,
-      "imageAlt": "Cyberpunk Wonderland city: Alice on the glowing Cheshire tail, rain and neon; left billboard Mad Hatter in the creator’s likeness with teacup, White Rabbit and pocket watch on the right"
+      "imageAlt": "Cyberpunk Wonderland city: Alice on the glowing Cheshire tail, rain and neon; left billboard Mad Hatter in the creator’s likeness with teacup, White Rabbit and pocket watch on the right",
+      "mushroomImageAlt": "Cheshire cat neon splatter overlay"
     },
     "foregroundSmoke": {
       "enabled": false,
