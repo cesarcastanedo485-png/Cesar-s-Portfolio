@@ -38,7 +38,7 @@ type AudioReactiveBackgroundProps = {
 };
 
 const SMOKE_OVERLAY_WIDTH_DESKTOP = "max(150vw, 98rem)";
-const SMOKE_OVERLAY_WIDTH_MOBILE = "max(235vw, 86rem)";
+const SMOKE_OVERLAY_WIDTH_MOBILE = "max(255vw, 92rem)";
 
 export function AudioReactiveBackground({
   imageSrc,
@@ -279,8 +279,8 @@ export function AudioReactiveBackground({
                   opacity: playing
                     ? narrowViewport
                       ? reduceMotion
-                        ? "calc(0.08 + var(--arp-pulse, 0) * 0.22 + var(--arp-pulse-spike, 0) * 0.3)"
-                        : "calc(0.12 + var(--arp-pulse, 0) * 0.3 + var(--arp-pulse-spike, 0) * 0.4)"
+                        ? "calc(0.14 + var(--arp-pulse, 0) * 0.28 + var(--arp-pulse-spike, 0) * 0.38)"
+                        : "calc(0.2 + var(--arp-pulse, 0) * 0.38 + var(--arp-pulse-spike, 0) * 0.48)"
                       : reduceMotion
                         ? "calc(0.04 + var(--arp-pulse, 0) * 0.14 + var(--arp-pulse-spike, 0) * 0.22)"
                         : "calc(0.06 + var(--arp-pulse, 0) * 0.2 + var(--arp-pulse-spike, 0) * 0.3)"
@@ -304,8 +304,8 @@ export function AudioReactiveBackground({
                   opacity: playing
                     ? narrowViewport
                       ? reduceMotion
-                        ? "calc(0.26 + var(--arp-pulse, 0) * 0.2 + var(--arp-pulse-spike, 0) * 0.18)"
-                        : "calc(0.34 + var(--arp-pulse, 0) * 0.25 + var(--arp-pulse-spike, 0) * 0.22)"
+                        ? "calc(0.36 + var(--arp-pulse, 0) * 0.22 + var(--arp-pulse-spike, 0) * 0.2)"
+                        : "calc(0.46 + var(--arp-pulse, 0) * 0.28 + var(--arp-pulse-spike, 0) * 0.24)"
                       : reduceMotion
                         ? "calc(0.165 + var(--arp-pulse, 0) * 0.14 + var(--arp-pulse-spike, 0) * 0.12)"
                         : "calc(0.22 + var(--arp-pulse, 0) * 0.185 + var(--arp-pulse-spike, 0) * 0.165)"
@@ -327,12 +327,12 @@ export function AudioReactiveBackground({
                     style={{
                       width: smokeOverlayWidth,
                       transform:
-                        `translate3d(calc(-50% - var(--arp-scroll-x, 0vw) * 0.26), 20%, 0) scale(${narrowViewport ? "calc(1.16 + var(--arp-pulse, 0) * 0.1 + var(--arp-pulse-spike, 0) * 0.08)" : "calc(1.04 + var(--arp-pulse, 0) * 0.08 + var(--arp-pulse-spike, 0) * 0.05)"})`,
+                        `translate3d(calc(-50% - var(--arp-scroll-x, 0vw) * 0.26), 20%, 0) scale(${narrowViewport ? "calc(1.3 + var(--arp-pulse, 0) * 0.12 + var(--arp-pulse-spike, 0) * 0.1)" : "calc(1.04 + var(--arp-pulse, 0) * 0.08 + var(--arp-pulse-spike, 0) * 0.05)"})`,
                       opacity: playing
                         ? narrowViewport
                           ? reduceMotion
-                            ? "calc(0.38 + var(--arp-pulse, 0) * 0.2 + var(--arp-pulse-spike, 0) * 0.26)"
-                            : "calc(0.48 + var(--arp-pulse, 0) * 0.28 + var(--arp-pulse-spike, 0) * 0.36)"
+                            ? "calc(0.54 + var(--arp-pulse, 0) * 0.24 + var(--arp-pulse-spike, 0) * 0.3)"
+                            : "calc(0.68 + var(--arp-pulse, 0) * 0.32 + var(--arp-pulse-spike, 0) * 0.4)"
                           : reduceMotion
                             ? "calc(0.24 + var(--arp-pulse, 0) * 0.16 + var(--arp-pulse-spike, 0) * 0.2)"
                             : "calc(0.3 + var(--arp-pulse, 0) * 0.24 + var(--arp-pulse-spike, 0) * 0.32)"
