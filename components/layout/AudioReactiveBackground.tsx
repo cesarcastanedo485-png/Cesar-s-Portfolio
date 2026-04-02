@@ -37,8 +37,8 @@ type AudioReactiveBackgroundProps = {
   mushroomImageAlt?: string;
 };
 
-const SMOKE_OVERLAY_WIDTH_DESKTOP = "max(140vw, 96rem)";
-const SMOKE_OVERLAY_WIDTH_MOBILE = "max(185vw, 72rem)";
+const SMOKE_OVERLAY_WIDTH_DESKTOP = "max(150vw, 98rem)";
+const SMOKE_OVERLAY_WIDTH_MOBILE = "max(205vw, 76rem)";
 
 export function AudioReactiveBackground({
   imageSrc,
@@ -286,11 +286,11 @@ export function AudioReactiveBackground({
                 style={{
                   opacity: playing
                     ? reduceMotion
-                      ? "calc(0.15 + var(--arp-pulse, 0) * 0.13 + var(--arp-pulse-spike, 0) * 0.11)"
-                      : "calc(0.2 + var(--arp-pulse, 0) * 0.17 + var(--arp-pulse-spike, 0) * 0.15)"
+                      ? "calc(0.165 + var(--arp-pulse, 0) * 0.14 + var(--arp-pulse-spike, 0) * 0.12)"
+                      : "calc(0.22 + var(--arp-pulse, 0) * 0.185 + var(--arp-pulse-spike, 0) * 0.165)"
                     : "0",
                   background:
-                    "linear-gradient(180deg, rgba(8,11,16,0.42) 0%, rgba(10,14,19,0.48) 52%, rgba(8,11,16,0.42) 100%)",
+                    "linear-gradient(180deg, rgba(8,11,16,0.46) 0%, rgba(10,14,19,0.53) 52%, rgba(8,11,16,0.46) 100%)",
                 }}
               />
               {hasMushroomImage ? (
@@ -306,7 +306,7 @@ export function AudioReactiveBackground({
                     style={{
                       width: smokeOverlayWidth,
                       transform:
-                        "translate3d(calc(-50% - var(--arp-scroll-x, 0vw) * 0.26), 20%, 0) scale(calc(0.98 + var(--arp-pulse, 0) * 0.08 + var(--arp-pulse-spike, 0) * 0.05))",
+                        "translate3d(calc(-50% - var(--arp-scroll-x, 0vw) * 0.26), 20%, 0) scale(calc(1.04 + var(--arp-pulse, 0) * 0.08 + var(--arp-pulse-spike, 0) * 0.05))",
                       opacity: playing
                         ? reduceMotion
                           ? "calc(0.24 + var(--arp-pulse, 0) * 0.16 + var(--arp-pulse-spike, 0) * 0.2)"

@@ -14,7 +14,7 @@ export const BG_PANORAMA_MIN_WIDTH_VW_MOBILE = 92;
  * Keep the subject framed while sweeping left -> right.
  */
 export const MOBILE_ARP_SHIFT_START_VW = -8;
-export const MOBILE_ARP_SHIFT_END_VW = -20;
+export const MOBILE_ARP_SHIFT_END_VW = -30;
 export const MOBILE_ARP_SHIFT_START_VH = 0;
 export const MOBILE_ARP_SHIFT_END_VH = 0;
 
