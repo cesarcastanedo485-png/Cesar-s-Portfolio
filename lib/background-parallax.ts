@@ -15,7 +15,7 @@ export const BG_PANORAMA_MIN_WIDTH_VW_MOBILE = 92;
  * Tune if the source art is re-cropped.
  */
 export const MOBILE_ARP_SHIFT_START_VW = 108;
-export const MOBILE_ARP_SHIFT_END_VW = -12;
+export const MOBILE_ARP_SHIFT_END_VW = -72;
 
 /**
  * Passed to `useScrollDrivenShiftX`: shift = (0.5 − scrollProgress) * rangeVw
