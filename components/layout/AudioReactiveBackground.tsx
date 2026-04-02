@@ -242,7 +242,7 @@ export function AudioReactiveBackground({
                 decoding="async"
                 fetchPriority="low"
                 sizes="100vw"
-                className="absolute left-0 top-0 h-full min-h-full max-w-none object-cover object-top-left will-change-transform"
+                className="absolute left-0 top-0 h-full min-h-full max-w-none object-cover will-change-transform max-md:object-[50%_18%] md:object-top-left"
                 style={{
                   width: panoramaWidth,
                   minWidth: panoramaWidth,
@@ -260,7 +260,7 @@ export function AudioReactiveBackground({
                   decoding="async"
                   fetchPriority="low"
                   sizes="100vw"
-                  className="pointer-events-none absolute left-0 top-0 h-full min-h-full max-w-none object-cover object-top-left mix-blend-screen will-change-transform"
+                  className="pointer-events-none absolute left-0 top-0 h-full min-h-full max-w-none object-cover mix-blend-screen will-change-transform max-md:object-[50%_18%] md:object-top-left"
                   style={{
                     width: panoramaWidth,
                     minWidth: panoramaWidth,
@@ -277,23 +277,6 @@ export function AudioReactiveBackground({
               ) : null}
               <div
                 aria-hidden
-                className="pointer-events-none absolute inset-0 mix-blend-screen"
-                style={{
-                  opacity: playing
-                    ? narrowViewport
-                      ? reduceMotion
-                        ? "calc(0.24 + var(--arp-pulse, 0) * 0.34 + var(--arp-pulse-spike, 0) * 0.44)"
-                        : "calc(0.34 + var(--arp-pulse, 0) * 0.46 + var(--arp-pulse-spike, 0) * 0.58)"
-                      : reduceMotion
-                        ? "calc(0.04 + var(--arp-pulse, 0) * 0.14 + var(--arp-pulse-spike, 0) * 0.22)"
-                        : "calc(0.06 + var(--arp-pulse, 0) * 0.2 + var(--arp-pulse-spike, 0) * 0.3)"
-                    : "0",
-                  backgroundImage:
-                    "radial-gradient(ellipse 76% 54% at 52% 50%, rgba(255, 84, 192, 0.72) 0%, rgba(232, 121, 249, 0.48) 32%, rgba(168, 85, 247, 0.3) 56%, rgba(125, 64, 196, 0.12) 72%, transparent 82%), radial-gradient(ellipse 44% 34% at 58% 54%, rgba(255, 194, 232, 0.42) 0%, transparent 68%)",
-                }}
-              />
-              <div
-                aria-hidden
                 className="pointer-events-none absolute inset-0"
                 style={{
                   background:
@@ -307,14 +290,31 @@ export function AudioReactiveBackground({
                   opacity: playing
                     ? narrowViewport
                       ? reduceMotion
-                        ? "calc(0.36 + var(--arp-pulse, 0) * 0.22 + var(--arp-pulse-spike, 0) * 0.2)"
-                        : "calc(0.46 + var(--arp-pulse, 0) * 0.28 + var(--arp-pulse-spike, 0) * 0.24)"
+                        ? "calc(0.32 + var(--arp-pulse, 0) * 0.2 + var(--arp-pulse-spike, 0) * 0.18)"
+                        : "calc(0.41 + var(--arp-pulse, 0) * 0.25 + var(--arp-pulse-spike, 0) * 0.22)"
                       : reduceMotion
                         ? "calc(0.165 + var(--arp-pulse, 0) * 0.14 + var(--arp-pulse-spike, 0) * 0.12)"
                         : "calc(0.22 + var(--arp-pulse, 0) * 0.185 + var(--arp-pulse-spike, 0) * 0.165)"
                     : "0",
                   background:
                     "linear-gradient(180deg, rgba(8,11,16,0.56) 0%, rgba(10,14,19,0.63) 52%, rgba(8,11,16,0.56) 100%)",
+                }}
+              />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0 mix-blend-screen"
+                style={{
+                  opacity: playing
+                    ? narrowViewport
+                      ? reduceMotion
+                        ? "calc(0.24 + var(--arp-pulse, 0) * 0.34 + var(--arp-pulse-spike, 0) * 0.44)"
+                        : "calc(0.34 + var(--arp-pulse, 0) * 0.46 + var(--arp-pulse-spike, 0) * 0.58)"
+                      : reduceMotion
+                        ? "calc(0.04 + var(--arp-pulse, 0) * 0.14 + var(--arp-pulse-spike, 0) * 0.22)"
+                        : "calc(0.06 + var(--arp-pulse, 0) * 0.2 + var(--arp-pulse-spike, 0) * 0.3)"
+                    : "0",
+                  backgroundImage:
+                    "radial-gradient(ellipse 76% 54% at 52% 50%, rgba(255, 84, 192, 0.72) 0%, rgba(232, 121, 249, 0.48) 32%, rgba(168, 85, 247, 0.3) 56%, rgba(125, 64, 196, 0.12) 72%, transparent 82%), radial-gradient(ellipse 44% 34% at 58% 54%, rgba(255, 194, 232, 0.42) 0%, transparent 68%)",
                 }}
               />
               {hasMushroomImage ? (
