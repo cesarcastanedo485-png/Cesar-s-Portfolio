@@ -2,6 +2,7 @@
 
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
+import { AlaCarteFloatingButtons } from "@/components/layout/AlaCarteFloatingButtons";
 import { AudioReactiveBackground } from "@/components/layout/AudioReactiveBackground";
 import { WonderlandAtmosphereStub } from "@/components/layout/WonderlandAtmosphereStub";
 import { SiteBackgroundVideo } from "@/components/layout/SiteBackgroundVideo";
@@ -103,6 +104,8 @@ export function HomePageContent() {
       ) : useAudioReactive && arAudio ? (
         <AudioReactiveBackground
           imageSrc={arImage ?? ""}
+          beatFlashImageSrc={ar?.beatFlashImageSrc?.trim() ?? ""}
+          beatFlashOpacityGain={ar?.beatFlashOpacityGain}
           mushroomImageSrc={arMushroomImage ?? ""}
           rainVideoSrc={ar?.rainVideoSrc?.trim() ?? ""}
           rainVideoBlend={ar?.rainVideoBlend}
@@ -156,6 +159,7 @@ export function HomePageContent() {
         intensity={foregroundSmokeIntensity}
         debugBlatantCenter={foregroundSmoke?.debugBlatantCenter === true}
       />
+      <AlaCarteFloatingButtons />
       {showWonderlandAtmosphereStub ? <WonderlandAtmosphereStub /> : null}
       <div className="relative z-10 min-h-screen">
         <Header />

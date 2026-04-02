@@ -1,10 +1,17 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { BrandWatermark } from "@/components/brand/BrandWatermark";
 import { footerContent, site } from "@/lib/content";
+import { useProgression } from "@/lib/progression";
 
 export function Footer() {
   const year = new Date().getFullYear();
   const wm = site.watermark;
+  const pathname = usePathname();
+  const { experienceMode } = useProgression();
+  const hideAlaCarteLinks = pathname === "/" && experienceMode === "wonderland";
 
   return (
     <footer
@@ -31,7 +38,8 @@ export function Footer() {
       <p className="mt-2 max-w-xl mx-auto text-xs opacity-80">
         {footerContent.note}
       </p>
-      {footerContent.builderLink?.href?.trim() &&
+      {!hideAlaCarteLinks &&
+      footerContent.builderLink?.href?.trim() &&
       footerContent.builderLink.label?.trim() ? (
         <p className="mt-4 max-w-xl mx-auto text-xs text-cyan-100/80">
           {footerContent.builderLink.line}{" "}
@@ -43,7 +51,8 @@ export function Footer() {
           </Link>
         </p>
       ) : null}
-      {footerContent.socialPackagesLink?.href?.trim() &&
+      {!hideAlaCarteLinks &&
+      footerContent.socialPackagesLink?.href?.trim() &&
       footerContent.socialPackagesLink.label?.trim() ? (
         <p className="mt-2 max-w-xl mx-auto text-xs text-pink-100/80">
           {footerContent.socialPackagesLink.line}{" "}
@@ -55,7 +64,8 @@ export function Footer() {
           </Link>
         </p>
       ) : null}
-      {footerContent.appPackagesLink?.href?.trim() &&
+      {!hideAlaCarteLinks &&
+      footerContent.appPackagesLink?.href?.trim() &&
       footerContent.appPackagesLink.label?.trim() ? (
         <p className="mt-2 max-w-xl mx-auto text-xs text-emerald-100/80">
           {footerContent.appPackagesLink.line}{" "}

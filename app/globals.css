@@ -163,7 +163,7 @@ body {
   height: auto;
   transform: translate3d(
     calc(-50% + var(--arp-scroll-x, 0vw) * 0.16),
-    -50%,
+    calc(-50% + var(--arp-scroll-y, 0vh) * 0.12),
     0
   );
   object-fit: cover;
@@ -180,7 +180,7 @@ body {
   height: auto;
   transform: translate3d(
     calc(-50% + var(--arp-scroll-x, 0vw) * 0.16),
-    -50%,
+    calc(-50% + var(--arp-scroll-y, 0vh) * 0.12),
     0
   );
   will-change: opacity;
@@ -343,7 +343,7 @@ body {
 /* WonderlandVault sealed card — limit scroll chaining while dragging dials on mobile */
 .vault-sealed-surface {
   isolation: isolate;
-  overscroll-behavior: contain;
+  overscroll-behavior: auto;
 }
 
 /* Section intros — same shell as hero panel */

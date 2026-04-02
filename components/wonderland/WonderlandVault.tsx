@@ -693,7 +693,7 @@ export function WonderlandVault({
                 />
               </div>
             ) : null}
-            <div className="relative z-[1] space-y-6">
+            <div className="relative z-[1] space-y-6 opacity-80">
               {children}
               <div
                 className={cn(

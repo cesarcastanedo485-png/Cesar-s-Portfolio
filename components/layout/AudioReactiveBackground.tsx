@@ -6,10 +6,14 @@ import type { CSSProperties } from "react";
 import { useReducedMotion } from "framer-motion";
 import { useHydrated } from "@/lib/use-hydrated";
 import {
+  BG_SCROLL_SHIFT_RANGE_VH,
   BG_PANORAMA_MIN_WIDTH_VW,
   BG_PANORAMA_MIN_WIDTH_VW_MOBILE,
+  MOBILE_ARP_SHIFT_END_VH,
   MOBILE_ARP_SHIFT_END_VW,
+  MOBILE_ARP_SHIFT_START_VH,
   MOBILE_ARP_SHIFT_START_VW,
+  panoramaScrollRangeVh,
   panoramaScrollRangeVw,
 } from "@/lib/background-parallax";
 import { useIsNarrowViewport } from "@/lib/use-max-width-media";
@@ -19,6 +23,8 @@ import { useGlobalAtmosphereAudio } from "@/components/audio/GlobalAtmosphereAud
 
 type AudioReactiveBackgroundProps = {
   imageSrc: string;
+  beatFlashImageSrc?: string;
+  beatFlashOpacityGain?: number;
   mushroomImageSrc?: string;
   rainVideoSrc?: string;
   rainVideoBlend?: "normal" | "screen" | "plus-lighter";
@@ -36,6 +42,8 @@ const SMOKE_OVERLAY_WIDTH_MOBILE = "max(185vw, 72rem)";
 
 export function AudioReactiveBackground({
   imageSrc,
+  beatFlashImageSrc = "",
+  beatFlashOpacityGain = 1,
   mushroomImageSrc = "",
   rainVideoSrc = "",
   rainVideoBlend = "normal",
@@ -53,10 +61,13 @@ export function AudioReactiveBackground({
   const rainVideoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [baseImageFailed, setBaseImageFailed] = useState(false);
+  const [beatFlashImageFailed, setBeatFlashImageFailed] = useState(false);
   const [mushroomImageFailed, setMushroomImageFailed] = useState(false);
   const [rainVideoFailed, setRainVideoFailed] = useState(false);
   const { playing } = useGlobalAtmosphereAudio();
   const hasBaseImage = Boolean(imageSrc?.trim()) && !baseImageFailed;
+  const hasBeatFlashImage =
+    Boolean((beatFlashImageSrc || imageSrc)?.trim()) && !beatFlashImageFailed;
   const hasMushroomImage = Boolean(mushroomImageSrc?.trim()) && !mushroomImageFailed;
   const hasRainVideo = Boolean(rainVideoSrc?.trim()) && !rainVideoFailed;
 
@@ -92,6 +103,9 @@ export function AudioReactiveBackground({
     setBaseImageFailed(false);
   }, [imageSrc]);
   useEffect(() => {
+    setBeatFlashImageFailed(false);
+  }, [beatFlashImageSrc, imageSrc]);
+  useEffect(() => {
     setMushroomImageFailed(false);
   }, [mushroomImageSrc]);
   useEffect(() => {
@@ -103,6 +117,7 @@ export function AudioReactiveBackground({
     ? BG_PANORAMA_MIN_WIDTH_VW_MOBILE
     : BG_PANORAMA_MIN_WIDTH_VW;
   const scrollRangeVw = panoramaScrollRangeVw(panoramaMinWidthVw);
+  const scrollRangeVh = panoramaScrollRangeVh(BG_SCROLL_SHIFT_RANGE_VH);
   useScrollDrivenShiftX(containerRef, {
     enabled: scrollParallaxEnabled,
     mirrorVarToDocumentElement: hasRainVideo,
@@ -110,8 +125,15 @@ export function AudioReactiveBackground({
       ? {
           shiftStartVw: MOBILE_ARP_SHIFT_START_VW,
           shiftEndVw: MOBILE_ARP_SHIFT_END_VW,
+          shiftStartVh: MOBILE_ARP_SHIFT_START_VH,
+          shiftEndVh: MOBILE_ARP_SHIFT_END_VH,
         }
-      : { rangeVw: scrollRangeVw }),
+      : {
+          shiftStartVw: 0,
+          shiftEndVw: -scrollRangeVw,
+          shiftStartVh: 0,
+          shiftEndVh: -scrollRangeVh,
+        }),
   });
   /** React `style` would reset imperative --arp-* vars every render; init once on the DOM node. */
   useLayoutEffect(() => {
@@ -140,10 +162,13 @@ export function AudioReactiveBackground({
     }
   }, [playing, rainVideoSrc, rainVideoFailed]);
 
-  const panoramaCenterY = narrowViewport ? "-40%" : "-42%";
   const smokeOverlayWidth = narrowViewport
     ? SMOKE_OVERLAY_WIDTH_MOBILE
     : SMOKE_OVERLAY_WIDTH_DESKTOP;
+  const flashGain =
+    typeof beatFlashOpacityGain === "number" && Number.isFinite(beatFlashOpacityGain)
+      ? Math.min(2, Math.max(0, beatFlashOpacityGain))
+      : 1;
 
   const rainOpacityStyle: CSSProperties = {
     opacity: playing
@@ -216,46 +241,70 @@ export function AudioReactiveBackground({
                 decoding="async"
                 fetchPriority="low"
                 sizes="100vw"
-                className="absolute left-1/2 top-1/2 h-full min-h-full max-w-none object-cover will-change-transform"
+                className="absolute left-0 top-0 h-full min-h-full max-w-none object-cover object-top-left will-change-transform"
                 style={{
                   minWidth: `${panoramaMinWidthVw}vw`,
-                  transform: `translate3d(calc(-50% + var(--arp-scroll-x, 0vw)), ${panoramaCenterY}, 0) scale(calc(1 + var(--arp-pulse, 0) * 0.1 * var(--arp-visual-mul, 1)))`,
+                  transform:
+                    "translate3d(var(--arp-scroll-x, 0vw), var(--arp-scroll-y, 0vh), 0) scale(calc(1 + var(--arp-pulse, 0) * 0.1 * var(--arp-visual-mul, 1)))",
                   filter:
                     "brightness(calc(0.9 + var(--arp-pulse, 0) * 0.22 * var(--arp-visual-mul, 1))) contrast(calc(1 + var(--arp-pulse, 0) * 0.09 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.26 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 9deg))",
                 }}
                 onError={() => setBaseImageFailed(true)}
               />
+              {hasBeatFlashImage ? (
+                <img
+                  src={(beatFlashImageSrc || imageSrc).trim()}
+                  alt=""
+                  decoding="async"
+                  fetchPriority="low"
+                  sizes="100vw"
+                  className="pointer-events-none absolute left-0 top-0 h-full min-h-full max-w-none object-cover object-top-left mix-blend-soft-light will-change-transform"
+                  style={{
+                    minWidth: `${panoramaMinWidthVw}vw`,
+                    transform:
+                      "translate3d(var(--arp-scroll-x, 0vw), var(--arp-scroll-y, 0vh), 0)",
+                    opacity: playing
+                      ? `calc((var(--arp-pulse, 0) * 0.028 + var(--arp-pulse-spike, 0) * 0.085) * ${flashGain})`
+                      : "0",
+                    filter:
+                      "hue-rotate(36deg) saturate(1.24) contrast(1.06) brightness(1.03)",
+                  }}
+                  onError={() => setBeatFlashImageFailed(true)}
+                />
+              ) : null}
               <div
                 aria-hidden
                 className="pointer-events-none absolute inset-0"
                 style={{
                   background:
-                    "linear-gradient(180deg, rgba(8,11,16,0.08) 0%, rgba(10,14,19,0.1) 52%, rgba(8,11,16,0.09) 100%)",
+                    "linear-gradient(180deg, rgba(8,11,16,0.2) 0%, rgba(10,14,19,0.26) 52%, rgba(8,11,16,0.22) 100%)",
                 }}
               />
               {hasMushroomImage ? (
-                /* eslint-disable-next-line @next/next/no-img-element -- centered reactive smoke, hidden until music plays */
-                <img
-                  src={mushroomImageSrc.trim()}
-                  alt={mushroomImageAlt || ""}
-                  decoding="async"
-                  fetchPriority="low"
-                  sizes="100vw"
-                  className="pointer-events-none absolute bottom-0 left-1/2 max-w-none object-contain object-bottom mix-blend-screen will-change-transform"
-                  style={{
-                    width: smokeOverlayWidth,
-                    transform:
-                      "translate3d(calc(-50% - var(--arp-scroll-x, 0vw) * 0.16), 22%, 0) scale(calc(0.95 + var(--arp-pulse, 0) * 0.1 + var(--arp-pulse-spike, 0) * 0.07))",
-                    opacity: playing
-                      ? reduceMotion
-                        ? "calc(var(--arp-pulse, 0) * 0.2 + var(--arp-pulse-spike, 0) * 0.28)"
-                        : "calc(var(--arp-pulse, 0) * 0.34 + var(--arp-pulse-spike, 0) * 0.58)"
-                      : "0",
-                    filter:
-                      "brightness(calc(0.84 + var(--arp-pulse, 0) * 0.36 + var(--arp-pulse-spike, 0) * 0.24)) contrast(1.34) saturate(calc(1.06 + var(--arp-pulse, 0) * 0.44))",
-                  }}
-                  onError={() => setMushroomImageFailed(true)}
-                />
+                <div className="portfolio-smoke-parallax pointer-events-none absolute inset-0">
+                  {/* eslint-disable-next-line @next/next/no-img-element -- bottom smoke parallax sits above dark plate, below rain/text chrome */}
+                  <img
+                    src={mushroomImageSrc.trim()}
+                    alt={mushroomImageAlt || ""}
+                    decoding="async"
+                    fetchPriority="low"
+                    sizes="100vw"
+                    className="pointer-events-none absolute bottom-0 left-1/2 max-w-none object-contain object-bottom mix-blend-screen will-change-transform"
+                    style={{
+                      width: smokeOverlayWidth,
+                      transform:
+                        "translate3d(calc(-50% - var(--arp-scroll-x, 0vw) * 0.26), calc(20% + var(--arp-scroll-y, 0vh) * 0.1), 0) scale(calc(0.98 + var(--arp-pulse, 0) * 0.08 + var(--arp-pulse-spike, 0) * 0.05))",
+                      opacity: playing
+                        ? reduceMotion
+                          ? "calc(0.12 + var(--arp-pulse, 0) * 0.12 + var(--arp-pulse-spike, 0) * 0.16)"
+                          : "calc(0.16 + var(--arp-pulse, 0) * 0.2 + var(--arp-pulse-spike, 0) * 0.28)"
+                        : "0.12",
+                      filter:
+                        "brightness(calc(0.96 + var(--arp-pulse, 0) * 0.24 + var(--arp-pulse-spike, 0) * 0.16)) contrast(1.28) saturate(calc(1.1 + var(--arp-pulse, 0) * 0.24))",
+                    }}
+                    onError={() => setMushroomImageFailed(true)}
+                  />
+                </div>
               ) : null}
             </>
           ) : (

@@ -184,8 +184,6 @@ export function WebsitesGallery() {
     sectionIntro,
     featuredBadge,
     items,
-    builderTeaser,
-    appPackagesTeaser,
   } = websitesSection;
   const vaultCopy = websitesSection.vault ?? DEFAULT_WORK_VAULT;
   const ordered = [...items].sort(
@@ -211,31 +209,6 @@ export function WebsitesGallery() {
               {sectionEyebrow}
             </h2>
           </div>
-        ) : null}
-
-        {builderTeaser?.href?.trim() && builderTeaser.label?.trim() ? (
-          <p className="mb-6 max-w-2xl text-sm leading-relaxed text-sky-100/85">
-            {builderTeaser.text}{" "}
-            <Link
-              href={builderTeaser.href}
-              className="font-medium text-cyan-200 underline decoration-cyan-500/45 underline-offset-2 hover:text-cyan-50 hover:decoration-cyan-400/70 focus-visible:outline focus-visible:ring-2 focus-visible:ring-cyan-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]"
-            >
-              {builderTeaser.label}
-            </Link>
-            .
-          </p>
-        ) : null}
-        {appPackagesTeaser?.href?.trim() && appPackagesTeaser.label?.trim() ? (
-          <p className="mb-6 max-w-2xl text-sm leading-relaxed text-emerald-100/85">
-            {appPackagesTeaser.text}{" "}
-            <Link
-              href={appPackagesTeaser.href}
-              className="font-medium text-emerald-200 underline decoration-emerald-500/45 underline-offset-2 hover:text-emerald-50 hover:decoration-emerald-400/70 focus-visible:outline focus-visible:ring-2 focus-visible:ring-emerald-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]"
-            >
-              {appPackagesTeaser.label}
-            </Link>
-            .
-          </p>
         ) : null}
 
         <WonderlandVault

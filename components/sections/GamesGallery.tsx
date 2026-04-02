@@ -347,7 +347,6 @@ function GameCard({ game }: { game: GameItem }) {
 }
 
 export function GamesGallery() {
-  const appPackagesTeaser = gamesSection.appPackagesTeaser;
   const vaultCopy = gamesSection.vault ?? DEFAULT_GAMES_VAULT;
   const spotlight = gamesSection.items.filter((g) => g.featured);
   const gridGames = gamesSection.items
@@ -370,31 +369,6 @@ export function GamesGallery() {
               {gamesSection.sectionTitle}
             </h2>
           </div>
-        ) : null}
-        {gamesSection.builderTeaser?.href?.trim() &&
-        gamesSection.builderTeaser.label?.trim() ? (
-          <p className="mb-6 max-w-2xl text-sm leading-relaxed text-fuchsia-100/85">
-            {gamesSection.builderTeaser.text}{" "}
-            <Link
-              href={gamesSection.builderTeaser.href}
-              className="font-medium text-fuchsia-200 underline decoration-fuchsia-500/45 underline-offset-2 hover:text-fuchsia-50 hover:decoration-fuchsia-400/70 focus-visible:outline focus-visible:ring-2 focus-visible:ring-fuchsia-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]"
-            >
-              {gamesSection.builderTeaser.label}
-            </Link>
-            .
-          </p>
-        ) : null}
-        {appPackagesTeaser?.href?.trim() && appPackagesTeaser.label?.trim() ? (
-          <p className="mb-6 max-w-2xl text-sm leading-relaxed text-emerald-100/85">
-            {appPackagesTeaser.text}{" "}
-            <Link
-              href={appPackagesTeaser.href}
-              className="font-medium text-emerald-200 underline decoration-emerald-500/45 underline-offset-2 hover:text-emerald-50 hover:decoration-emerald-400/70 focus-visible:outline focus-visible:ring-2 focus-visible:ring-emerald-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]"
-            >
-              {appPackagesTeaser.label}
-            </Link>
-            .
-          </p>
         ) : null}
         <WonderlandVault
           variant="games"

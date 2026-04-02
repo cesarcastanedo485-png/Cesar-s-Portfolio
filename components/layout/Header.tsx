@@ -21,7 +21,7 @@ function pageLinkClassName(href: string) {
 }
 
 export function Header() {
-  const { hydrated, experienceMode, redPillUnlocks } = useProgression();
+  const { hydrated } = useProgression();
   const internal = nav.links.filter((l) => {
     if (l.external) return false;
     return true;
@@ -32,10 +32,13 @@ export function Header() {
     .filter((l) => internalNavKind(l) === "page")
     .filter((link) => {
       if (!hydrated) return false;
-      if (experienceMode !== "wonderland") return true;
-      if (link.href === "/apps") return redPillUnlocks.apps;
-      if (link.href === "/social") return redPillUnlocks.social;
-      if (link.href === "/oracle-3d") return redPillUnlocks.oracle;
+      if (
+        link.href === "/apps" ||
+        link.href === "/social" ||
+        link.href === "/oracle-3d"
+      ) {
+        return false;
+      }
       return true;
     });
 

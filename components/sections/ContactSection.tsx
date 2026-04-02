@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
 import { ChevronUp, Mail } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
@@ -24,8 +23,6 @@ export function ContactSection() {
     email,
     emailButtonLabel,
     emailSubject,
-    secondaryLinks,
-    builderTeaser,
   } = contactContent;
 
   const mailto = email?.includes("@") ? buildMailto(email, emailSubject) : null;
@@ -96,19 +93,6 @@ export function ContactSection() {
             <p className="neon-sign-body mx-auto mt-2 max-w-xl text-center text-sm leading-relaxed md:mx-0 md:text-left md:text-base">
               {body}
             </p>
-            {builderTeaser?.href?.trim() && builderTeaser.label?.trim() ? (
-              <p className="mt-5 max-w-xl text-center text-xs leading-relaxed text-amber-100/85 md:text-left md:text-sm">
-                {builderTeaser.text}{" "}
-                <Link
-                  href={builderTeaser.href}
-                  className="font-medium text-amber-200 underline decoration-amber-500/45 underline-offset-2 hover:text-amber-50 hover:decoration-amber-400/70 focus-visible:outline focus-visible:ring-2 focus-visible:ring-amber-400/50 focus-visible:ring-offset-2 focus-visible:ring-offset-[#0a0e17]"
-                >
-                  {builderTeaser.label}
-                </Link>
-                .
-              </p>
-            ) : null}
-
             <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row sm:flex-wrap md:justify-start">
               {mailto ? (
                 <a
@@ -122,35 +106,6 @@ export function ContactSection() {
                   {emailButtonLabel ?? "Email"}
                 </a>
               ) : null}
-              {secondaryLinks?.map((link) => {
-                const external = link.external ?? /^https?:\/\//.test(link.href);
-                const className = cn(
-                  buttonVariants({ variant: "outline", size: "lg" }),
-                  "w-full border-white/20 sm:w-auto",
-                );
-                if (external) {
-                  return (
-                    <a
-                      key={link.href + link.label}
-                      href={link.href}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className={className}
-                    >
-                      {link.label}
-                    </a>
-                  );
-                }
-                return (
-                  <Link
-                    key={link.href + link.label}
-                    href={link.href}
-                    className={className}
-                  >
-                    {link.label}
-                  </Link>
-                );
-              })}
             </div>
           </div>
         </div>

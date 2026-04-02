@@ -87,6 +87,10 @@ export type AudioReactiveBackgroundConfig = {
   enabled?: boolean;
   /** Path under `public/`, e.g. `/backgrounds/art.png` */
   imageSrc?: string;
+  /** Optional color-shifted duplicate used as an ultra-subtle beat flash layer. */
+  beatFlashImageSrc?: string;
+  /** Optional multiplier for beat flash opacity; defaults low for near-invisible pulses. */
+  beatFlashOpacityGain?: number;
   /** Optional second overlay image under `public/` (e.g. glowing foreground mushrooms). */
   mushroomImageSrc?: string;
   /** Path under `public/` or absolute URL */

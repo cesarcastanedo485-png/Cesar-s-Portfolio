@@ -17,8 +17,15 @@ type Options = {
    */
   shiftStartVw?: number;
   shiftEndVw?: number;
+  /** Vertical sweep in vh (page top -> bottom). */
+  rangeVh?: number;
+  /** Linear map for Y: shiftY = shiftStartVh + t * (shiftEndVh - shiftStartVh). */
+  shiftStartVh?: number;
+  shiftEndVh?: number;
   /** Custom property on `containerRef` (default `--arp-scroll-x`). */
   cssVarName?: string;
+  /** Custom Y property on `containerRef` (default `--arp-scroll-y`). */
+  cssVarNameY?: string;
   /** Mirror `--arp-scroll-x` onto `document.documentElement` (portaled layers). */
   mirrorVarToDocumentElement?: boolean;
 };
@@ -32,14 +39,19 @@ export function useScrollDrivenShiftX(
   {
     enabled,
     rangeVw = 8,
+    rangeVh = 10,
     shiftStartVw,
     shiftEndVw,
     cssVarName = "--arp-scroll-x",
+    cssVarNameY = "--arp-scroll-y",
     mirrorVarToDocumentElement = false,
+    shiftStartVh,
+    shiftEndVh,
   }: Options,
 ) {
   const tickingRef = useRef(false);
   const rafRef = useRef(0);
+  const parallaxLogBucketRef = useRef<number | null>(null);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -48,14 +60,61 @@ export function useScrollDrivenShiftX(
     }
 
     if (!enabled) {
+      // #region agent log
+      fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Debug-Session-Id": "901510",
+        },
+        body: JSON.stringify({
+          sessionId: "901510",
+          runId: "pre-fix",
+          hypothesisId: "H5",
+          location: "use-scroll-driven-shift-x.ts:enabled-off",
+          message: "scroll parallax hook disabled",
+          data: { enabled: false },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
       if (el) {
         el.style.setProperty(cssVarName, "0vw");
+        el.style.setProperty(cssVarNameY, "0vh");
       }
       if (mirrorVarToDocumentElement) {
         document.documentElement.style.removeProperty(cssVarName);
+        document.documentElement.style.removeProperty(cssVarNameY);
       }
       return;
     }
+
+    // #region agent log
+    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Debug-Session-Id": "901510",
+      },
+      body: JSON.stringify({
+        sessionId: "901510",
+        runId: "pre-fix",
+        hypothesisId: "H3",
+        location: "use-scroll-driven-shift-x.ts:effect-start",
+        message: "scroll parallax options",
+        data: {
+          rangeVw,
+          rangeVh,
+          shiftStartVw,
+          shiftEndVw,
+          shiftStartVh,
+          shiftEndVh,
+          mirrorVarToDocumentElement,
+        },
+        timestamp: Date.now(),
+      }),
+    }).catch(() => {});
+    // #endregion
 
     const update = () => {
       tickingRef.current = false;
@@ -72,13 +131,62 @@ export function useScrollDrivenShiftX(
           : Math.min(1, Math.max(0, scrollTop / maxScroll));
       const useLinear =
         typeof shiftStartVw === "number" && typeof shiftEndVw === "number";
+      const useLinearY =
+        typeof shiftStartVh === "number" && typeof shiftEndVh === "number";
       const shiftVw = useLinear
         ? shiftStartVw + t * (shiftEndVw - shiftStartVw)
         : (0.5 - t) * rangeVw;
+      const shiftVh = useLinearY
+        ? shiftStartVh + t * (shiftEndVh - shiftStartVh)
+        : (0.5 - t) * rangeVh;
       const value = `${shiftVw}vw`;
+      const valueY = `${shiftVh}vh`;
       target.style.setProperty(cssVarName, value);
+      target.style.setProperty(cssVarNameY, valueY);
+
+      // #region agent log
+      const bucket = Math.round(t * 20);
+      if (parallaxLogBucketRef.current !== bucket) {
+        parallaxLogBucketRef.current = bucket;
+        const cs = getComputedStyle(target);
+        fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Debug-Session-Id": "901510",
+          },
+          body: JSON.stringify({
+            sessionId: "901510",
+            runId: "pre-fix",
+            hypothesisId: "H1_H2_H4",
+            location: "use-scroll-driven-shift-x.ts:update",
+            message: "scroll parallax sample",
+            data: {
+              t,
+              scrollTop,
+              maxScroll,
+              rootClientHeight: root.clientHeight,
+              rootScrollHeight: root.scrollHeight,
+              useLinearY,
+              shiftVw,
+              shiftVh,
+              deltaVw: useLinear
+                ? (shiftEndVw ?? 0) - (shiftStartVw ?? 0)
+                : rangeVw,
+              deltaVh: useLinearY
+                ? (shiftEndVh ?? 0) - (shiftStartVh ?? 0)
+                : rangeVh,
+              cssVarX: cs.getPropertyValue(cssVarName).trim(),
+              cssVarY: cs.getPropertyValue(cssVarNameY).trim(),
+            },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+      }
+      // #endregion
       if (mirrorVarToDocumentElement) {
         document.documentElement.style.setProperty(cssVarName, value);
+        document.documentElement.style.setProperty(cssVarNameY, valueY);
       }
     };
 
@@ -100,18 +208,24 @@ export function useScrollDrivenShiftX(
       cancelAnimationFrame(rafRef.current);
       if (containerRef.current) {
         containerRef.current.style.setProperty(cssVarName, "0vw");
+        containerRef.current.style.setProperty(cssVarNameY, "0vh");
       }
       if (mirrorVarToDocumentElement) {
         document.documentElement.style.removeProperty(cssVarName);
+        document.documentElement.style.removeProperty(cssVarNameY);
       }
     };
   }, [
     containerRef,
     cssVarName,
+    cssVarNameY,
     enabled,
     mirrorVarToDocumentElement,
+    rangeVh,
     rangeVw,
+    shiftStartVh,
     shiftStartVw,
+    shiftEndVh,
     shiftEndVw,
   ]);
 }
