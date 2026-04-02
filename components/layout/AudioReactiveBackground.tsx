@@ -38,7 +38,7 @@ type AudioReactiveBackgroundProps = {
 };
 
 const SMOKE_OVERLAY_WIDTH_DESKTOP = "max(150vw, 98rem)";
-const SMOKE_OVERLAY_WIDTH_MOBILE = "max(205vw, 76rem)";
+const SMOKE_OVERLAY_WIDTH_MOBILE = "max(235vw, 86rem)";
 
 export function AudioReactiveBackground({
   imageSrc,
@@ -274,6 +274,23 @@ export function AudioReactiveBackground({
               ) : null}
               <div
                 aria-hidden
+                className="pointer-events-none absolute inset-0 mix-blend-screen"
+                style={{
+                  opacity: playing
+                    ? narrowViewport
+                      ? reduceMotion
+                        ? "calc(0.08 + var(--arp-pulse, 0) * 0.22 + var(--arp-pulse-spike, 0) * 0.3)"
+                        : "calc(0.12 + var(--arp-pulse, 0) * 0.3 + var(--arp-pulse-spike, 0) * 0.4)"
+                      : reduceMotion
+                        ? "calc(0.04 + var(--arp-pulse, 0) * 0.14 + var(--arp-pulse-spike, 0) * 0.22)"
+                        : "calc(0.06 + var(--arp-pulse, 0) * 0.2 + var(--arp-pulse-spike, 0) * 0.3)"
+                    : "0",
+                  backgroundImage:
+                    "radial-gradient(ellipse 76% 54% at 52% 50%, rgba(255, 84, 192, 0.72) 0%, rgba(232, 121, 249, 0.48) 32%, rgba(168, 85, 247, 0.3) 56%, rgba(125, 64, 196, 0.12) 72%, transparent 82%), radial-gradient(ellipse 44% 34% at 58% 54%, rgba(255, 194, 232, 0.42) 0%, transparent 68%)",
+                }}
+              />
+              <div
+                aria-hidden
                 className="pointer-events-none absolute inset-0"
                 style={{
                   background:
@@ -285,12 +302,16 @@ export function AudioReactiveBackground({
                 className="pointer-events-none absolute inset-0"
                 style={{
                   opacity: playing
-                    ? reduceMotion
-                      ? "calc(0.165 + var(--arp-pulse, 0) * 0.14 + var(--arp-pulse-spike, 0) * 0.12)"
-                      : "calc(0.22 + var(--arp-pulse, 0) * 0.185 + var(--arp-pulse-spike, 0) * 0.165)"
+                    ? narrowViewport
+                      ? reduceMotion
+                        ? "calc(0.26 + var(--arp-pulse, 0) * 0.2 + var(--arp-pulse-spike, 0) * 0.18)"
+                        : "calc(0.34 + var(--arp-pulse, 0) * 0.25 + var(--arp-pulse-spike, 0) * 0.22)"
+                      : reduceMotion
+                        ? "calc(0.165 + var(--arp-pulse, 0) * 0.14 + var(--arp-pulse-spike, 0) * 0.12)"
+                        : "calc(0.22 + var(--arp-pulse, 0) * 0.185 + var(--arp-pulse-spike, 0) * 0.165)"
                     : "0",
                   background:
-                    "linear-gradient(180deg, rgba(8,11,16,0.46) 0%, rgba(10,14,19,0.53) 52%, rgba(8,11,16,0.46) 100%)",
+                    "linear-gradient(180deg, rgba(8,11,16,0.56) 0%, rgba(10,14,19,0.63) 52%, rgba(8,11,16,0.56) 100%)",
                 }}
               />
               {hasMushroomImage ? (
@@ -306,11 +327,15 @@ export function AudioReactiveBackground({
                     style={{
                       width: smokeOverlayWidth,
                       transform:
-                        "translate3d(calc(-50% - var(--arp-scroll-x, 0vw) * 0.26), 20%, 0) scale(calc(1.04 + var(--arp-pulse, 0) * 0.08 + var(--arp-pulse-spike, 0) * 0.05))",
+                        `translate3d(calc(-50% - var(--arp-scroll-x, 0vw) * 0.26), 20%, 0) scale(${narrowViewport ? "calc(1.16 + var(--arp-pulse, 0) * 0.1 + var(--arp-pulse-spike, 0) * 0.08)" : "calc(1.04 + var(--arp-pulse, 0) * 0.08 + var(--arp-pulse-spike, 0) * 0.05)"})`,
                       opacity: playing
-                        ? reduceMotion
-                          ? "calc(0.24 + var(--arp-pulse, 0) * 0.16 + var(--arp-pulse-spike, 0) * 0.2)"
-                          : "calc(0.3 + var(--arp-pulse, 0) * 0.24 + var(--arp-pulse-spike, 0) * 0.32)"
+                        ? narrowViewport
+                          ? reduceMotion
+                            ? "calc(0.38 + var(--arp-pulse, 0) * 0.2 + var(--arp-pulse-spike, 0) * 0.26)"
+                            : "calc(0.48 + var(--arp-pulse, 0) * 0.28 + var(--arp-pulse-spike, 0) * 0.36)"
+                          : reduceMotion
+                            ? "calc(0.24 + var(--arp-pulse, 0) * 0.16 + var(--arp-pulse-spike, 0) * 0.2)"
+                            : "calc(0.3 + var(--arp-pulse, 0) * 0.24 + var(--arp-pulse-spike, 0) * 0.32)"
                         : "0",
                       filter:
                         "brightness(calc(0.96 + var(--arp-pulse, 0) * 0.24 + var(--arp-pulse-spike, 0) * 0.16)) contrast(1.28) saturate(calc(1.1 + var(--arp-pulse, 0) * 0.24))",
