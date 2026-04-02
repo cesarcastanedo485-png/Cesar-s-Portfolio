@@ -34,6 +34,7 @@ export function HomePageContent() {
   const ar = site.audioReactiveBackground;
   const foregroundSmoke = site.foregroundSmoke;
   const arImage = ar?.imageSrc?.trim();
+  const arMushroomImage = ar?.mushroomImageSrc?.trim();
   const arAudio = ar?.audioSrc?.trim();
   const useAudioReactive = Boolean(ar?.enabled && arAudio) && !isMatrixMode;
   const showFallbackWonderlandBackground =
@@ -103,9 +104,11 @@ export function HomePageContent() {
       ) : useAudioReactive && arAudio ? (
         <AudioReactiveBackground
           imageSrc={arImage ?? ""}
+          mushroomImageSrc={arMushroomImage ?? ""}
           audioSrc={arAudio}
           showControls={ar?.showControls !== false}
           imageAlt={ar?.imageAlt?.trim() ?? ""}
+          mushroomImageAlt={ar?.mushroomImageAlt?.trim() ?? ""}
         />
       ) : (
         <SiteBackgroundVideo

@@ -20,28 +20,37 @@ import {
   MOBILE_ARP_SHIFT_START_VW,
   panoramaScrollRangeVw,
 } from "@/lib/background-parallax";
-import { AUDIO_SMOKE, SMOKE_MASKS } from "@/lib/smoke-parallax-presets";
+import { useDocumentScrollProgress } from "@/lib/use-document-scroll-progress";
 import { useIsNarrowViewport } from "@/lib/use-max-width-media";
-import { useScrollDrivenShiftX } from "@/lib/use-scroll-driven-shift-x";
 import { useProgression } from "@/lib/progression";
+import { useScrollDrivenShiftX } from "@/lib/use-scroll-driven-shift-x";
 import { cn } from "@/lib/utils";
 
 type AudioReactiveBackgroundProps = {
-  /** Empty or failed load: black base + pulse (set `/backgrounds/...` when the file is committed under `public/`). */
+  /** Base panorama image (Alice scene). */
   imageSrc: string;
+  /** Optional second overlay layer (foreground mushrooms). */
+  mushroomImageSrc?: string;
   audioSrc: string;
   showControls?: boolean;
   imageAlt?: string;
+  mushroomImageAlt?: string;
 };
 
-const FORCE_CENTER_SMOKE_DEBUG = false;
+const MUSHROOM_WIDTH = "min(148vw, 92rem)";
+
+/** At scroll progress 0, translate the art down by this fraction of its height (hidden below the clip). */
+const MUSHROOM_HIDE_FRAC = 0.38;
+const MUSHROOM_BOTTOM_SINK_PERCENT = 22;
 
 /** Full-bleed background (z below content) + separate overlay controls (z above content). */
 export function AudioReactiveBackground({
   imageSrc,
+  mushroomImageSrc = "",
   audioSrc,
   showControls = true,
   imageAlt = "",
+  mushroomImageAlt = "",
 }: AudioReactiveBackgroundProps) {
   const hydrated = useHydrated();
   const reduceMotion = useReducedMotion();
@@ -49,15 +58,20 @@ export function AudioReactiveBackground({
   const audioRef = useRef<HTMLAudioElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const [playing, setPlaying] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [dockOpen, setDockOpen] = useState(true);
-  const [imageFailed, setImageFailed] = useState(false);
+  const [baseImageFailed, setBaseImageFailed] = useState(false);
+  const [mushroomImageFailed, setMushroomImageFailed] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const { awardLevelEvent } = useProgression();
-  const hasImage = Boolean(imageSrc?.trim()) && !imageFailed;
+  const hasBaseImage = Boolean(imageSrc?.trim()) && !baseImageFailed;
+  const hasMushroomImage = Boolean(mushroomImageSrc?.trim()) && !mushroomImageFailed;
 
   useEffect(() => {
-    setImageFailed(false);
+    setBaseImageFailed(false);
   }, [imageSrc]);
+  useEffect(() => {
+    setMushroomImageFailed(false);
+  }, [mushroomImageSrc]);
 
   /** Only dampen when OS explicitly requests reduced motion — never block analyser on `null`. */
   const pulseDampen = reduceMotion === true ? 0.32 : 1;
@@ -70,11 +84,6 @@ export function AudioReactiveBackground({
     pulseDampen,
   });
 
-  /**
-   * Scroll-linked framing stays on even when the OS prefers reduced motion (common on iOS).
-   * Otherwise --arp-scroll-x never updates and side billboards never come into view.
-   * Analyser pulse is still dampened via `pulseDampen` when reduceMotion is true.
-   */
   const scrollParallaxEnabled = hydrated;
   const panoramaMinWidthVw = narrowViewport
     ? BG_PANORAMA_MIN_WIDTH_VW_MOBILE
@@ -88,6 +97,12 @@ export function AudioReactiveBackground({
           shiftEndVw: MOBILE_ARP_SHIFT_END_VW,
         }
       : { rangeVw: scrollRangeVw }),
+  });
+
+  const scrollProgressEnabled = hydrated;
+  useDocumentScrollProgress(containerRef, {
+    enabled: scrollProgressEnabled,
+    cssVarName: "--arp-scroll-t",
   });
 
   /** React `style` would reset imperative --arp-* vars every render; init once on the DOM node. */
@@ -135,17 +150,21 @@ export function AudioReactiveBackground({
   }, [awardLevelEvent, ensureGraph, hydrated, playing, resumeContext]);
 
   const crossOrigin = audioSrc.startsWith("http") ? "anonymous" : undefined;
+  const panoramaCenterY = narrowViewport ? "-40%" : "-50%";
 
   /** Mobile-first safe insets (thumb + notches). */
   const insetLeft = "max(0.75rem,env(safe-area-inset-left,0px))";
   const insetBottom = "max(1rem,env(safe-area-inset-bottom,0px))";
+
+  const mushroomHidePercent = reduceMotion === true ? 0 : MUSHROOM_HIDE_FRAC * 100;
+  const mushroomBaseOpacity = reduceMotion === true ? 0.36 : 0.26;
 
   return (
     <>
       {/* Visual layers only: stacking context stays behind page content */}
       <div
         ref={containerRef}
-        className="audio-reactive-bg-root pointer-events-none fixed inset-x-0 top-0 bottom-0 z-0 min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-visual-mul:0.96] md:[--arp-visual-mul:1]"
+        className="audio-reactive-bg-root pointer-events-none fixed inset-x-0 top-0 bottom-0 z-0 min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-scroll-t:0] [--arp-visual-mul:0.96] md:[--arp-visual-mul:1]"
       >
         <audio
           ref={audioRef}
@@ -160,7 +179,7 @@ export function AudioReactiveBackground({
         />
 
         <div className="pointer-events-none absolute inset-0 min-h-[100svh] min-h-[100dvh]">
-          {hasImage ? (
+          {hasBaseImage ? (
             <>
               {/* eslint-disable-next-line @next/next/no-img-element -- decorative full-bleed background */}
               <img
@@ -172,13 +191,53 @@ export function AudioReactiveBackground({
                 className="absolute left-1/2 top-1/2 h-full min-h-full max-w-none object-cover will-change-transform"
                 style={{
                   minWidth: `${panoramaMinWidthVw}vw`,
-                  transform:
-                    "translate3d(calc(-50% + var(--arp-scroll-x, 0vw)), -50%, 0) scale(calc(1 + var(--arp-pulse, 0) * 0.1 * var(--arp-visual-mul, 1)))",
+                  transform: `translate3d(calc(-50% + var(--arp-scroll-x, 0vw)), ${panoramaCenterY}, 0) scale(calc(1 + var(--arp-pulse, 0) * 0.1 * var(--arp-visual-mul, 1)))`,
                   filter:
                     "brightness(calc(0.9 + var(--arp-pulse, 0) * 0.22 * var(--arp-visual-mul, 1))) contrast(calc(1 + var(--arp-pulse, 0) * 0.09 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.26 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 9deg))",
                 }}
-                onError={() => setImageFailed(true)}
+                onError={() => setBaseImageFailed(true)}
               />
+              {hasMushroomImage ? (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- decorative bottom-anchored layer */}
+                  <img
+                    src={mushroomImageSrc.trim()}
+                    alt={mushroomImageAlt || ""}
+                    decoding="async"
+                    fetchPriority="low"
+                    sizes="100vw"
+                    className="absolute bottom-0 left-1/2 max-w-none object-contain object-bottom will-change-transform"
+                    style={{
+                      width: MUSHROOM_WIDTH,
+                      transform: `translate3d(-50%, calc(${MUSHROOM_BOTTOM_SINK_PERCENT}% + (1 - var(--arp-scroll-t, 0)) * ${mushroomHidePercent}%), 0) scaleX(1.08)`,
+                      opacity: `calc(${mushroomBaseOpacity} + var(--arp-pulse, 0) * 0.22 + var(--arp-pulse-spike, 0) * 0.14)`,
+                      filter:
+                        "brightness(calc(0.94 + var(--arp-pulse, 0) * 0.18)) saturate(calc(1.03 + var(--arp-pulse, 0) * 0.28))",
+                    }}
+                    onError={() => setMushroomImageFailed(true)}
+                  />
+                  <div
+                    aria-hidden
+                    className="pointer-events-none absolute inset-0 mix-blend-soft-light"
+                    style={{
+                      WebkitMaskImage: `url(${mushroomImageSrc.trim()})`,
+                      maskImage: `url(${mushroomImageSrc.trim()})`,
+                      WebkitMaskRepeat: "no-repeat",
+                      maskRepeat: "no-repeat",
+                      WebkitMaskPosition: "center bottom",
+                      maskPosition: "center bottom",
+                      WebkitMaskSize: `${MUSHROOM_WIDTH} auto`,
+                      maskSize: `${MUSHROOM_WIDTH} auto`,
+                      opacity: "calc(var(--arp-pulse-spike, 0) * 0.42)",
+                      transform:
+                        "translate3d(0, calc(120% - var(--arp-pulse-spike, 0) * 240%), 0)",
+                      filter: "blur(1.6px)",
+                      backgroundImage:
+                        "linear-gradient(180deg, transparent 0%, transparent 44%, rgba(255,255,255,0.75) 49%, rgba(255,255,255,0.28) 52%, transparent 58%, transparent 100%)",
+                    }}
+                  />
+                </>
+              ) : null}
             </>
           ) : (
             <div
@@ -186,91 +245,12 @@ export function AudioReactiveBackground({
               className="absolute inset-0 bg-black will-change-transform"
               style={{
                 transform:
-                  "translate3d(var(--arp-scroll-x, 0vw), 0, 0) scale(calc(1 + var(--arp-pulse, 0) * 0.1 * var(--arp-visual-mul, 1))) translateZ(0)",
+                  "scale(calc(1 + var(--arp-pulse, 0) * 0.1 * var(--arp-visual-mul, 1))) translateZ(0)",
                 filter:
                   "brightness(calc(0.92 + var(--arp-pulse, 0) * 0.22 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.28 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 8deg))",
               }}
             />
           )}
-          {/* Edge bloom — kept tight to top/bottom so it doesn’t read as a center spotlight */}
-          <div
-            aria-hidden
-            className="absolute inset-0 mix-blend-screen blur-[6px] sm:blur-[10px] md:blur-[14px]"
-            style={{
-              backgroundImage: `
-                radial-gradient(ellipse 58% 22% at 50% 4%, rgba(255, 120, 255, 0.14) 0%, transparent 78%),
-                radial-gradient(ellipse 62% 20% at 50% 98%, rgba(192, 132, 252, 0.12) 0%, transparent 78%)
-              `,
-              opacity:
-                "calc(0.2 + var(--arp-pulse, 0) * 0.14 + var(--arp-pulse-spike, 0) * 0.08)",
-            }}
-          />
-          {/* Side fog — depth without a bright core */}
-          <div
-            aria-hidden
-            className="absolute inset-0 mix-blend-soft-light"
-            style={{
-              backgroundImage: `
-                radial-gradient(ellipse 38% 70% at 6% 56%, rgba(167, 139, 250, 0.12) 0%, transparent 70%),
-                radial-gradient(ellipse 38% 70% at 94% 56%, rgba(251, 207, 232, 0.1) 0%, transparent 70%)
-              `,
-              opacity:
-                "calc(0.16 + var(--arp-pulse, 0) * 0.22 + var(--arp-pulse-spike, 0) * 0.12)",
-            }}
-          />
-          {/* Mist — offset from viewport center + mask keeps hero column calmer; scroll amp ↑ for visible parallax */}
-          <div
-            aria-hidden
-            className={cn(
-              "portfolio-smoke-parallax pointer-events-none absolute inset-0 mix-blend-screen max-md:mix-blend-soft-light",
-              AUDIO_SMOKE.primary.desktopOpacityClass,
-              AUDIO_SMOKE.primary.mobileOpacityClass,
-            )}
-            style={{
-              WebkitMaskImage: narrowViewport
-                ? SMOKE_MASKS.audioPrimaryMobile
-                : SMOKE_MASKS.audioPrimary,
-              maskImage: narrowViewport
-                ? SMOKE_MASKS.audioPrimaryMobile
-                : SMOKE_MASKS.audioPrimary,
-              backgroundImage: `
-                radial-gradient(ellipse 88% 42% at calc(36% + var(--arp-scroll-x, 0vw) * ${AUDIO_SMOKE.primary.xMotionA}) 52%, rgba(255,255,255,0.46) 0%, rgba(226,232,240,0.32) 32%, rgba(186,230,253,0.2) 54%, transparent 74%),
-                radial-gradient(ellipse 40% 30% at calc(64% + var(--arp-scroll-x, 0vw) * ${AUDIO_SMOKE.primary.xMotionB}) 48%, rgba(255,250,255,0.3) 0%, rgba(255,255,255,0.16) 44%, transparent 64%)
-              `,
-              opacity: AUDIO_SMOKE.primary.opacity,
-            }}
-          />
-          <div
-            aria-hidden
-            className={cn(
-              "portfolio-smoke-parallax-slow pointer-events-none absolute inset-0 mix-blend-screen max-md:mix-blend-soft-light",
-              AUDIO_SMOKE.secondary.desktopOpacityClass,
-              AUDIO_SMOKE.secondary.mobileOpacityClass,
-            )}
-            style={{
-              WebkitMaskImage: narrowViewport
-                ? SMOKE_MASKS.audioSecondaryMobile
-                : SMOKE_MASKS.audioSecondary,
-              maskImage: narrowViewport
-                ? SMOKE_MASKS.audioSecondaryMobile
-                : SMOKE_MASKS.audioSecondary,
-              backgroundImage: `
-                radial-gradient(ellipse 82% 58% at calc(72% - var(--arp-scroll-x, 0vw) * ${AUDIO_SMOKE.secondary.xMotionA}) 58%, rgba(244,232,255,0.42) 0%, rgba(196,181,253,0.28) 46%, transparent 74%),
-                radial-gradient(ellipse 52% 40% at calc(28% - var(--arp-scroll-x, 0vw) * ${AUDIO_SMOKE.secondary.xMotionB}) 60%, rgba(255,255,255,0.26) 0%, transparent 60%)
-              `,
-              opacity: AUDIO_SMOKE.secondary.opacity,
-            }}
-          />
-          {FORCE_CENTER_SMOKE_DEBUG ? (
-            <div
-              aria-hidden
-              className="absolute inset-0 mix-blend-normal opacity-[0.36]"
-              style={{
-                backgroundImage:
-                  "radial-gradient(ellipse 64% 34% at 50% 53%, rgba(250,250,255,0.64) 0%, rgba(244,232,255,0.45) 34%, rgba(167,139,250,0.2) 56%, transparent 72%)",
-              }}
-            />
-          ) : null}
         </div>
       </div>
 
@@ -342,7 +322,7 @@ export function AudioReactiveBackground({
                   aria-label="Hide music controls"
                 >
                   <ChevronDown className="h-5 w-5 md:hidden" aria-hidden />
-                  <ChevronLeft className="hidden h-5 w-5 md:inline" aria-hidden />
+                  <ChevronLeft className="hidden h-5 w-5 shrink-0 md:inline" aria-hidden />
                 </button>
               </div>
 

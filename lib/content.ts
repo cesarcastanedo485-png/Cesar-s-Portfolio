@@ -83,11 +83,15 @@ export type AudioReactiveBackgroundConfig = {
   enabled?: boolean;
   /** Path under `public/`, e.g. `/backgrounds/art.png` */
   imageSrc?: string;
+  /** Optional second overlay image under `public/` (e.g. glowing foreground mushrooms). */
+  mushroomImageSrc?: string;
   /** Path under `public/` or absolute URL */
   audioSrc?: string;
   showControls?: boolean;
   /** Empty string uses decorative `alt=""` */
   imageAlt?: string;
+  /** Optional alt for mushroom overlay; empty string keeps it decorative. */
+  mushroomImageAlt?: string;
 };
 
 export type ForegroundSmokeConfig = {
