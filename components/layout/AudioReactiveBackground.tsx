@@ -258,16 +258,16 @@ export function AudioReactiveBackground({
                   decoding="async"
                   fetchPriority="low"
                   sizes="100vw"
-                  className="pointer-events-none absolute left-0 top-0 h-full min-h-full max-w-none object-cover mix-blend-soft-light will-change-transform max-md:object-[50%_16%] md:object-top-left"
+                  className="pointer-events-none absolute left-0 top-0 h-full min-h-full max-w-none object-cover mix-blend-screen will-change-transform max-md:object-[50%_16%] md:object-top-left"
                   style={{
                     minWidth: `${panoramaMinWidthVw}vw`,
                     transform:
                       "translate3d(var(--arp-scroll-x, 0vw), 0, 0)",
                     opacity: playing
-                      ? `calc((var(--arp-pulse, 0) * 0.028 + var(--arp-pulse-spike, 0) * 0.085) * ${flashGain})`
+                      ? `calc((0.03 + var(--arp-pulse, 0) * 0.08 + var(--arp-pulse-spike, 0) * 0.22) * ${flashGain})`
                       : "0",
                     filter:
-                      "hue-rotate(36deg) saturate(1.24) contrast(1.06) brightness(1.03)",
+                      "hue-rotate(86deg) saturate(1.5) contrast(1.14) brightness(1.1)",
                   }}
                   onError={() => setBeatFlashImageFailed(true)}
                 />

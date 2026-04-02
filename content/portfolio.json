@@ -11,7 +11,7 @@
       "enabled": true,
       "imageSrc": "/backgrounds/alice-parallax-sharp.png",
       "beatFlashImageSrc": "/backgrounds/alice-parallax-sharp.png",
-      "beatFlashOpacityGain": 0.42,
+      "beatFlashOpacityGain": 0.72,
       "mushroomImageSrc": "/backgrounds/center-smoke-overlay.png",
       "audioSrc": "/audio/background.mp3",
       "showControls": true,
