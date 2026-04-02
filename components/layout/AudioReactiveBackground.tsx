@@ -241,11 +241,11 @@ export function AudioReactiveBackground({
                 decoding="async"
                 fetchPriority="low"
                 sizes="100vw"
-                className="absolute left-0 top-0 h-full min-h-full max-w-none object-cover object-top-left will-change-transform"
+                className="absolute left-0 top-0 h-full min-h-full max-w-none object-cover will-change-transform max-md:object-[50%_16%] md:object-top-left"
                 style={{
                   minWidth: `${panoramaMinWidthVw}vw`,
                   transform:
-                    "translate3d(var(--arp-scroll-x, 0vw), var(--arp-scroll-y, 0vh), 0) scale(calc(1 + var(--arp-pulse, 0) * 0.1 * var(--arp-visual-mul, 1)))",
+                    "translate3d(var(--arp-scroll-x, 0vw), 0, 0) scale(calc(1 + var(--arp-pulse, 0) * 0.1 * var(--arp-visual-mul, 1)))",
                   filter:
                     "brightness(calc(0.9 + var(--arp-pulse, 0) * 0.22 * var(--arp-visual-mul, 1))) contrast(calc(1 + var(--arp-pulse, 0) * 0.09 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.26 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 9deg))",
                 }}
@@ -258,11 +258,11 @@ export function AudioReactiveBackground({
                   decoding="async"
                   fetchPriority="low"
                   sizes="100vw"
-                  className="pointer-events-none absolute left-0 top-0 h-full min-h-full max-w-none object-cover object-top-left mix-blend-soft-light will-change-transform"
+                  className="pointer-events-none absolute left-0 top-0 h-full min-h-full max-w-none object-cover mix-blend-soft-light will-change-transform max-md:object-[50%_16%] md:object-top-left"
                   style={{
                     minWidth: `${panoramaMinWidthVw}vw`,
                     transform:
-                      "translate3d(var(--arp-scroll-x, 0vw), var(--arp-scroll-y, 0vh), 0)",
+                      "translate3d(var(--arp-scroll-x, 0vw), 0, 0)",
                     opacity: playing
                       ? `calc((var(--arp-pulse, 0) * 0.028 + var(--arp-pulse-spike, 0) * 0.085) * ${flashGain})`
                       : "0",
@@ -280,6 +280,19 @@ export function AudioReactiveBackground({
                     "linear-gradient(180deg, rgba(8,11,16,0.2) 0%, rgba(10,14,19,0.26) 52%, rgba(8,11,16,0.22) 100%)",
                 }}
               />
+              <div
+                aria-hidden
+                className="pointer-events-none absolute inset-0"
+                style={{
+                  opacity: playing
+                    ? reduceMotion
+                      ? "calc(0.15 + var(--arp-pulse, 0) * 0.13 + var(--arp-pulse-spike, 0) * 0.11)"
+                      : "calc(0.2 + var(--arp-pulse, 0) * 0.17 + var(--arp-pulse-spike, 0) * 0.15)"
+                    : "0",
+                  background:
+                    "linear-gradient(180deg, rgba(8,11,16,0.42) 0%, rgba(10,14,19,0.48) 52%, rgba(8,11,16,0.42) 100%)",
+                }}
+              />
               {hasMushroomImage ? (
                 <div className="portfolio-smoke-parallax pointer-events-none absolute inset-0">
                   {/* eslint-disable-next-line @next/next/no-img-element -- bottom smoke parallax sits above dark plate, below rain/text chrome */}
@@ -293,12 +306,12 @@ export function AudioReactiveBackground({
                     style={{
                       width: smokeOverlayWidth,
                       transform:
-                        "translate3d(calc(-50% - var(--arp-scroll-x, 0vw) * 0.26), calc(20% + var(--arp-scroll-y, 0vh) * 0.1), 0) scale(calc(0.98 + var(--arp-pulse, 0) * 0.08 + var(--arp-pulse-spike, 0) * 0.05))",
+                        "translate3d(calc(-50% - var(--arp-scroll-x, 0vw) * 0.26), 20%, 0) scale(calc(0.98 + var(--arp-pulse, 0) * 0.08 + var(--arp-pulse-spike, 0) * 0.05))",
                       opacity: playing
                         ? reduceMotion
-                          ? "calc(0.12 + var(--arp-pulse, 0) * 0.12 + var(--arp-pulse-spike, 0) * 0.16)"
-                          : "calc(0.16 + var(--arp-pulse, 0) * 0.2 + var(--arp-pulse-spike, 0) * 0.28)"
-                        : "0.12",
+                          ? "calc(0.24 + var(--arp-pulse, 0) * 0.16 + var(--arp-pulse-spike, 0) * 0.2)"
+                          : "calc(0.3 + var(--arp-pulse, 0) * 0.24 + var(--arp-pulse-spike, 0) * 0.32)"
+                        : "0",
                       filter:
                         "brightness(calc(0.96 + var(--arp-pulse, 0) * 0.24 + var(--arp-pulse-spike, 0) * 0.16)) contrast(1.28) saturate(calc(1.1 + var(--arp-pulse, 0) * 0.24))",
                     }}

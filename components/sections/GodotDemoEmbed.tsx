@@ -34,11 +34,11 @@ export function GodotDemoEmbed({
   const { levelOneComplete, openOverlay } = useProgression();
 
   const src = useMemo(() => {
+    const slug = demoSlug?.trim();
+    if (slug) return `/demos/${slug}/index.html`;
     const external = demoUrl?.trim();
     if (external) return external;
-    const slug = demoSlug?.trim();
-    if (!slug) return undefined;
-    return `/demos/${slug}/index.html`;
+    return undefined;
   }, [demoSlug, demoUrl]);
 
   if (!demoEnabled || !src) {

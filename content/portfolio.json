@@ -247,7 +247,7 @@
         "demoNotes": "Live Vercel build. Packaging plan: signed APK + Android App Bundle for Play listing; storefront pricing target is $4.99.",
         "demoFallbackHref": "https://dungeon-master-lite.vercel.app/",
         "demoRequiresProgression": false,
-        "demoDefaultOpen": true
+        "demoDefaultOpen": false
       },
       {
         "id": 4,

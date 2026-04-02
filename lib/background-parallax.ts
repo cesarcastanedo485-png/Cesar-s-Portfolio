@@ -10,24 +10,24 @@ export const BG_PANORAMA_MIN_WIDTH_VW = 132;
 export const BG_PANORAMA_MIN_WIDTH_VW_MOBILE = 92;
 
 /**
- * Mobile scroll framing for alice-parallax from top-left origin.
- * 0 keeps the image pinned to top-left at page start; negative pans the view down-right.
+ * Mobile scroll framing for alice-parallax, centered and horizontal-only.
+ * Keep the subject framed while sweeping left -> right.
  */
-export const MOBILE_ARP_SHIFT_START_VW = 0;
-export const MOBILE_ARP_SHIFT_END_VW = -30;
+export const MOBILE_ARP_SHIFT_START_VW = -8;
+export const MOBILE_ARP_SHIFT_END_VW = -20;
 export const MOBILE_ARP_SHIFT_START_VH = 0;
-export const MOBILE_ARP_SHIFT_END_VH = -26;
+export const MOBILE_ARP_SHIFT_END_VH = 0;
 
 /**
  * Desktop sweep from top-left anchor.
  * Start = 0, end = -(panoramaMinWidthVw - 100), so camera pans to the right as you scroll.
  */
 export const BG_SCROLL_SHIFT_RANGE_VW = BG_PANORAMA_MIN_WIDTH_VW - 100;
-export const BG_SCROLL_SHIFT_RANGE_VH = 24;
+export const BG_SCROLL_SHIFT_RANGE_VH = 0;
 
 /** Floor so reduced-motion users still get a usable horizontal pan on phones. */
 export const BG_SCROLL_SHIFT_RANGE_VW_MIN = 14;
-export const BG_SCROLL_SHIFT_RANGE_VH_MIN = 12;
+export const BG_SCROLL_SHIFT_RANGE_VH_MIN = 0;
 
 export function panoramaScrollRangeVw(panoramaMinWidthVw: number): number {
   return Math.max(BG_SCROLL_SHIFT_RANGE_VW_MIN, panoramaMinWidthVw - 100);

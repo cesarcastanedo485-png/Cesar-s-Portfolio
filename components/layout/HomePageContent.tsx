@@ -74,7 +74,7 @@ export function HomePageContent() {
       Boolean(bgVideoSrc?.trim()) ||
       Boolean(ar?.enabled) ||
       experienceMode === "wonderland");
-  const atmosphereLayerOn = atmosphereOn || isMatrixMode;
+  const atmosphereLayerOn = isMatrixMode || (atmosphereOn && !useAudioReactive);
   const backgroundMistLayersEnabled = !useAudioReactive;
   /**
    * Guardrail: Foreground smoke enablement is decided once here (not spread across components).
