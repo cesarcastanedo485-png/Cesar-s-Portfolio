@@ -35,28 +35,32 @@ export async function POST(request: Request) {
       receivedAt: Date.now(),
     };
     // #region agent log
-    await appendFile(
-      join(process.cwd(), "debug-d3e82a.log"),
-      `${JSON.stringify({
-        sessionId: "d3e82a",
-        runId: "pre-fix",
-        hypothesisId: "H-TRACE-FALLBACK",
-        location: "app/api/mobile-trace/route.ts:POST",
-        message: "mobile trace payload captured via API fallback",
-        data: {
-          id,
-          traceCount: trace.length,
-          traceTail: trace.slice(-6),
-          route: body.context?.route ?? null,
-          userAgent: body.context?.userAgent
-            ? String(body.context.userAgent).slice(0, 120)
-            : null,
-          contextTimestamp: body.context?.timestamp ?? null,
-        },
-        timestamp: Date.now(),
-      })}\n`,
-      "utf8",
-    );
+    try {
+      await appendFile(
+        join(process.cwd(), "debug-d3e82a.log"),
+        `${JSON.stringify({
+          sessionId: "d3e82a",
+          runId: "pre-fix",
+          hypothesisId: "H-TRACE-FALLBACK",
+          location: "app/api/mobile-trace/route.ts:POST",
+          message: "mobile trace payload captured via API fallback",
+          data: {
+            id,
+            traceCount: trace.length,
+            traceTail: trace.slice(-6),
+            route: body.context?.route ?? null,
+            userAgent: body.context?.userAgent
+              ? String(body.context.userAgent).slice(0, 120)
+              : null,
+            contextTimestamp: body.context?.timestamp ?? null,
+          },
+          timestamp: Date.now(),
+        })}\n`,
+        "utf8",
+      );
+    } catch {
+      // Ignore debug file write failures (e.g. read-only serverless FS).
+    }
     // #endregion
     return NextResponse.json({ ok: true, id });
   } catch {
