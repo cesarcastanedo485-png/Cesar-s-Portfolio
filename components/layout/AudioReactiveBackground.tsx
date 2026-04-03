@@ -488,6 +488,21 @@ export function AudioReactiveBackground({
           clamp(dragState.baseObjectPosY + deltaYPercent, -30, 40),
         );
       }
+      const nextStart =
+        dragState.mode === "freeFrame" || dragState.mode === "horizontalFrame"
+          ? clamp(dragState.baseStartVw + deltaVw, START_VW_MIN, START_VW_MAX)
+          : dragState.baseStartVw;
+      const nextEnd =
+        dragState.mode === "freeFrame" || dragState.mode === "horizontalFrame"
+          ? clamp(dragState.baseEndVw + deltaVw, END_VW_MIN, END_VW_MAX)
+          : dragState.baseEndVw;
+      const nextY =
+        dragState.mode === "freeFrame" || dragState.mode === "verticalFrame"
+          ? clamp(dragState.baseObjectPosY + deltaYPercent, -30, 40)
+          : dragState.baseObjectPosY;
+      const maxTravelPreview = Math.max(0, Math.max(132, activeTune.widthVw) - 100);
+      const safeStartPreview = clamp(nextStart, -maxTravelPreview, maxTravelPreview);
+      const safeEndPreview = clamp(nextEnd, -maxTravelPreview, maxTravelPreview);
       if (!dragDebugRef.current.hasLoggedMove) {
         dragDebugRef.current.hasLoggedMove = true;
         appendMobileTrace(
@@ -501,8 +516,11 @@ export function AudioReactiveBackground({
         appendMobileTrace(
           `guided-move-raw step=${guidedStep} mode=${dragState.mode} pid=${e.pointerId} count=${guidedMoveDebugRef.current.moveCount} dx=${deltaX.toFixed(3)} dy=${deltaY.toFixed(3)} pressure=${e.pressure.toFixed(3)} buttons=${e.buttons}`,
         );
+        appendMobileTrace(
+          `guided-apply step=${guidedStep} mode=${dragState.mode} start=${nextStart.toFixed(2)} end=${nextEnd.toFixed(2)} y=${nextY.toFixed(2)} safeStart=${safeStartPreview.toFixed(2)} safeEnd=${safeEndPreview.toFixed(2)} maxTravel=${maxTravelPreview.toFixed(2)}`,
+        );
         // #region agent log
-        fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix-v3", hypothesisId: "H6", location: "AudioReactiveBackground.tsx:onDragPointerMove-guidedRaw", message: "guided move raw sample", data: { guidedStep, mode: dragState.mode, pointerId: e.pointerId, count: guidedMoveDebugRef.current.moveCount, deltaX, deltaY, pressure: e.pressure, buttons: e.buttons, width: e.width, height: e.height }, timestamp: Date.now() }) }).catch(() => {});
+        fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix-v4", hypothesisId: "H6_H8", location: "AudioReactiveBackground.tsx:onDragPointerMove-guidedRaw", message: "guided move raw+applied sample", data: { guidedStep, mode: dragState.mode, pointerId: e.pointerId, count: guidedMoveDebugRef.current.moveCount, deltaX, deltaY, pressure: e.pressure, buttons: e.buttons, width: e.width, height: e.height, nextStart, nextEnd, nextY, safeStartPreview, safeEndPreview, maxTravelPreview, widthVw: activeTune.widthVw }, timestamp: Date.now() }) }).catch(() => {});
         // #endregion
       }
       setMarker({ x: e.clientX, y: e.clientY });
