@@ -145,6 +145,7 @@ export function AudioReactiveBackground({
   );
   const [tuneMode, setTuneMode] = useState(false);
   const [previewTuneMode, setPreviewTuneMode] = useState(false);
+  const [tunerMinimized, setTunerMinimized] = useState(false);
   const [dragMode, setDragMode] = useState<DragMode>("off");
   const [previewMode, setPreviewMode] = useState<PreviewMode>("scroll");
   const [selectedProfile, setSelectedProfile] = useState<TuneProfileName>("mobile");
@@ -354,7 +355,7 @@ export function AudioReactiveBackground({
       : undefined;
 
   const onDragPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (!tuneMode || dragMode === "off") {
+    if (!tuneMode || tunerMinimized || dragMode === "off") {
       return;
     }
     pointerCacheRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
@@ -429,7 +430,7 @@ export function AudioReactiveBackground({
   };
 
   const scrollParallaxEnabled =
-    hydrated && (!tuneMode || previewMode === "scroll");
+    hydrated && (!tuneMode || (previewMode === "scroll" && !tunerMinimized));
   const panoramaMinWidthVw = narrowViewport
     ? mobileWidthVw
     : desktopWidthVw;
@@ -523,6 +524,7 @@ export function AudioReactiveBackground({
   ];
 
   const beginGuided = () => {
+    setTunerMinimized(false);
     setGuidedMode(true);
     setGuidedStep(0);
     setPreviewMode(guidedSteps[0].preview);
@@ -546,6 +548,8 @@ export function AudioReactiveBackground({
   const adjustWidthVw = (delta: number) => {
     setTuneField("widthVw", clamp(activeTune.widthVw + delta, WIDTH_VW_MIN, WIDTH_VW_MAX));
   };
+
+  const baseScrollX = "calc(var(--arp-scroll-x, 0vw) * -1)";
 
   useEffect(() => {
     // #region agent log
@@ -751,7 +755,7 @@ export function AudioReactiveBackground({
                   objectPosition,
                   objectFit: mobileObjectFit,
                   transform:
-                    `translate3d(var(--arp-scroll-x, 0vw), 0, 0) scale(calc(1 + var(--arp-pulse, 0) * ${mobilePulseScale} * var(--arp-visual-mul, 1)))`,
+                    `translate3d(${baseScrollX}, 0, 0) scale(calc(1 + var(--arp-pulse, 0) * ${mobilePulseScale} * var(--arp-visual-mul, 1)))`,
                   filter:
                     "brightness(calc(0.9 + var(--arp-pulse, 0) * 0.22 * var(--arp-visual-mul, 1))) contrast(calc(1 + var(--arp-pulse, 0) * 0.09 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.26 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 9deg))",
                 }}
@@ -770,8 +774,7 @@ export function AudioReactiveBackground({
                     minWidth: panoramaWidth,
                     objectPosition,
                     objectFit: mobileObjectFit,
-                    transform:
-                      "translate3d(var(--arp-scroll-x, 0vw), 0, 0)",
+                    transform: `translate3d(${baseScrollX}, 0, 0)`,
                     opacity: playing
                       ? `calc((0.03 + var(--arp-pulse, 0) * 0.08 + var(--arp-pulse-spike, 0) * 0.22) * ${flashGain})`
                       : "0",
@@ -873,7 +876,29 @@ export function AudioReactiveBackground({
         ? createPortal(rainPortalLayer, document.body)
         : null}
 
-      {tuneMode && dragMode !== "off" ? (
+      {tuneMode ? (
+        <button
+          type="button"
+          className="fixed bottom-3 left-3 z-[1001] rounded-full border border-cyan-300/40 bg-cyan-600/90 px-3 py-2 text-[11px] font-semibold text-white shadow-xl backdrop-blur md:left-auto md:right-[23.5rem]"
+          onClick={() => {
+            setTunerMinimized((prev) => {
+              const next = !prev;
+              if (next) {
+                setGuidedMode(false);
+                setDragMode("off");
+                setPreviewMode("scroll");
+                setMarker(null);
+              }
+              return next;
+            });
+          }}
+          aria-expanded={!tunerMinimized}
+        >
+          {tunerMinimized ? "Open Tuner" : "Minimize Tuner"}
+        </button>
+      ) : null}
+
+      {tuneMode && !tunerMinimized && dragMode !== "off" ? (
         <div
           className="fixed inset-0 z-[998] cursor-grab touch-none active:cursor-grabbing"
           onPointerDown={onDragPointerDown}
@@ -884,7 +909,7 @@ export function AudioReactiveBackground({
         />
       ) : null}
 
-      {tuneMode && marker ? (
+      {tuneMode && !tunerMinimized && marker ? (
         <div
           className="fixed z-[999] h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-cyan-300 bg-cyan-400/30"
           style={{ left: marker.x, top: marker.y }}
@@ -892,7 +917,7 @@ export function AudioReactiveBackground({
         />
       ) : null}
 
-      {tuneMode && guidedMode ? (
+      {tuneMode && !tunerMinimized && guidedMode ? (
         <div className="fixed left-2 right-2 top-2 z-[1000] rounded-lg border border-white/20 bg-black/75 p-3 text-xs text-white shadow-2xl backdrop-blur">
           <p className="font-semibold">
             Step {guidedStep + 1}/{guidedSteps.length}: {guidedSteps[guidedStep]?.label}
@@ -924,7 +949,7 @@ export function AudioReactiveBackground({
         </div>
       ) : null}
 
-      {tuneMode && !guidedMode ? (
+      {tuneMode && !tunerMinimized && !guidedMode ? (
         <div className="fixed bottom-3 right-3 z-[999] w-[min(22rem,92vw)] rounded-xl border border-white/20 bg-black/80 p-3 text-xs text-white shadow-2xl backdrop-blur">
           <p className="mb-2 font-semibold">Mobile Parallax Tuner</p>
           <p className="mb-2 text-[11px] text-white/70">
@@ -1065,7 +1090,7 @@ export function AudioReactiveBackground({
             1) Tap drag mode 2) go top/bottom 3) drag background until framing looks right.
           </p>
           <label className="mb-1 block">
-            widthVw: {activeTune.widthVw}
+            widthVw ({selectedProfile} zoom level): {activeTune.widthVw}
             <input
               type="range"
               min={WIDTH_VW_MIN}
@@ -1077,7 +1102,7 @@ export function AudioReactiveBackground({
             />
           </label>
           <label className="mb-1 block">
-            startVw: {activeTune.startVw}
+            startVw (top scroll anchor X): {activeTune.startVw}
             <input
               type="range"
               min={START_VW_MIN}
@@ -1089,7 +1114,7 @@ export function AudioReactiveBackground({
             />
           </label>
           <label className="mb-1 block">
-            endVw: {activeTune.endVw}
+            endVw (bottom scroll anchor X): {activeTune.endVw}
             <input
               type="range"
               min={END_VW_MIN}
@@ -1101,7 +1126,7 @@ export function AudioReactiveBackground({
             />
           </label>
           <label className="mb-1 block">
-            objectPosX: {activeTune.objectPosX}%
+            objectPosX (left-right framing): {activeTune.objectPosX}%
             <input
               type="range"
               min={0}
@@ -1113,7 +1138,7 @@ export function AudioReactiveBackground({
             />
           </label>
           <label className="mb-1 block">
-            objectPosY: {activeTune.objectPosY}%
+            objectPosY (up-down framing): {activeTune.objectPosY}%
             <input
               type="range"
               min={-30}
@@ -1125,7 +1150,7 @@ export function AudioReactiveBackground({
             />
           </label>
           <label className="mb-1 block">
-            snapToEndWithinPx: {activeTune.snapToEndWithinPx}
+            snapToEndWithinPx (force bottom anchor near page end): {activeTune.snapToEndWithinPx}
             <input
               type="range"
               min={0}
@@ -1139,7 +1164,7 @@ export function AudioReactiveBackground({
             />
           </label>
           <label className="mb-2 block">
-            pulseScale: {activeTune.pulseScale.toFixed(3)}
+            pulseScale (music beat zoom intensity): {activeTune.pulseScale.toFixed(3)}
             <input
               type="range"
               min={0}
