@@ -99,11 +99,12 @@ const WIDTH_VW_MAX = 260;
 function getSafeTuneValues(tune: MobileArpTune): MobileArpTune {
   const safeWidthVw = clamp(tune.widthVw, 132, WIDTH_VW_MAX);
   const maxTravel = Math.max(0, safeWidthVw - 100);
+  const travelWithPadding = Math.max(0, maxTravel - 2);
   return {
     ...tune,
     widthVw: safeWidthVw,
-    startVw: clamp(tune.startVw, -maxTravel, maxTravel),
-    endVw: clamp(tune.endVw, -maxTravel, maxTravel),
+    startVw: clamp(tune.startVw, -travelWithPadding, travelWithPadding),
+    endVw: clamp(tune.endVw, -travelWithPadding, travelWithPadding),
     objectPosY: clamp(tune.objectPosY, -12, 24),
   };
 }
@@ -345,6 +346,26 @@ export function AudioReactiveBackground({
   }, [hydrated, tuneMode, tuneProfiles, tunerNotice]);
 
   useEffect(() => {
+    if (!tuneMode || !guidedMode || typeof document === "undefined") {
+      return;
+    }
+    const previousBodyOverflow = document.body.style.overflow;
+    const previousDocOverflow = document.documentElement.style.overflow;
+    const previousTouchAction = document.documentElement.style.touchAction;
+    const previousOverscroll = document.documentElement.style.overscrollBehavior;
+    document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
+    document.documentElement.style.touchAction = "none";
+    document.documentElement.style.overscrollBehavior = "none";
+    return () => {
+      document.body.style.overflow = previousBodyOverflow;
+      document.documentElement.style.overflow = previousDocOverflow;
+      document.documentElement.style.touchAction = previousTouchAction;
+      document.documentElement.style.overscrollBehavior = previousOverscroll;
+    };
+  }, [guidedMode, tuneMode]);
+
+  useEffect(() => {
     setSelectedProfile(narrowViewport ? "mobile" : "desktop");
   }, [narrowViewport]);
 
@@ -534,18 +555,22 @@ export function AudioReactiveBackground({
       const deltaX = e.clientX - dragState.startX;
       const deltaY = e.clientY - dragState.startY;
       const deltaVw = (deltaX / Math.max(1, window.innerWidth)) * 220;
-      const deltaYPercent = (deltaY / Math.max(1, window.innerHeight)) * 70;
+      const deltaYPercent = (deltaY / Math.max(1, window.innerHeight)) * 120;
       guidedMoveDebugRef.current.moveCount += 1;
       if (dragState.mode === "freeFrame" || dragState.mode === "horizontalFrame") {
         if (dragState.mode === "freeFrame") {
-          setTuneField(
-            "startVw",
-            clamp(dragState.baseStartVw + deltaVw, START_VW_MIN, START_VW_MAX),
-          );
-          setTuneField(
-            "endVw",
-            clamp(dragState.baseEndVw + deltaVw, END_VW_MIN, END_VW_MAX),
-          );
+          const rawStart = dragState.baseStartVw + deltaVw;
+          const rawEnd = dragState.baseEndVw + deltaVw;
+          const maxTravel = Math.max(0, Math.max(132, activeTune.widthVw) - 100 - 2);
+          const below = -maxTravel - rawStart;
+          const above = rawEnd - maxTravel;
+          let correction = 0;
+          if (below > 0) correction = below;
+          if (above > 0) correction = -above;
+          const constrainedStart = clamp(rawStart + correction, START_VW_MIN, START_VW_MAX);
+          const constrainedEnd = clamp(rawEnd + correction, END_VW_MIN, END_VW_MAX);
+          setTuneField("startVw", constrainedStart);
+          setTuneField("endVw", constrainedEnd);
         } else {
           // In rabbit-framing phase we drive only end anchor for visible horizontal pan.
           setTuneField(
@@ -814,6 +839,9 @@ export function AudioReactiveBackground({
   };
 
   const beginGuided = () => {
+    if (selectedProfile === "mobile" && activeTune.widthVw < 170) {
+      setTuneField("widthVw", 170);
+    }
     setTunerMinimized(false);
     setGuidedMode(true);
     setGuidedStep(0);
