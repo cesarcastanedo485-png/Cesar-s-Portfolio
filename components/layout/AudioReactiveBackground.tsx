@@ -95,13 +95,20 @@ const END_VW_MIN = -220;
 const END_VW_MAX = 80;
 const WIDTH_VW_MIN = 120;
 const WIDTH_VW_MAX = 260;
+const MOBILE_TRAVEL_FLOOR_VW = 90;
+
+function getAnchorTravelLimit(widthVw: number, profile: TuneProfileName): number {
+  const safeWidthVw = clamp(widthVw, 132, WIDTH_VW_MAX);
+  const rawTravel = Math.max(0, safeWidthVw - 100);
+  return profile === "mobile" ? Math.max(rawTravel, MOBILE_TRAVEL_FLOOR_VW) : rawTravel;
+}
 
 function getSafeTuneValues(
   tune: MobileArpTune,
   profile: TuneProfileName = "mobile",
 ): MobileArpTune {
   const safeWidthVw = clamp(tune.widthVw, 132, WIDTH_VW_MAX);
-  const maxTravel = Math.max(0, safeWidthVw - 100);
+  const maxTravel = getAnchorTravelLimit(safeWidthVw, profile);
   const startMin = -maxTravel;
   const startMax = maxTravel;
   const endMin = -maxTravel;
@@ -438,7 +445,7 @@ export function AudioReactiveBackground({
       : null;
     const imageTransform = baseImage ? getComputedStyle(baseImage).transform : null;
     const safeWidth = Math.max(132, Math.min(WIDTH_VW_MAX, activeTune.widthVw));
-    const safeTravel = Math.max(0, safeWidth - 100);
+    const safeTravel = getAnchorTravelLimit(safeWidth, selectedProfile);
     appendMobileTrace(
       `render-state step=${guidedStep} preview=${previewMode} forced=${forcedScrollX ?? "none"} cssX=${computedX ?? "none"} width=${activeTune.widthVw.toFixed(2)} safeTravel=${safeTravel.toFixed(2)} activeStart=${activeTune.startVw.toFixed(2)} activeEnd=${activeTune.endVw.toFixed(2)} safeStart=${safeActiveTune.startVw.toFixed(2)} safeEnd=${safeActiveTune.endVw.toFixed(2)} transform=${imageTransform ?? "none"}`,
     );
@@ -773,7 +780,7 @@ export function AudioReactiveBackground({
           [key]: value,
         } as MobileArpTune;
         const safeWidthVw = clamp(next.widthVw, 132, WIDTH_VW_MAX);
-        const maxTravel = Math.max(0, safeWidthVw - 100);
+        const maxTravel = getAnchorTravelLimit(safeWidthVw, selectedProfile);
         return {
           ...next,
           widthVw: safeWidthVw,
