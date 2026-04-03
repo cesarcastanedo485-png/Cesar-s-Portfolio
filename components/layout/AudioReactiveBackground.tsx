@@ -585,8 +585,17 @@ export function AudioReactiveBackground({
         dragSweepDebugRef.current.maxX = Math.max(dragSweepDebugRef.current.maxX, e.clientX);
         dragSweepDebugRef.current.lastX = e.clientX;
       }
+      const sweepSpanX =
+        dragSweepDebugRef.current.pointerId === e.pointerId
+          ? dragSweepDebugRef.current.maxX - dragSweepDebugRef.current.minX
+          : 0;
+      const effectiveDeltaX =
+        dragState.mode === "freeFrame" ? Math.max(Math.abs(deltaX), sweepSpanX) : deltaX;
+      const deltaDirection =
+        dragState.mode === "freeFrame" && deltaX < 0 ? -1 : 1;
       const deltaVw =
-        (deltaX / Math.max(1, window.innerWidth)) * GUIDED_HORIZONTAL_SWIPE_VW_FACTOR;
+        ((effectiveDeltaX * deltaDirection) / Math.max(1, window.innerWidth)) *
+        GUIDED_HORIZONTAL_SWIPE_VW_FACTOR;
       const deltaYPercent = (deltaY / Math.max(1, window.innerHeight)) * 70;
       guidedMoveDebugRef.current.moveCount += 1;
       if (dragState.mode === "freeFrame" || dragState.mode === "horizontalFrame") {
