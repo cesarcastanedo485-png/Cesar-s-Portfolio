@@ -2,78 +2,18 @@
 
 import { useMemo, useState } from "react";
 import {
-  BG_PANORAMA_MIN_WIDTH_VW,
-  BG_PANORAMA_MIN_WIDTH_VW_MOBILE,
-  MOBILE_ARP_SHIFT_END_VW,
-  MOBILE_ARP_SHIFT_START_VW,
-  panoramaScrollRangeVw,
-} from "@/lib/background-parallax";
-import {
   type EditorArpTune,
   type EditorDraft,
   PARALLAX_EDITOR_DRAFT_KEY,
 } from "@/lib/parallax-editor";
-
-type EditorSeed = {
-  imageSrc: string;
-  beatFlashImageSrc: string;
-  beatFlashOpacityGain: number;
-  mushroomImageSrc: string;
-  rainVideoSrc: string;
-  rainVideoBlend: "normal" | "screen" | "plus-lighter";
-  rainVideoKey: "none" | "luma";
-  rainVideoLumaThreshold: number;
-  rainVideoLumaSoften: number;
-  rainVideoLumaCeiling: number;
-  rainVideoLumaCeilingSoften: number;
-  foregroundSmokeEnabled: boolean;
-  foregroundSmokeIntensity: "low" | "default" | "high";
-};
-
-const defaultMobile: EditorArpTune = {
-  widthVw: BG_PANORAMA_MIN_WIDTH_VW_MOBILE,
-  startVw: MOBILE_ARP_SHIFT_START_VW,
-  endVw: MOBILE_ARP_SHIFT_END_VW,
-  objectPosX: 2,
-  objectPosY: 0,
-  snapToEndWithinPx: 220,
-  pulseScale: 0,
-};
-
-const defaultDesktop: EditorArpTune = {
-  widthVw: BG_PANORAMA_MIN_WIDTH_VW,
-  startVw: 0,
-  endVw: -panoramaScrollRangeVw(BG_PANORAMA_MIN_WIDTH_VW),
-  objectPosX: 0,
-  objectPosY: 0,
-  snapToEndWithinPx: 0,
-  pulseScale: 0.1,
-};
+import {
+  createEditorDraft,
+  getEditorWarnings,
+  type EditorSeed,
+} from "@/lib/parallax-editor-config";
 
 export function ParallaxStackEditor({ seed }: { seed: EditorSeed }) {
-  const [draft, setDraft] = useState<EditorDraft>({
-    profile: "mobile",
-    arp: {
-      mobile: defaultMobile,
-      desktop: defaultDesktop,
-    },
-    layers: {
-      baseImageSrc: seed.imageSrc,
-      beatFlashImageSrc: seed.beatFlashImageSrc,
-      beatFlashOpacityGain: seed.beatFlashOpacityGain,
-      smokeImageSrc: seed.mushroomImageSrc,
-      rainVideoSrc: seed.rainVideoSrc,
-      rainVideoBlend: seed.rainVideoBlend,
-      rainVideoKey: seed.rainVideoKey,
-      rainVideoLumaThreshold: seed.rainVideoLumaThreshold,
-      rainVideoLumaSoften: seed.rainVideoLumaSoften,
-      rainVideoLumaCeiling: seed.rainVideoLumaCeiling,
-      rainVideoLumaCeilingSoften: seed.rainVideoLumaCeilingSoften,
-      atmosphereMistLayers: true,
-      foregroundSmokeEnabled: seed.foregroundSmokeEnabled,
-      foregroundSmokeIntensity: seed.foregroundSmokeIntensity,
-    },
-  });
+  const [draft, setDraft] = useState<EditorDraft>(createEditorDraft(seed));
   const [status, setStatus] = useState("");
   const [uploading, setUploading] = useState(false);
   const [runningChecks, setRunningChecks] = useState(false);
@@ -152,41 +92,7 @@ export function ParallaxStackEditor({ seed }: { seed: EditorSeed }) {
     }
   };
 
-  const warnings = useMemo(() => {
-    const list: string[] = [];
-    const mobile = draft.arp.mobile;
-    const desktop = draft.arp.desktop;
-    if (!draft.layers.baseImageSrc?.trim()) {
-      list.push("Base image path is empty.");
-    }
-    if (
-      draft.layers.baseImageSrc &&
-      !draft.layers.baseImageSrc.startsWith("/") &&
-      !draft.layers.baseImageSrc.startsWith("http")
-    ) {
-      list.push("Base image should start with '/' or 'http'.");
-    }
-    if (
-      draft.layers.rainVideoSrc &&
-      !draft.layers.rainVideoSrc.startsWith("/") &&
-      !draft.layers.rainVideoSrc.startsWith("http")
-    ) {
-      list.push("Rain video should start with '/' or 'http'.");
-    }
-    if (Math.abs(mobile.startVw - mobile.endVw) < 2) {
-      list.push("Mobile start/end anchors are almost identical.");
-    }
-    if (Math.abs(desktop.startVw - desktop.endVw) < 2) {
-      list.push("Desktop start/end anchors are almost identical.");
-    }
-    if (mobile.widthVw < 125) {
-      list.push("Mobile widthVw is very zoomed in and may crop head/tail.");
-    }
-    if (mobile.objectPosY < -20 || mobile.objectPosY > 30) {
-      list.push("Mobile objectPosY is extreme and may create black bands.");
-    }
-    return list;
-  }, [draft]);
+  const warnings = useMemo(() => getEditorWarnings(draft), [draft]);
 
   const runHealthChecks = async () => {
     setRunningChecks(true);

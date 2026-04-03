@@ -2,21 +2,10 @@ import { readFile, writeFile } from "fs/promises";
 import { NextResponse } from "next/server";
 import path from "path";
 import type { EditorDraft } from "@/lib/parallax-editor";
+import { sanitizeEditorTune } from "@/lib/parallax-editor-config";
 
 function clamp(n: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, n));
-}
-
-function sanitizeTune(input: EditorDraft["arp"]["mobile"]) {
-  return {
-    widthVw: clamp(input.widthVw, 120, 260),
-    startVw: clamp(input.startVw, -220, 160),
-    endVw: clamp(input.endVw, -220, 160),
-    objectPosX: clamp(input.objectPosX, 0, 100),
-    objectPosY: clamp(input.objectPosY, -40, 45),
-    snapToEndWithinPx: clamp(input.snapToEndWithinPx, 0, 600),
-    pulseScale: clamp(input.pulseScale, 0, 0.2),
-  };
 }
 
 export async function POST(request: Request) {
@@ -65,8 +54,8 @@ export async function POST(request: Request) {
       typeof layers.rainVideoLumaCeilingSoften === "number"
         ? clamp(layers.rainVideoLumaCeilingSoften, 0, 1)
         : ar.rainVideoLumaCeilingSoften;
-    ar.mobileTune = sanitizeTune(draft.arp.mobile);
-    ar.desktopTune = sanitizeTune(draft.arp.desktop);
+    ar.mobileTune = sanitizeEditorTune(draft.arp.mobile);
+    ar.desktopTune = sanitizeEditorTune(draft.arp.desktop);
 
     smoke.enabled =
       typeof layers.foregroundSmokeEnabled === "boolean"
