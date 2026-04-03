@@ -77,6 +77,7 @@ export function ParallaxStackEditor({ seed }: { seed: EditorSeed }) {
   const [status, setStatus] = useState("");
   const [uploading, setUploading] = useState(false);
   const [runningChecks, setRunningChecks] = useState(false);
+  const [editorMinimized, setEditorMinimized] = useState(false);
   const activeTune = draft.profile === "mobile" ? draft.arp.mobile : draft.arp.desktop;
 
   const previewUrl = useMemo(() => "/?arpPreview=1", []);
@@ -228,11 +229,22 @@ export function ParallaxStackEditor({ seed }: { seed: EditorSeed }) {
 
   return (
     <main className="mx-auto flex w-full max-w-4xl flex-col gap-4 p-3 pb-24 text-white md:p-4">
+      <button
+        type="button"
+        className="fixed bottom-4 right-4 z-40 rounded-full border border-cyan-300/40 bg-cyan-600/90 px-4 py-2 text-xs font-semibold text-white shadow-xl backdrop-blur md:hidden"
+        onClick={() => setEditorMinimized((v) => !v)}
+        aria-expanded={!editorMinimized}
+      >
+        {editorMinimized ? "Open Editor" : "Minimize Editor"}
+      </button>
+
       <h1 className="text-xl font-semibold md:text-2xl">Parallax Stack Editor</h1>
       <p className="text-sm text-white/70">
         Mobile and desktop profiles are independent. Use Preview first, then Publish.
       </p>
 
+      {!editorMinimized ? (
+        <>
       <section className="sticky top-2 z-20 rounded-xl border border-cyan-300/20 bg-black/80 p-3 shadow-xl backdrop-blur">
         <p className="mb-2 text-xs text-cyan-100">
           Quick actions (mobile-safe): saves draft before preview.
@@ -480,6 +492,16 @@ export function ParallaxStackEditor({ seed }: { seed: EditorSeed }) {
       </section>
 
       <p className="text-xs text-cyan-200">{status}</p>
+        </>
+      ) : (
+        <section className="rounded-lg border border-cyan-300/30 bg-black/55 p-3 md:hidden">
+          <p className="text-sm font-semibold text-cyan-100">Editor minimized</p>
+          <p className="mt-1 text-xs text-white/75">
+            Tap <span className="font-semibold">Open Editor</span> to continue editing.
+            You can still browse and test the page comfortably.
+          </p>
+        </section>
+      )}
     </main>
   );
 }
