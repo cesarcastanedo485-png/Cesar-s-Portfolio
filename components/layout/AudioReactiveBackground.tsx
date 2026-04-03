@@ -186,6 +186,7 @@ export function AudioReactiveBackground({
     baseWidthVw: number;
   } | null>(null);
   const dragDebugRef = useRef<{ hasLoggedMove: boolean }>({ hasLoggedMove: false });
+  const guidedMoveDebugRef = useRef<{ moveCount: number }>({ moveCount: 0 });
   const appendMobileTrace = (entry: string) => {
     setMobileDebugTrace((prev) => {
       const next = [...prev, `${new Date().toLocaleTimeString()} ${entry}`];
@@ -417,6 +418,7 @@ export function AudioReactiveBackground({
       baseObjectPosY: activeTune.objectPosY,
     };
     dragDebugRef.current.hasLoggedMove = false;
+    guidedMoveDebugRef.current.moveCount = 0;
     appendMobileTrace(
       `down step=${guidedStep} mode=${dragMode} pid=${e.pointerId} primary=${e.isPrimary} type=${e.pointerType} x=${Math.round(e.clientX)} y=${Math.round(e.clientY)}`,
     );
@@ -469,6 +471,7 @@ export function AudioReactiveBackground({
       const deltaY = e.clientY - dragState.startY;
       const deltaVw = (deltaX / Math.max(1, window.innerWidth)) * 220;
       const deltaYPercent = (deltaY / Math.max(1, window.innerHeight)) * 70;
+      guidedMoveDebugRef.current.moveCount += 1;
       if (dragState.mode === "freeFrame" || dragState.mode === "horizontalFrame") {
         setTuneField(
           "startVw",
@@ -492,6 +495,14 @@ export function AudioReactiveBackground({
         );
         // #region agent log
         fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix", hypothesisId: "H1_H3", location: "AudioReactiveBackground.tsx:onDragPointerMove-guidedBranch", message: "guided drag branch executed", data: { guidedStep, mode: dragState.mode, pointerId: e.pointerId, deltaX, deltaY, deltaVw, deltaYPercent, nextStartVw: dragState.baseStartVw + deltaVw, nextEndVw: dragState.baseEndVw + deltaVw, nextObjectPosY: dragState.baseObjectPosY + deltaYPercent }, timestamp: Date.now() }) }).catch(() => {});
+        // #endregion
+      }
+      if (guidedMoveDebugRef.current.moveCount <= 5) {
+        appendMobileTrace(
+          `guided-move-raw step=${guidedStep} mode=${dragState.mode} pid=${e.pointerId} count=${guidedMoveDebugRef.current.moveCount} dx=${deltaX.toFixed(3)} dy=${deltaY.toFixed(3)} pressure=${e.pressure.toFixed(3)} buttons=${e.buttons}`,
+        );
+        // #region agent log
+        fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix-v3", hypothesisId: "H6", location: "AudioReactiveBackground.tsx:onDragPointerMove-guidedRaw", message: "guided move raw sample", data: { guidedStep, mode: dragState.mode, pointerId: e.pointerId, count: guidedMoveDebugRef.current.moveCount, deltaX, deltaY, pressure: e.pressure, buttons: e.buttons, width: e.width, height: e.height }, timestamp: Date.now() }) }).catch(() => {});
         // #endregion
       }
       setMarker({ x: e.clientX, y: e.clientY });
@@ -551,6 +562,12 @@ export function AudioReactiveBackground({
   };
 
   const onDragPointerUp = (e: ReactPointerEvent<HTMLDivElement>) => {
+    appendMobileTrace(
+      `pointer-up step=${guidedStep} mode=${dragMode} pid=${e.pointerId} hasCapture=${e.currentTarget.hasPointerCapture(e.pointerId)}`,
+    );
+    // #region agent log
+    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix-v3", hypothesisId: "H6_H7", location: "AudioReactiveBackground.tsx:onDragPointerUp", message: "pointer up/cancel in tuner drag overlay", data: { guidedStep, dragMode, pointerId: e.pointerId, hadCapture: e.currentTarget.hasPointerCapture(e.pointerId) }, timestamp: Date.now() }) }).catch(() => {});
+    // #endregion
     pointerCacheRef.current.delete(e.pointerId);
     if (pointerCacheRef.current.size < 2) {
       pinchStateRef.current = null;
