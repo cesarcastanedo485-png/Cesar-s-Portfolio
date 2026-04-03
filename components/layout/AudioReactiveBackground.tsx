@@ -90,11 +90,14 @@ const WIDTH_VW_MIN = 120;
 const WIDTH_VW_MAX = 260;
 
 function getSafeTuneValues(tune: MobileArpTune): MobileArpTune {
-  const maxTravel = Math.max(0, tune.widthVw - 100);
+  const safeWidthVw = clamp(tune.widthVw, 132, WIDTH_VW_MAX);
+  const maxTravel = Math.max(0, safeWidthVw - 100);
   return {
     ...tune,
+    widthVw: safeWidthVw,
     startVw: clamp(tune.startVw, -maxTravel, maxTravel),
     endVw: clamp(tune.endVw, -maxTravel, maxTravel),
+    objectPosY: clamp(tune.objectPosY, -12, 24),
   };
 }
 
@@ -146,6 +149,7 @@ export function AudioReactiveBackground({
   const [tuneMode, setTuneMode] = useState(false);
   const [previewTuneMode, setPreviewTuneMode] = useState(false);
   const [tunerMinimized, setTunerMinimized] = useState(false);
+  const [autoPreviewRunning, setAutoPreviewRunning] = useState(false);
   const [dragMode, setDragMode] = useState<DragMode>("off");
   const [previewMode, setPreviewMode] = useState<PreviewMode>("scroll");
   const [selectedProfile, setSelectedProfile] = useState<TuneProfileName>("mobile");
@@ -359,7 +363,7 @@ export function AudioReactiveBackground({
       return;
     }
     pointerCacheRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (pointerCacheRef.current.size === 2) {
+    if (dragMode !== "frameY" && pointerCacheRef.current.size === 2) {
       const [a, b] = Array.from(pointerCacheRef.current.values());
       const dist = Math.hypot(a.x - b.x, a.y - b.y);
       pinchStateRef.current = {
@@ -379,6 +383,18 @@ export function AudioReactiveBackground({
 
   const onDragPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
     pointerCacheRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const dragState = dragStateRef.current;
+    if (dragState?.mode === "frameY" && pointerCacheRef.current.size >= 2) {
+      const points = Array.from(pointerCacheRef.current.values());
+      const centerY = points.reduce((acc, p) => acc + p.y, 0) / points.length;
+      const centerX = points.reduce((acc, p) => acc + p.x, 0) / points.length;
+      const yRatio = clamp(centerY / Math.max(1, window.innerHeight), 0, 1);
+      const mappedY = -30 + yRatio * 70;
+      setTuneField("objectPosY", mappedY);
+      setMarker({ x: centerX, y: centerY });
+      e.preventDefault();
+      return;
+    }
     if (pinchStateRef.current && pointerCacheRef.current.size >= 2) {
       const [a, b] = Array.from(pointerCacheRef.current.values());
       const currentDistance = Math.hypot(a.x - b.x, a.y - b.y);
@@ -395,7 +411,6 @@ export function AudioReactiveBackground({
       e.preventDefault();
       return;
     }
-    const dragState = dragStateRef.current;
     if (!dragState || dragState.pointerId !== e.pointerId) {
       return;
     }
@@ -550,6 +565,25 @@ export function AudioReactiveBackground({
   };
 
   const baseScrollX = "calc(var(--arp-scroll-x, 0vw) * -1)";
+  const runAutoPreview = () => {
+    if (typeof window === "undefined") {
+      return;
+    }
+    setAutoPreviewRunning(true);
+    setPreviewMode("scroll");
+    const root = document.scrollingElement ?? document.documentElement;
+    const maxTop = Math.max(0, root.scrollHeight - root.clientHeight);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    window.setTimeout(() => {
+      window.scrollTo({ top: maxTop, behavior: "smooth" });
+      window.setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        window.setTimeout(() => {
+          setAutoPreviewRunning(false);
+        }, 1200);
+      }, 1400);
+    }, 500);
+  };
 
   useEffect(() => {
     // #region agent log
@@ -1064,6 +1098,14 @@ export function AudioReactiveBackground({
             >
               Preview End
             </button>
+            <button
+              type="button"
+              className={`rounded px-2 py-1 ${autoPreviewRunning ? "bg-cyan-500/60" : "bg-white/20"}`}
+              onClick={runAutoPreview}
+              disabled={autoPreviewRunning}
+            >
+              {autoPreviewRunning ? "Previewing..." : "Auto Preview"}
+            </button>
           </div>
           <div className="mb-2 flex gap-2">
             <button
@@ -1197,7 +1239,13 @@ export function AudioReactiveBackground({
               onClick={() =>
                 setTuneProfiles((s) => ({
                   ...s,
-                  [selectedProfile]: safeActiveTune,
+                  [selectedProfile]: getSafeTuneValues({
+                    ...safeActiveTune,
+                    widthVw: Math.max(
+                      safeActiveTune.widthVw,
+                      selectedProfile === "mobile" ? 132 : WIDTH_VW_MIN,
+                    ),
+                  }),
                 }))
               }
             >
