@@ -420,28 +420,32 @@ export function AudioReactiveBackground({
     let dragState = dragStateRef.current;
     if (
       guidedMode &&
-      dragState &&
-      (dragState.mode === "freeFrame" ||
-        dragState.mode === "horizontalFrame" ||
-        dragState.mode === "verticalFrame")
+      (dragMode === "freeFrame" ||
+        dragMode === "horizontalFrame" ||
+        dragMode === "verticalFrame")
     ) {
-      if (dragState.pointerId !== e.pointerId) {
+      if (!dragState) {
         dragState = {
           pointerId: e.pointerId,
           startX: e.clientX,
           startY: e.clientY,
-          mode: dragState.mode,
+          mode: dragMode,
           baseStartVw: activeTune.startVw,
           baseEndVw: activeTune.endVw,
           baseObjectPosY: activeTune.objectPosY,
         };
         dragStateRef.current = dragState;
         appendMobileTrace(
-          `rebind-guided-pointer step=${guidedStep} mode=${dragState.mode} newPid=${e.pointerId}`,
+          `init-guided-pointer step=${guidedStep} mode=${dragState.mode} pid=${e.pointerId}`,
         );
         // #region agent log
-        fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-post-fix", hypothesisId: "H2", location: "AudioReactiveBackground.tsx:onDragPointerMove-guidedRebind", message: "guided pointer rebound before applying drag", data: { guidedStep, mode: dragState.mode, newPointerId: e.pointerId, startVw: activeTune.startVw, endVw: activeTune.endVw, objectPosY: activeTune.objectPosY }, timestamp: Date.now() }) }).catch(() => {});
+        fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-post-fix-v2", hypothesisId: "H2", location: "AudioReactiveBackground.tsx:onDragPointerMove-guidedInit", message: "guided pointer lazily initialized on move", data: { guidedStep, mode: dragState.mode, pointerId: e.pointerId, startVw: activeTune.startVw, endVw: activeTune.endVw, objectPosY: activeTune.objectPosY }, timestamp: Date.now() }) }).catch(() => {});
         // #endregion
+      } else if (dragState.pointerId !== e.pointerId) {
+        appendMobileTrace(
+          `ignore-secondary-pointer step=${guidedStep} mode=${dragState.mode} pid=${e.pointerId} active=${dragState.pointerId}`,
+        );
+        return;
       }
       const deltaX = e.clientX - dragState.startX;
       const deltaY = e.clientY - dragState.startY;
