@@ -79,6 +79,12 @@ const DEFAULT_DESKTOP_TUNE: MobileArpTune = {
   snapToEndWithinPx: 0,
   pulseScale: 0.1,
 };
+const START_VW_MIN = -140;
+const START_VW_MAX = 140;
+const END_VW_MIN = -220;
+const END_VW_MAX = 80;
+const WIDTH_VW_MIN = 120;
+const WIDTH_VW_MAX = 260;
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
@@ -125,10 +131,12 @@ export function AudioReactiveBackground({
     pointerId: number;
     startX: number;
     startY: number;
-    startVw: number;
-    endVw: number;
-    objectPosY: number;
     mode: DragMode;
+  } | null>(null);
+  const pointerCacheRef = useRef<Map<number, { x: number; y: number }>>(new Map());
+  const pinchStateRef = useRef<{
+    startDistance: number;
+    baseWidthVw: number;
   } | null>(null);
   const hasBaseImage = Boolean(imageSrc?.trim()) && !baseImageFailed;
   const hasBeatFlashImage =
@@ -299,13 +307,19 @@ export function AudioReactiveBackground({
     if (!tuneMode || dragMode === "off") {
       return;
     }
+    pointerCacheRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pointerCacheRef.current.size === 2) {
+      const [a, b] = Array.from(pointerCacheRef.current.values());
+      const dist = Math.hypot(a.x - b.x, a.y - b.y);
+      pinchStateRef.current = {
+        startDistance: dist,
+        baseWidthVw: activeTune.widthVw,
+      };
+    }
     dragStateRef.current = {
       pointerId: e.pointerId,
       startX: e.clientX,
       startY: e.clientY,
-      startVw: activeTune.startVw,
-      endVw: activeTune.endVw,
-      objectPosY: activeTune.objectPosY,
       mode: dragMode,
     };
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -313,44 +327,48 @@ export function AudioReactiveBackground({
   };
 
   const onDragPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    pointerCacheRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pinchStateRef.current && pointerCacheRef.current.size >= 2) {
+      const [a, b] = Array.from(pointerCacheRef.current.values());
+      const currentDistance = Math.hypot(a.x - b.x, a.y - b.y);
+      const deltaDistance = currentDistance - pinchStateRef.current.startDistance;
+      const widthDeltaVw = (deltaDistance / Math.max(1, window.innerWidth)) * 120;
+      setTuneField(
+        "widthVw",
+        clamp(
+          pinchStateRef.current.baseWidthVw - widthDeltaVw,
+          WIDTH_VW_MIN,
+          WIDTH_VW_MAX,
+        ),
+      );
+      e.preventDefault();
+      return;
+    }
     const dragState = dragStateRef.current;
     if (!dragState || dragState.pointerId !== e.pointerId) {
       return;
     }
-    const dx = e.clientX - dragState.startX;
-    const dy = e.clientY - dragState.startY;
-    const deltaVw = (dx / Math.max(1, window.innerWidth)) * 100;
-    const deltaYPercent = (dy / Math.max(1, window.innerHeight)) * 100;
+    const xRatio = clamp(e.clientX / Math.max(1, window.innerWidth), 0, 1);
+    const yRatio = clamp(e.clientY / Math.max(1, window.innerHeight), 0, 1);
     if (dragState.mode === "start") {
-      setTuneProfiles((s) => ({
-        ...s,
-        [selectedProfile]: {
-          ...s[selectedProfile],
-          startVw: clamp(dragState.startVw + deltaVw, -140, 140),
-        },
-      }));
+      const mappedStart = START_VW_MIN + xRatio * (START_VW_MAX - START_VW_MIN);
+      setTuneField("startVw", mappedStart);
     } else if (dragState.mode === "end") {
-      setTuneProfiles((s) => ({
-        ...s,
-        [selectedProfile]: {
-          ...s[selectedProfile],
-          endVw: clamp(dragState.endVw + deltaVw, -220, 80),
-        },
-      }));
+      const mappedEnd = END_VW_MIN + xRatio * (END_VW_MAX - END_VW_MIN);
+      setTuneField("endVw", mappedEnd);
     } else if (dragState.mode === "frameY") {
-      setTuneProfiles((s) => ({
-        ...s,
-        [selectedProfile]: {
-          ...s[selectedProfile],
-          objectPosY: clamp(dragState.objectPosY + deltaYPercent, -30, 40),
-        },
-      }));
+      const mappedY = -30 + yRatio * 70;
+      setTuneField("objectPosY", mappedY);
     }
     setMarker({ x: e.clientX, y: e.clientY });
     e.preventDefault();
   };
 
   const onDragPointerUp = (e: ReactPointerEvent<HTMLDivElement>) => {
+    pointerCacheRef.current.delete(e.pointerId);
+    if (pointerCacheRef.current.size < 2) {
+      pinchStateRef.current = null;
+    }
     if (dragStateRef.current?.pointerId === e.pointerId) {
       dragStateRef.current = null;
     }
@@ -800,7 +818,7 @@ export function AudioReactiveBackground({
 
       {tuneMode && dragMode !== "off" ? (
         <div
-          className="fixed inset-0 z-[998] cursor-grab active:cursor-grabbing"
+          className="fixed inset-0 z-[998] cursor-grab touch-none active:cursor-grabbing"
           onPointerDown={onDragPointerDown}
           onPointerMove={onDragPointerMove}
           onPointerUp={onDragPointerUp}
@@ -884,21 +902,30 @@ export function AudioReactiveBackground({
             <button
               type="button"
               className={`rounded px-2 py-1 ${dragMode === "start" ? "bg-cyan-500/60" : "bg-white/20"}`}
-              onClick={() => setDragMode("start")}
+              onClick={() => {
+                setPreviewMode("start");
+                setDragMode("start");
+              }}
             >
               Drag Top Anchor
             </button>
             <button
               type="button"
               className={`rounded px-2 py-1 ${dragMode === "end" ? "bg-cyan-500/60" : "bg-white/20"}`}
-              onClick={() => setDragMode("end")}
+              onClick={() => {
+                setPreviewMode("end");
+                setDragMode("end");
+              }}
             >
               Drag Bottom Anchor
             </button>
             <button
               type="button"
               className={`rounded px-2 py-1 ${dragMode === "frameY" ? "bg-cyan-500/60" : "bg-white/20"}`}
-              onClick={() => setDragMode("frameY")}
+              onClick={() => {
+                setPreviewMode("start");
+                setDragMode("frameY");
+              }}
             >
               Drag Vertical Frame
             </button>
@@ -961,8 +988,8 @@ export function AudioReactiveBackground({
             widthVw: {activeTune.widthVw}
             <input
               type="range"
-              min={120}
-              max={220}
+              min={WIDTH_VW_MIN}
+              max={WIDTH_VW_MAX}
               step={1}
               value={activeTune.widthVw}
               onChange={(e) => setTuneField("widthVw", Number(e.target.value))}
@@ -973,8 +1000,8 @@ export function AudioReactiveBackground({
             startVw: {activeTune.startVw}
             <input
               type="range"
-              min={-140}
-              max={140}
+              min={START_VW_MIN}
+              max={START_VW_MAX}
               step={1}
               value={activeTune.startVw}
               onChange={(e) => setTuneField("startVw", Number(e.target.value))}
@@ -985,8 +1012,8 @@ export function AudioReactiveBackground({
             endVw: {activeTune.endVw}
             <input
               type="range"
-              min={-220}
-              max={80}
+              min={END_VW_MIN}
+              max={END_VW_MAX}
               step={1}
               value={activeTune.endVw}
               onChange={(e) => setTuneField("endVw", Number(e.target.value))}
