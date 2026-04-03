@@ -247,6 +247,39 @@ export function useScrollDrivenShiftX(
           }),
         }).catch(() => {});
         // #endregion
+        // #region agent log
+        fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "X-Debug-Session-Id": "d3e82a",
+          },
+          body: JSON.stringify({
+            sessionId: "d3e82a",
+            runId: "pre-fix",
+            hypothesisId: "H4",
+            location: "use-scroll-driven-shift-x.ts:update-bucket",
+            message: "scroll map sample for horizontal+vertical output",
+            data: {
+              t,
+              tRaw,
+              scrollTop,
+              maxScroll,
+              useLinear,
+              useLinearY,
+              shiftStartVw,
+              shiftEndVw,
+              shiftStartVh,
+              shiftEndVh,
+              shiftVw,
+              shiftVh,
+              cssVarX: cs.getPropertyValue(cssVarName).trim(),
+              cssVarY: cs.getPropertyValue(cssVarNameY).trim(),
+            },
+            timestamp: Date.now(),
+          }),
+        }).catch(() => {});
+        // #endregion
       }
       // #endregion
       if (mirrorVarToDocumentElement) {

@@ -1,4 +1,6 @@
 import { NextResponse } from "next/server";
+import { appendFile } from "node:fs/promises";
+import { join } from "node:path";
 
 type TracePayload = {
   trace?: string[];
@@ -32,6 +34,30 @@ export async function POST(request: Request) {
       context: body.context ?? {},
       receivedAt: Date.now(),
     };
+    // #region agent log
+    await appendFile(
+      join(process.cwd(), "debug-d3e82a.log"),
+      `${JSON.stringify({
+        sessionId: "d3e82a",
+        runId: "pre-fix",
+        hypothesisId: "H-TRACE-FALLBACK",
+        location: "app/api/mobile-trace/route.ts:POST",
+        message: "mobile trace payload captured via API fallback",
+        data: {
+          id,
+          traceCount: trace.length,
+          traceTail: trace.slice(-6),
+          route: body.context?.route ?? null,
+          userAgent: body.context?.userAgent
+            ? String(body.context.userAgent).slice(0, 120)
+            : null,
+          contextTimestamp: body.context?.timestamp ?? null,
+        },
+        timestamp: Date.now(),
+      })}\n`,
+      "utf8",
+    );
+    // #endregion
     return NextResponse.json({ ok: true, id });
   } catch {
     return NextResponse.json({ ok: false, error: "invalid payload" }, { status: 400 });

@@ -95,15 +95,34 @@ const END_VW_MIN = -220;
 const END_VW_MAX = 80;
 const WIDTH_VW_MIN = 120;
 const WIDTH_VW_MAX = 260;
+const MOBILE_START_VW_VISUAL_MIN = -70;
+const MOBILE_START_VW_VISUAL_MAX = 36;
+const MOBILE_END_VW_VISUAL_MIN = -140;
+const MOBILE_END_VW_VISUAL_MAX = 24;
 
-function getSafeTuneValues(tune: MobileArpTune): MobileArpTune {
+function getSafeTuneValues(
+  tune: MobileArpTune,
+  profile: TuneProfileName = "mobile",
+): MobileArpTune {
   const safeWidthVw = clamp(tune.widthVw, 132, WIDTH_VW_MAX);
   const maxTravel = Math.max(0, safeWidthVw - 100);
+  const startMin =
+    profile === "mobile"
+      ? Math.max(-maxTravel, MOBILE_START_VW_VISUAL_MIN)
+      : -maxTravel;
+  const startMax =
+    profile === "mobile"
+      ? Math.min(maxTravel, MOBILE_START_VW_VISUAL_MAX)
+      : maxTravel;
+  const endMin =
+    profile === "mobile" ? Math.max(-maxTravel, MOBILE_END_VW_VISUAL_MIN) : -maxTravel;
+  const endMax =
+    profile === "mobile" ? Math.min(maxTravel, MOBILE_END_VW_VISUAL_MAX) : maxTravel;
   return {
     ...tune,
     widthVw: safeWidthVw,
-    startVw: clamp(tune.startVw, -maxTravel, maxTravel),
-    endVw: clamp(tune.endVw, -maxTravel, maxTravel),
+    startVw: clamp(tune.startVw, startMin, startMax),
+    endVw: clamp(tune.endVw, endMin, endMax),
     objectPosY: clamp(tune.objectPosY, -12, 24),
   };
 }
@@ -351,7 +370,7 @@ export function AudioReactiveBackground({
   const localTuneActive = tuneMode || previewTuneMode;
   const activeTune =
     selectedProfile === "mobile" ? tuneProfiles.mobile : tuneProfiles.desktop;
-  const safeActiveTune = getSafeTuneValues(activeTune);
+  const safeActiveTune = getSafeTuneValues(activeTune, selectedProfile);
   const mobileWidthVw =
     localTuneActive && selectedProfile === "mobile"
       ? activeTune.widthVw
@@ -411,8 +430,8 @@ export function AudioReactiveBackground({
   const forcedScrollX =
     tuneMode && previewMode !== "scroll"
       ? previewMode === "start"
-        ? `${(guidedMode ? activeTune.startVw : safeActiveTune.startVw).toFixed(4)}vw`
-        : `${(guidedMode ? activeTune.endVw : safeActiveTune.endVw).toFixed(4)}vw`
+        ? `${safeActiveTune.startVw.toFixed(4)}vw`
+        : `${safeActiveTune.endVw.toFixed(4)}vw`
       : undefined;
 
   useEffect(() => {
@@ -430,11 +449,16 @@ export function AudioReactiveBackground({
       ? getComputedStyle(container).getPropertyValue("--arp-scroll-x").trim()
       : null;
     const imageTransform = baseImage ? getComputedStyle(baseImage).transform : null;
+    const safeWidth = Math.max(132, Math.min(WIDTH_VW_MAX, activeTune.widthVw));
+    const safeTravel = Math.max(0, safeWidth - 100);
     appendMobileTrace(
-      `render-state step=${guidedStep} preview=${previewMode} forced=${forcedScrollX ?? "none"} cssX=${computedX ?? "none"} transform=${imageTransform ?? "none"}`,
+      `render-state step=${guidedStep} preview=${previewMode} forced=${forcedScrollX ?? "none"} cssX=${computedX ?? "none"} width=${activeTune.widthVw.toFixed(2)} safeTravel=${safeTravel.toFixed(2)} activeStart=${activeTune.startVw.toFixed(2)} activeEnd=${activeTune.endVw.toFixed(2)} safeStart=${safeActiveTune.startVw.toFixed(2)} safeEnd=${safeActiveTune.endVw.toFixed(2)} transform=${imageTransform ?? "none"}`,
     );
     // #region agent log
     fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix-v5", hypothesisId: "H9", location: "AudioReactiveBackground.tsx:guidedRenderState", message: "guided render state snapshot", data: { guidedStep, previewMode, forcedScrollX: forcedScrollX ?? null, cssVarX: computedX, imageTransform, safeStart: safeActiveTune.startVw, safeEnd: safeActiveTune.endVw, selectedProfile }, timestamp: Date.now() }) }).catch(() => {});
+    // #endregion
+    // #region agent log
+    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix", hypothesisId: "H1_H2", location: "AudioReactiveBackground.tsx:guidedRenderState-d3e82a", message: "guided render force-vs-safe snapshot", data: { guidedStep, previewMode, selectedProfile, forcedScrollX: forcedScrollX ?? null, activeStart: activeTune.startVw, activeEnd: activeTune.endVw, safeStart: safeActiveTune.startVw, safeEnd: safeActiveTune.endVw, activeY: activeTune.objectPosY, safeY: safeActiveTune.objectPosY, cssVarX: computedX, imageTransform }, timestamp: Date.now() }) }).catch(() => {});
     // #endregion
   }, [
     forcedScrollX,
@@ -594,6 +618,9 @@ export function AudioReactiveBackground({
         // #region agent log
         fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix-v4", hypothesisId: "H6_H8", location: "AudioReactiveBackground.tsx:onDragPointerMove-guidedRaw", message: "guided move raw+applied sample", data: { guidedStep, mode: dragState.mode, pointerId: e.pointerId, count: guidedMoveDebugRef.current.moveCount, deltaX, deltaY, pressure: e.pressure, buttons: e.buttons, width: e.width, height: e.height, nextStart, nextEnd, nextY, safeStartPreview, safeEndPreview, maxTravelPreview, widthVw: activeTune.widthVw }, timestamp: Date.now() }) }).catch(() => {});
         // #endregion
+        // #region agent log
+        fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix", hypothesisId: "H2_H3_H5", location: "AudioReactiveBackground.tsx:onDragPointerMove-guidedRaw-d3e82a", message: "guided drag output and safety margin", data: { guidedStep, mode: dragState.mode, pointerId: e.pointerId, count: guidedMoveDebugRef.current.moveCount, deltaX, deltaY, nextStart, nextEnd, nextY, safeStartPreview, safeEndPreview, maxTravelPreview, exceedsSafeStart: Math.abs(nextStart - safeStartPreview) > 0.1, exceedsSafeEnd: Math.abs(nextEnd - safeEndPreview) > 0.1, widthVw: activeTune.widthVw }, timestamp: Date.now() }) }).catch(() => {});
+        // #endregion
       }
       setMarker({ x: e.clientX, y: e.clientY });
       e.preventDefault();
@@ -664,6 +691,9 @@ export function AudioReactiveBackground({
     }
     if (dragStateRef.current?.pointerId === e.pointerId) {
       dragStateRef.current = null;
+    }
+    if (guidedMode) {
+      void sendTraceToServer();
     }
     if (e.currentTarget.hasPointerCapture(e.pointerId)) {
       e.currentTarget.releasePointerCapture(e.pointerId);
@@ -748,10 +778,37 @@ export function AudioReactiveBackground({
   ) => {
     setTuneProfiles((s) => ({
       ...s,
-      [selectedProfile]: {
-        ...s[selectedProfile],
-        [key]: value,
-      },
+      [selectedProfile]: (() => {
+        const prev = s[selectedProfile];
+        const next = {
+          ...prev,
+          [key]: value,
+        } as MobileArpTune;
+        const safeWidthVw = clamp(next.widthVw, 132, WIDTH_VW_MAX);
+        const maxTravel = Math.max(0, safeWidthVw - 100);
+        const startMin =
+          selectedProfile === "mobile"
+            ? Math.max(-maxTravel, MOBILE_START_VW_VISUAL_MIN)
+            : -maxTravel;
+        const startMax =
+          selectedProfile === "mobile"
+            ? Math.min(maxTravel, MOBILE_START_VW_VISUAL_MAX)
+            : maxTravel;
+        const endMin =
+          selectedProfile === "mobile"
+            ? Math.max(-maxTravel, MOBILE_END_VW_VISUAL_MIN)
+            : -maxTravel;
+        const endMax =
+          selectedProfile === "mobile"
+            ? Math.min(maxTravel, MOBILE_END_VW_VISUAL_MAX)
+            : maxTravel;
+        return {
+          ...next,
+          widthVw: safeWidthVw,
+          startVw: clamp(next.startVw, startMin, startMax),
+          endVw: clamp(next.endVw, endMin, endMax),
+        };
+      })(),
     }));
   };
 
@@ -809,7 +866,7 @@ export function AudioReactiveBackground({
           selectedProfile === "mobile" ? s.mobile.widthVw : s.desktop.widthVw,
           selectedProfile === "mobile" ? 132 : WIDTH_VW_MIN,
         ),
-      }),
+      }, selectedProfile),
     }));
   };
 
@@ -823,12 +880,16 @@ export function AudioReactiveBackground({
   };
 
   const advanceGuided = () => {
+    void sendTraceToServer();
     const next = guidedStep + 1;
     appendMobileTrace(
       `advance from=${guidedStep} to=${next >= guidedSteps.length ? "finalize" : next}`,
     );
     // #region agent log
     fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix", hypothesisId: "H4_H5", location: "AudioReactiveBackground.tsx:advanceGuided-before", message: "advance guided requested", data: { guidedStep, next, totalSteps: guidedSteps.length, dragMode, previewMode, tunerMinimized, selectedProfile, startVw: activeTune.startVw, endVw: activeTune.endVw, objectPosY: activeTune.objectPosY }, timestamp: Date.now() }) }).catch(() => {});
+    // #endregion
+    // #region agent log
+    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix", hypothesisId: "H1_H3", location: "AudioReactiveBackground.tsx:advanceGuided-before-d3e82a", message: "guided step advance state", data: { guidedStep, next, dragMode, previewMode, selectedProfile, activeStart: activeTune.startVw, activeEnd: activeTune.endVw, safeStart: safeActiveTune.startVw, safeEnd: safeActiveTune.endVw, activeY: activeTune.objectPosY, safeY: safeActiveTune.objectPosY }, timestamp: Date.now() }) }).catch(() => {});
     // #endregion
     if (next >= guidedSteps.length) {
       applyNormalizeSafe();
@@ -1586,7 +1647,7 @@ export function AudioReactiveBackground({
                       safeActiveTune.widthVw,
                       selectedProfile === "mobile" ? 132 : WIDTH_VW_MIN,
                     ),
-                  }),
+                  }, selectedProfile),
                 }));
                 setTunerNotice(
                   `Normalize Safe applied on ${selectedProfile}.`,
