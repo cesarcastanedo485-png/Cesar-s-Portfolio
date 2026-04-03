@@ -2,7 +2,7 @@
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import type { CSSProperties } from "react";
+import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
 import { useReducedMotion } from "framer-motion";
 import { useHydrated } from "@/lib/use-hydrated";
 import {
@@ -51,6 +51,12 @@ type MobileArpTune = {
   pulseScale: number;
 };
 
+type DragMode = "off" | "start" | "end" | "frameY";
+
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(max, Math.max(min, value));
+}
+
 export function AudioReactiveBackground({
   imageSrc,
   beatFlashImageSrc = "",
@@ -77,6 +83,7 @@ export function AudioReactiveBackground({
   const [mushroomImageFailed, setMushroomImageFailed] = useState(false);
   const [rainVideoFailed, setRainVideoFailed] = useState(false);
   const [tuneMode, setTuneMode] = useState(false);
+  const [dragMode, setDragMode] = useState<DragMode>("off");
   const [mobileTune, setMobileTune] = useState<MobileArpTune>({
     widthVw: BG_PANORAMA_MIN_WIDTH_VW_MOBILE,
     startVw: MOBILE_ARP_SHIFT_START_VW,
@@ -87,6 +94,15 @@ export function AudioReactiveBackground({
     pulseScale: 0,
   });
   const { playing } = useGlobalAtmosphereAudio();
+  const dragStateRef = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    startVw: number;
+    endVw: number;
+    objectPosY: number;
+    mode: DragMode;
+  } | null>(null);
   const hasBaseImage = Boolean(imageSrc?.trim()) && !baseImageFailed;
   const hasBeatFlashImage =
     Boolean((beatFlashImageSrc || imageSrc)?.trim()) && !beatFlashImageFailed;
@@ -195,6 +211,60 @@ export function AudioReactiveBackground({
   const mobileObjectPosX = tuneMode ? mobileTune.objectPosX : 2;
   const mobileObjectPosY = tuneMode ? mobileTune.objectPosY : 0;
   const mobileTunePulseScale = tuneMode ? mobileTune.pulseScale : 0;
+
+  const onDragPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (!tuneMode || dragMode === "off") {
+      return;
+    }
+    dragStateRef.current = {
+      pointerId: e.pointerId,
+      startX: e.clientX,
+      startY: e.clientY,
+      startVw: mobileTune.startVw,
+      endVw: mobileTune.endVw,
+      objectPosY: mobileTune.objectPosY,
+      mode: dragMode,
+    };
+    e.currentTarget.setPointerCapture(e.pointerId);
+    e.preventDefault();
+  };
+
+  const onDragPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    const dragState = dragStateRef.current;
+    if (!dragState || dragState.pointerId !== e.pointerId) {
+      return;
+    }
+    const dx = e.clientX - dragState.startX;
+    const dy = e.clientY - dragState.startY;
+    const deltaVw = (dx / Math.max(1, window.innerWidth)) * 100;
+    const deltaYPercent = (dy / Math.max(1, window.innerHeight)) * 100;
+    if (dragState.mode === "start") {
+      setMobileTune((s) => ({
+        ...s,
+        startVw: clamp(dragState.startVw + deltaVw, -80, 80),
+      }));
+    } else if (dragState.mode === "end") {
+      setMobileTune((s) => ({
+        ...s,
+        endVw: clamp(dragState.endVw + deltaVw, -220, 40),
+      }));
+    } else if (dragState.mode === "frameY") {
+      setMobileTune((s) => ({
+        ...s,
+        objectPosY: clamp(dragState.objectPosY + deltaYPercent, -30, 40),
+      }));
+    }
+    e.preventDefault();
+  };
+
+  const onDragPointerUp = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (dragStateRef.current?.pointerId === e.pointerId) {
+      dragStateRef.current = null;
+    }
+    if (e.currentTarget.hasPointerCapture(e.pointerId)) {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    }
+  };
 
   const scrollParallaxEnabled = hydrated;
   const panoramaMinWidthVw = narrowViewport
@@ -578,11 +648,76 @@ export function AudioReactiveBackground({
         ? createPortal(rainPortalLayer, document.body)
         : null}
 
+      {tuneMode && dragMode !== "off" ? (
+        <div
+          className="fixed inset-0 z-[998] cursor-grab active:cursor-grabbing"
+          onPointerDown={onDragPointerDown}
+          onPointerMove={onDragPointerMove}
+          onPointerUp={onDragPointerUp}
+          onPointerCancel={onDragPointerUp}
+          aria-hidden
+        />
+      ) : null}
+
       {tuneMode ? (
         <div className="fixed bottom-3 right-3 z-[999] w-[min(22rem,92vw)] rounded-xl border border-white/20 bg-black/80 p-3 text-xs text-white shadow-2xl backdrop-blur">
           <p className="mb-2 font-semibold">Mobile Parallax Tuner</p>
           <p className="mb-2 text-[11px] text-white/70">
             Active only with <code>?arpTune=1</code>. Values persist locally.
+          </p>
+          <div className="mb-2 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              className={`rounded px-2 py-1 ${dragMode === "start" ? "bg-cyan-500/60" : "bg-white/20"}`}
+              onClick={() => setDragMode("start")}
+            >
+              Drag Top Anchor
+            </button>
+            <button
+              type="button"
+              className={`rounded px-2 py-1 ${dragMode === "end" ? "bg-cyan-500/60" : "bg-white/20"}`}
+              onClick={() => setDragMode("end")}
+            >
+              Drag Bottom Anchor
+            </button>
+            <button
+              type="button"
+              className={`rounded px-2 py-1 ${dragMode === "frameY" ? "bg-cyan-500/60" : "bg-white/20"}`}
+              onClick={() => setDragMode("frameY")}
+            >
+              Drag Vertical Frame
+            </button>
+            <button
+              type="button"
+              className="rounded bg-white/20 px-2 py-1"
+              onClick={() => setDragMode("off")}
+            >
+              Stop Drag
+            </button>
+          </div>
+          <div className="mb-2 flex gap-2">
+            <button
+              type="button"
+              className="rounded bg-white/20 px-2 py-1"
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+            >
+              Go Top
+            </button>
+            <button
+              type="button"
+              className="rounded bg-white/20 px-2 py-1"
+              onClick={() =>
+                window.scrollTo({
+                  top: document.documentElement.scrollHeight,
+                  behavior: "smooth",
+                })
+              }
+            >
+              Go Bottom
+            </button>
+          </div>
+          <p className="mb-2 text-[11px] text-white/70">
+            1) Tap drag mode 2) go top/bottom 3) drag background until framing looks right.
           </p>
           <label className="mb-1 block">
             widthVw: {mobileTune.widthVw}
@@ -616,8 +751,8 @@ export function AudioReactiveBackground({
             endVw: {mobileTune.endVw}
             <input
               type="range"
-              min={-120}
-              max={0}
+              min={-220}
+              max={40}
               step={1}
               value={mobileTune.endVw}
               onChange={(e) =>
