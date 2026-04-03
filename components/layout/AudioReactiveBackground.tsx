@@ -53,6 +53,32 @@ type MobileArpTune = {
 
 type DragMode = "off" | "start" | "end" | "frameY";
 type PreviewMode = "scroll" | "start" | "end";
+type TuneProfileName = "mobile" | "desktop";
+
+type TuneProfiles = {
+  mobile: MobileArpTune;
+  desktop: MobileArpTune;
+};
+
+const DEFAULT_MOBILE_TUNE: MobileArpTune = {
+  widthVw: BG_PANORAMA_MIN_WIDTH_VW_MOBILE,
+  startVw: MOBILE_ARP_SHIFT_START_VW,
+  endVw: MOBILE_ARP_SHIFT_END_VW,
+  objectPosX: 2,
+  objectPosY: 0,
+  snapToEndWithinPx: 220,
+  pulseScale: 0,
+};
+
+const DEFAULT_DESKTOP_TUNE: MobileArpTune = {
+  widthVw: BG_PANORAMA_MIN_WIDTH_VW,
+  startVw: 0,
+  endVw: -panoramaScrollRangeVw(BG_PANORAMA_MIN_WIDTH_VW),
+  objectPosX: 0,
+  objectPosY: 0,
+  snapToEndWithinPx: 0,
+  pulseScale: 0.1,
+};
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
@@ -86,15 +112,14 @@ export function AudioReactiveBackground({
   const [tuneMode, setTuneMode] = useState(false);
   const [dragMode, setDragMode] = useState<DragMode>("off");
   const [previewMode, setPreviewMode] = useState<PreviewMode>("scroll");
-  const [mobileTune, setMobileTune] = useState<MobileArpTune>({
-    widthVw: BG_PANORAMA_MIN_WIDTH_VW_MOBILE,
-    startVw: MOBILE_ARP_SHIFT_START_VW,
-    endVw: MOBILE_ARP_SHIFT_END_VW,
-    objectPosX: 2,
-    objectPosY: 0,
-    snapToEndWithinPx: 220,
-    pulseScale: 0,
+  const [selectedProfile, setSelectedProfile] = useState<TuneProfileName>("mobile");
+  const [tuneProfiles, setTuneProfiles] = useState<TuneProfiles>({
+    mobile: DEFAULT_MOBILE_TUNE,
+    desktop: DEFAULT_DESKTOP_TUNE,
   });
+  const [guidedStep, setGuidedStep] = useState(0);
+  const [guidedMode, setGuidedMode] = useState(false);
+  const [marker, setMarker] = useState<{ x: number; y: number } | null>(null);
   const { playing } = useGlobalAtmosphereAudio();
   const dragStateRef = useRef<{
     pointerId: number;
@@ -167,29 +192,46 @@ export function AudioReactiveBackground({
       if (!raw) {
         return;
       }
-      const parsed = JSON.parse(raw) as Partial<MobileArpTune>;
-      setMobileTune((prev) => ({
-        widthVw: typeof parsed.widthVw === "number" ? parsed.widthVw : prev.widthVw,
+      const parsed = JSON.parse(raw) as Partial<TuneProfiles & MobileArpTune>;
+      // Backward compatibility: old single-profile payload maps to mobile.
+      const parseTune = (
+        input: Partial<MobileArpTune> | undefined,
+        defaults: MobileArpTune,
+      ): MobileArpTune => ({
+        widthVw:
+          typeof input?.widthVw === "number" ? input.widthVw : defaults.widthVw,
         startVw:
-          typeof parsed.startVw === "number" ? parsed.startVw : prev.startVw,
-        endVw: typeof parsed.endVw === "number" ? parsed.endVw : prev.endVw,
+          typeof input?.startVw === "number" ? input.startVw : defaults.startVw,
+        endVw: typeof input?.endVw === "number" ? input.endVw : defaults.endVw,
         objectPosX:
-          typeof parsed.objectPosX === "number"
-            ? parsed.objectPosX
-            : prev.objectPosX,
+          typeof input?.objectPosX === "number"
+            ? input.objectPosX
+            : defaults.objectPosX,
         objectPosY:
-          typeof parsed.objectPosY === "number"
-            ? parsed.objectPosY
-            : prev.objectPosY,
+          typeof input?.objectPosY === "number"
+            ? input.objectPosY
+            : defaults.objectPosY,
         snapToEndWithinPx:
-          typeof parsed.snapToEndWithinPx === "number"
-            ? parsed.snapToEndWithinPx
-            : prev.snapToEndWithinPx,
+          typeof input?.snapToEndWithinPx === "number"
+            ? input.snapToEndWithinPx
+            : defaults.snapToEndWithinPx,
         pulseScale:
-          typeof parsed.pulseScale === "number"
-            ? parsed.pulseScale
-            : prev.pulseScale,
-      }));
+          typeof input?.pulseScale === "number"
+            ? input.pulseScale
+            : defaults.pulseScale,
+      });
+      const mobileSource =
+        parsed.mobile && typeof parsed.mobile === "object"
+          ? parsed.mobile
+          : parsed;
+      const desktopSource =
+        parsed.desktop && typeof parsed.desktop === "object"
+          ? parsed.desktop
+          : undefined;
+      setTuneProfiles({
+        mobile: parseTune(mobileSource, DEFAULT_MOBILE_TUNE),
+        desktop: parseTune(desktopSource, DEFAULT_DESKTOP_TUNE),
+      });
     } catch {
       /* ignore malformed local tune payload */
     }
@@ -199,25 +241,58 @@ export function AudioReactiveBackground({
     if (!hydrated || !tuneMode || typeof window === "undefined") {
       return;
     }
-    window.localStorage.setItem(ARP_TUNE_STORAGE_KEY, JSON.stringify(mobileTune));
-  }, [hydrated, mobileTune, tuneMode]);
+    window.localStorage.setItem(ARP_TUNE_STORAGE_KEY, JSON.stringify(tuneProfiles));
+  }, [hydrated, tuneMode, tuneProfiles]);
 
-  const mobileWidthVw = tuneMode
-    ? mobileTune.widthVw
-    : BG_PANORAMA_MIN_WIDTH_VW_MOBILE;
-  const mobileStartVw = tuneMode
-    ? mobileTune.startVw
-    : MOBILE_ARP_SHIFT_START_VW;
-  const mobileEndVw = tuneMode ? mobileTune.endVw : MOBILE_ARP_SHIFT_END_VW;
-  const mobileSnapPx = tuneMode ? mobileTune.snapToEndWithinPx : 220;
-  const mobileObjectPosX = tuneMode ? mobileTune.objectPosX : 2;
-  const mobileObjectPosY = tuneMode ? mobileTune.objectPosY : 0;
-  const mobileTunePulseScale = tuneMode ? mobileTune.pulseScale : 0;
+  useEffect(() => {
+    setSelectedProfile(narrowViewport ? "mobile" : "desktop");
+  }, [narrowViewport]);
+
+  const activeTune =
+    selectedProfile === "mobile" ? tuneProfiles.mobile : tuneProfiles.desktop;
+  const mobileWidthVw =
+    tuneMode && selectedProfile === "mobile"
+      ? activeTune.widthVw
+      : BG_PANORAMA_MIN_WIDTH_VW_MOBILE;
+  const desktopWidthVw =
+    tuneMode && selectedProfile === "desktop"
+      ? activeTune.widthVw
+      : BG_PANORAMA_MIN_WIDTH_VW;
+  const mobileStartVw =
+    tuneMode && selectedProfile === "mobile"
+      ? activeTune.startVw
+      : MOBILE_ARP_SHIFT_START_VW;
+  const mobileEndVw =
+    tuneMode && selectedProfile === "mobile"
+      ? activeTune.endVw
+      : MOBILE_ARP_SHIFT_END_VW;
+  const mobileSnapPx =
+    tuneMode && selectedProfile === "mobile" ? activeTune.snapToEndWithinPx : 220;
+  const desktopStartVw =
+    tuneMode && selectedProfile === "desktop" ? activeTune.startVw : 0;
+  const desktopEndVw =
+    tuneMode && selectedProfile === "desktop"
+      ? activeTune.endVw
+      : -panoramaScrollRangeVw(BG_PANORAMA_MIN_WIDTH_VW);
+  const desktopSnapPx =
+    tuneMode && selectedProfile === "desktop" ? activeTune.snapToEndWithinPx : 0;
+  const mobileObjectPosX =
+    tuneMode && selectedProfile === "mobile" ? activeTune.objectPosX : 2;
+  const mobileObjectPosY =
+    tuneMode && selectedProfile === "mobile" ? activeTune.objectPosY : 0;
+  const desktopObjectPosX =
+    tuneMode && selectedProfile === "desktop" ? activeTune.objectPosX : 0;
+  const desktopObjectPosY =
+    tuneMode && selectedProfile === "desktop" ? activeTune.objectPosY : 0;
+  const mobileTunePulseScale =
+    tuneMode && selectedProfile === "mobile" ? activeTune.pulseScale : 0;
+  const desktopTunePulseScale =
+    tuneMode && selectedProfile === "desktop" ? activeTune.pulseScale : 0.1;
   const forcedScrollX =
     tuneMode && previewMode !== "scroll"
       ? previewMode === "start"
-        ? `${mobileStartVw}vw`
-        : `${mobileEndVw}vw`
+        ? `${activeTune.startVw}vw`
+        : `${activeTune.endVw}vw`
       : undefined;
 
   const onDragPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -228,9 +303,9 @@ export function AudioReactiveBackground({
       pointerId: e.pointerId,
       startX: e.clientX,
       startY: e.clientY,
-      startVw: mobileTune.startVw,
-      endVw: mobileTune.endVw,
-      objectPosY: mobileTune.objectPosY,
+      startVw: activeTune.startVw,
+      endVw: activeTune.endVw,
+      objectPosY: activeTune.objectPosY,
       mode: dragMode,
     };
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -247,21 +322,31 @@ export function AudioReactiveBackground({
     const deltaVw = (dx / Math.max(1, window.innerWidth)) * 100;
     const deltaYPercent = (dy / Math.max(1, window.innerHeight)) * 100;
     if (dragState.mode === "start") {
-      setMobileTune((s) => ({
+      setTuneProfiles((s) => ({
         ...s,
-        startVw: clamp(dragState.startVw + deltaVw, -80, 80),
+        [selectedProfile]: {
+          ...s[selectedProfile],
+          startVw: clamp(dragState.startVw + deltaVw, -140, 140),
+        },
       }));
     } else if (dragState.mode === "end") {
-      setMobileTune((s) => ({
+      setTuneProfiles((s) => ({
         ...s,
-        endVw: clamp(dragState.endVw + deltaVw, -220, 40),
+        [selectedProfile]: {
+          ...s[selectedProfile],
+          endVw: clamp(dragState.endVw + deltaVw, -220, 80),
+        },
       }));
     } else if (dragState.mode === "frameY") {
-      setMobileTune((s) => ({
+      setTuneProfiles((s) => ({
         ...s,
-        objectPosY: clamp(dragState.objectPosY + deltaYPercent, -30, 40),
+        [selectedProfile]: {
+          ...s[selectedProfile],
+          objectPosY: clamp(dragState.objectPosY + deltaYPercent, -30, 40),
+        },
       }));
     }
+    setMarker({ x: e.clientX, y: e.clientY });
     e.preventDefault();
   };
 
@@ -272,13 +357,14 @@ export function AudioReactiveBackground({
     if (e.currentTarget.hasPointerCapture(e.pointerId)) {
       e.currentTarget.releasePointerCapture(e.pointerId);
     }
+    setMarker(null);
   };
 
   const scrollParallaxEnabled =
     hydrated && (!tuneMode || previewMode === "scroll");
   const panoramaMinWidthVw = narrowViewport
     ? mobileWidthVw
-    : BG_PANORAMA_MIN_WIDTH_VW;
+    : desktopWidthVw;
   const scrollRangeVw = panoramaScrollRangeVw(panoramaMinWidthVw);
   const scrollRangeVh = panoramaScrollRangeVh(BG_SCROLL_SHIFT_RANGE_VH);
   const panoramaWidth = `${panoramaMinWidthVw}vw`;
@@ -294,10 +380,11 @@ export function AudioReactiveBackground({
           snapToEndWithinPx: mobileSnapPx,
         }
       : {
-          shiftStartVw: 0,
-          shiftEndVw: -scrollRangeVw,
+          shiftStartVw: desktopStartVw,
+          shiftEndVw: desktopEndVw,
           shiftStartVh: 0,
           shiftEndVh: -scrollRangeVh,
+          snapToEndWithinPx: desktopSnapPx,
         }),
   });
   /** React `style` would reset imperative --arp-* vars every render; init once on the DOM node. */
@@ -330,15 +417,60 @@ export function AudioReactiveBackground({
   const smokeOverlayWidth = narrowViewport
     ? SMOKE_OVERLAY_WIDTH_MOBILE
     : SMOKE_OVERLAY_WIDTH_DESKTOP;
-  const mobileObjectPosition = narrowViewport
+  const objectPosition = narrowViewport
     ? `${mobileObjectPosX}% ${mobileObjectPosY}%`
-    : "left top";
+    : `${desktopObjectPosX}% ${desktopObjectPosY}%`;
   const mobileObjectFit = "cover";
-  const mobilePulseScale = narrowViewport ? mobileTunePulseScale : 0.1;
+  const mobilePulseScale = narrowViewport
+    ? mobileTunePulseScale
+    : desktopTunePulseScale;
   const flashGain =
     typeof beatFlashOpacityGain === "number" && Number.isFinite(beatFlashOpacityGain)
       ? Math.min(2, Math.max(0, beatFlashOpacityGain))
       : 1;
+  const setTuneField = <K extends keyof MobileArpTune>(
+    key: K,
+    value: MobileArpTune[K],
+  ) => {
+    setTuneProfiles((s) => ({
+      ...s,
+      [selectedProfile]: {
+        ...s[selectedProfile],
+        [key]: value,
+      },
+    }));
+  };
+
+  const guidedSteps: Array<{
+    label: string;
+    drag: DragMode;
+    preview: PreviewMode;
+  }> = [
+    { label: "Place TOP anchor (Mad Hatter)", drag: "start", preview: "start" },
+    { label: "Place BOTTOM anchor (White Rabbit)", drag: "end", preview: "end" },
+    { label: "Adjust vertical framing (head/tail)", drag: "frameY", preview: "start" },
+  ];
+
+  const beginGuided = () => {
+    setGuidedMode(true);
+    setGuidedStep(0);
+    setPreviewMode(guidedSteps[0].preview);
+    setDragMode(guidedSteps[0].drag);
+  };
+
+  const advanceGuided = () => {
+    const next = guidedStep + 1;
+    if (next >= guidedSteps.length) {
+      setGuidedMode(false);
+      setDragMode("off");
+      setPreviewMode("scroll");
+      setMarker(null);
+      return;
+    }
+    setGuidedStep(next);
+    setPreviewMode(guidedSteps[next].preview);
+    setDragMode(guidedSteps[next].drag);
+  };
 
   useEffect(() => {
     // #region agent log
@@ -372,9 +504,10 @@ export function AudioReactiveBackground({
           mobileShiftEndVw: MOBILE_ARP_SHIFT_END_VW,
           flashGain,
           smokeOverlayWidth,
-          mobileObjectPosition,
+          objectPosition,
           mobileObjectFit,
           mobilePulseScale,
+          selectedProfile,
         },
         timestamp: Date.now(),
       }),
@@ -396,9 +529,10 @@ export function AudioReactiveBackground({
     playing,
     rainVideoFailed,
     smokeOverlayWidth,
-    mobileObjectPosition,
+    objectPosition,
     mobileObjectFit,
     mobilePulseScale,
+    selectedProfile,
   ]);
 
   useEffect(() => {
@@ -539,7 +673,7 @@ export function AudioReactiveBackground({
                 style={{
                   width: panoramaWidth,
                   minWidth: panoramaWidth,
-                  objectPosition: mobileObjectPosition,
+                  objectPosition,
                   objectFit: mobileObjectFit,
                   transform:
                     `translate3d(var(--arp-scroll-x, 0vw), 0, 0) scale(calc(1 + var(--arp-pulse, 0) * ${mobilePulseScale} * var(--arp-visual-mul, 1)))`,
@@ -559,7 +693,7 @@ export function AudioReactiveBackground({
                   style={{
                     width: panoramaWidth,
                     minWidth: panoramaWidth,
-                    objectPosition: mobileObjectPosition,
+                    objectPosition,
                     objectFit: mobileObjectFit,
                     transform:
                       "translate3d(var(--arp-scroll-x, 0vw), 0, 0)",
@@ -675,12 +809,77 @@ export function AudioReactiveBackground({
         />
       ) : null}
 
-      {tuneMode ? (
+      {tuneMode && marker ? (
+        <div
+          className="fixed z-[999] h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-cyan-300 bg-cyan-400/30"
+          style={{ left: marker.x, top: marker.y }}
+          aria-hidden
+        />
+      ) : null}
+
+      {tuneMode && guidedMode ? (
+        <div className="fixed left-2 right-2 top-2 z-[1000] rounded-lg border border-white/20 bg-black/75 p-3 text-xs text-white shadow-2xl backdrop-blur">
+          <p className="font-semibold">
+            Step {guidedStep + 1}/{guidedSteps.length}: {guidedSteps[guidedStep]?.label}
+          </p>
+          <p className="mt-1 text-[11px] text-white/70">
+            Drag on the image to place this target, then confirm.
+          </p>
+          <div className="mt-2 flex gap-2">
+            <button
+              type="button"
+              className="rounded bg-cyan-500/60 px-2 py-1"
+              onClick={advanceGuided}
+            >
+              Confirm & Next
+            </button>
+            <button
+              type="button"
+              className="rounded bg-white/20 px-2 py-1"
+              onClick={() => {
+                setGuidedMode(false);
+                setDragMode("off");
+                setPreviewMode("scroll");
+                setMarker(null);
+              }}
+            >
+              Cancel Guided
+            </button>
+          </div>
+        </div>
+      ) : null}
+
+      {tuneMode && !guidedMode ? (
         <div className="fixed bottom-3 right-3 z-[999] w-[min(22rem,92vw)] rounded-xl border border-white/20 bg-black/80 p-3 text-xs text-white shadow-2xl backdrop-blur">
           <p className="mb-2 font-semibold">Mobile Parallax Tuner</p>
           <p className="mb-2 text-[11px] text-white/70">
             Active only with <code>?arpTune=1</code>. Values persist locally.
           </p>
+          <div className="mb-2 grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              className={`rounded px-2 py-1 ${selectedProfile === "mobile" ? "bg-cyan-500/60" : "bg-white/20"}`}
+              onClick={() => setSelectedProfile("mobile")}
+            >
+              Editing: Mobile
+            </button>
+            <button
+              type="button"
+              className={`rounded px-2 py-1 ${selectedProfile === "desktop" ? "bg-cyan-500/60" : "bg-white/20"}`}
+              onClick={() => setSelectedProfile("desktop")}
+            >
+              Editing: Desktop
+            </button>
+          </div>
+          <div className="mb-2">
+            <button
+              type="button"
+              className="w-full rounded bg-cyan-500/60 px-2 py-1 font-semibold"
+              onClick={beginGuided}
+            >
+              Start Guided Setup
+            </button>
+          </div>
           <div className="mb-2 grid grid-cols-2 gap-2">
             <button
               type="button"
@@ -759,112 +958,88 @@ export function AudioReactiveBackground({
             1) Tap drag mode 2) go top/bottom 3) drag background until framing looks right.
           </p>
           <label className="mb-1 block">
-            widthVw: {mobileTune.widthVw}
+            widthVw: {activeTune.widthVw}
             <input
               type="range"
               min={120}
               max={220}
               step={1}
-              value={mobileTune.widthVw}
-              onChange={(e) =>
-                setMobileTune((s) => ({ ...s, widthVw: Number(e.target.value) }))
-              }
+              value={activeTune.widthVw}
+              onChange={(e) => setTuneField("widthVw", Number(e.target.value))}
               className="w-full"
             />
           </label>
           <label className="mb-1 block">
-            startVw: {mobileTune.startVw}
+            startVw: {activeTune.startVw}
             <input
               type="range"
-              min={-40}
-              max={40}
+              min={-140}
+              max={140}
               step={1}
-              value={mobileTune.startVw}
-              onChange={(e) =>
-                setMobileTune((s) => ({ ...s, startVw: Number(e.target.value) }))
-              }
+              value={activeTune.startVw}
+              onChange={(e) => setTuneField("startVw", Number(e.target.value))}
               className="w-full"
             />
           </label>
           <label className="mb-1 block">
-            endVw: {mobileTune.endVw}
+            endVw: {activeTune.endVw}
             <input
               type="range"
               min={-220}
-              max={40}
+              max={80}
               step={1}
-              value={mobileTune.endVw}
-              onChange={(e) =>
-                setMobileTune((s) => ({ ...s, endVw: Number(e.target.value) }))
-              }
+              value={activeTune.endVw}
+              onChange={(e) => setTuneField("endVw", Number(e.target.value))}
               className="w-full"
             />
           </label>
           <label className="mb-1 block">
-            objectPosX: {mobileTune.objectPosX}%
+            objectPosX: {activeTune.objectPosX}%
             <input
               type="range"
               min={0}
               max={100}
               step={1}
-              value={mobileTune.objectPosX}
-              onChange={(e) =>
-                setMobileTune((s) => ({
-                  ...s,
-                  objectPosX: Number(e.target.value),
-                }))
-              }
+              value={activeTune.objectPosX}
+              onChange={(e) => setTuneField("objectPosX", Number(e.target.value))}
               className="w-full"
             />
           </label>
           <label className="mb-1 block">
-            objectPosY: {mobileTune.objectPosY}%
+            objectPosY: {activeTune.objectPosY}%
             <input
               type="range"
-              min={-20}
-              max={30}
+              min={-30}
+              max={40}
               step={1}
-              value={mobileTune.objectPosY}
-              onChange={(e) =>
-                setMobileTune((s) => ({
-                  ...s,
-                  objectPosY: Number(e.target.value),
-                }))
-              }
+              value={activeTune.objectPosY}
+              onChange={(e) => setTuneField("objectPosY", Number(e.target.value))}
               className="w-full"
             />
           </label>
           <label className="mb-1 block">
-            snapToEndWithinPx: {mobileTune.snapToEndWithinPx}
+            snapToEndWithinPx: {activeTune.snapToEndWithinPx}
             <input
               type="range"
               min={0}
               max={500}
               step={10}
-              value={mobileTune.snapToEndWithinPx}
+              value={activeTune.snapToEndWithinPx}
               onChange={(e) =>
-                setMobileTune((s) => ({
-                  ...s,
-                  snapToEndWithinPx: Number(e.target.value),
-                }))
+                setTuneField("snapToEndWithinPx", Number(e.target.value))
               }
               className="w-full"
             />
           </label>
           <label className="mb-2 block">
-            pulseScale: {mobileTune.pulseScale.toFixed(3)}
+            pulseScale: {activeTune.pulseScale.toFixed(3)}
             <input
               type="range"
               min={0}
               max={0.12}
               step={0.005}
-              value={mobileTune.pulseScale}
-              onChange={(e) =>
-                setMobileTune((s) => ({
-                  ...s,
-                  pulseScale: Number(e.target.value),
-                }))
-              }
+              value={activeTune.pulseScale}
+              onChange={(e) => setTuneField("pulseScale", Number(e.target.value))}
               className="w-full"
             />
           </label>
@@ -873,15 +1048,13 @@ export function AudioReactiveBackground({
               type="button"
               className="rounded bg-white/20 px-2 py-1"
               onClick={() =>
-                setMobileTune({
-                  widthVw: BG_PANORAMA_MIN_WIDTH_VW_MOBILE,
-                  startVw: MOBILE_ARP_SHIFT_START_VW,
-                  endVw: MOBILE_ARP_SHIFT_END_VW,
-                  objectPosX: 2,
-                  objectPosY: 0,
-                  snapToEndWithinPx: 220,
-                  pulseScale: 0,
-                })
+                setTuneProfiles((s) => ({
+                  ...s,
+                  [selectedProfile]:
+                    selectedProfile === "mobile"
+                      ? DEFAULT_MOBILE_TUNE
+                      : DEFAULT_DESKTOP_TUNE,
+                }))
               }
             >
               Reset
@@ -892,7 +1065,14 @@ export function AudioReactiveBackground({
               onClick={() => {
                 if (typeof navigator !== "undefined" && navigator.clipboard) {
                   void navigator.clipboard.writeText(
-                    JSON.stringify(mobileTune, null, 2),
+                    JSON.stringify(
+                      {
+                        profile: selectedProfile,
+                        values: tuneProfiles[selectedProfile],
+                      },
+                      null,
+                      2,
+                    ),
                   );
                 }
               }}
