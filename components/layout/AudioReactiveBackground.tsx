@@ -52,6 +52,7 @@ type MobileArpTune = {
 };
 
 type DragMode = "off" | "start" | "end" | "frameY";
+type PreviewMode = "scroll" | "start" | "end";
 
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
@@ -84,6 +85,7 @@ export function AudioReactiveBackground({
   const [rainVideoFailed, setRainVideoFailed] = useState(false);
   const [tuneMode, setTuneMode] = useState(false);
   const [dragMode, setDragMode] = useState<DragMode>("off");
+  const [previewMode, setPreviewMode] = useState<PreviewMode>("scroll");
   const [mobileTune, setMobileTune] = useState<MobileArpTune>({
     widthVw: BG_PANORAMA_MIN_WIDTH_VW_MOBILE,
     startVw: MOBILE_ARP_SHIFT_START_VW,
@@ -211,6 +213,12 @@ export function AudioReactiveBackground({
   const mobileObjectPosX = tuneMode ? mobileTune.objectPosX : 2;
   const mobileObjectPosY = tuneMode ? mobileTune.objectPosY : 0;
   const mobileTunePulseScale = tuneMode ? mobileTune.pulseScale : 0;
+  const forcedScrollX =
+    tuneMode && previewMode !== "scroll"
+      ? previewMode === "start"
+        ? `${mobileStartVw}vw`
+        : `${mobileEndVw}vw`
+      : undefined;
 
   const onDragPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (!tuneMode || dragMode === "off") {
@@ -266,7 +274,8 @@ export function AudioReactiveBackground({
     }
   };
 
-  const scrollParallaxEnabled = hydrated;
+  const scrollParallaxEnabled =
+    hydrated && (!tuneMode || previewMode === "scroll");
   const panoramaMinWidthVw = narrowViewport
     ? mobileWidthVw
     : BG_PANORAMA_MIN_WIDTH_VW;
@@ -507,6 +516,13 @@ export function AudioReactiveBackground({
       <div
         ref={containerRef}
         className="audio-reactive-bg-root pointer-events-none fixed inset-x-0 top-0 bottom-0 z-0 min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-visual-mul:0.96] md:[--arp-visual-mul:1]"
+        style={
+          forcedScrollX
+            ? ({
+                "--arp-scroll-x": forcedScrollX,
+              } as CSSProperties)
+            : undefined
+        }
       >
         <div className="pointer-events-none absolute inset-0 min-h-[100svh] min-h-[100dvh]">
           {hasBaseImage ? (
@@ -693,6 +709,29 @@ export function AudioReactiveBackground({
               onClick={() => setDragMode("off")}
             >
               Stop Drag
+            </button>
+          </div>
+          <div className="mb-2 flex gap-2">
+            <button
+              type="button"
+              className={`rounded px-2 py-1 ${previewMode === "scroll" ? "bg-cyan-500/60" : "bg-white/20"}`}
+              onClick={() => setPreviewMode("scroll")}
+            >
+              Use Scroll
+            </button>
+            <button
+              type="button"
+              className={`rounded px-2 py-1 ${previewMode === "start" ? "bg-cyan-500/60" : "bg-white/20"}`}
+              onClick={() => setPreviewMode("start")}
+            >
+              Preview Start
+            </button>
+            <button
+              type="button"
+              className={`rounded px-2 py-1 ${previewMode === "end" ? "bg-cyan-500/60" : "bg-white/20"}`}
+              onClick={() => setPreviewMode("end")}
+            >
+              Preview End
             </button>
           </div>
           <div className="mb-2 flex gap-2">
