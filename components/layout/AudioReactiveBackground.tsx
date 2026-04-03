@@ -413,9 +413,9 @@ export function AudioReactiveBackground({
       startX: e.clientX,
       startY: e.clientY,
       mode: dragMode,
-      baseStartVw: activeTune.startVw,
-      baseEndVw: activeTune.endVw,
-      baseObjectPosY: activeTune.objectPosY,
+      baseStartVw: guidedMode ? safeActiveTune.startVw : activeTune.startVw,
+      baseEndVw: guidedMode ? safeActiveTune.endVw : activeTune.endVw,
+      baseObjectPosY: guidedMode ? safeActiveTune.objectPosY : activeTune.objectPosY,
     };
     dragDebugRef.current.hasLoggedMove = false;
     guidedMoveDebugRef.current.moveCount = 0;
@@ -473,14 +473,22 @@ export function AudioReactiveBackground({
       const deltaYPercent = (deltaY / Math.max(1, window.innerHeight)) * 70;
       guidedMoveDebugRef.current.moveCount += 1;
       if (dragState.mode === "freeFrame" || dragState.mode === "horizontalFrame") {
-        setTuneField(
-          "startVw",
-          clamp(dragState.baseStartVw + deltaVw, START_VW_MIN, START_VW_MAX),
-        );
-        setTuneField(
-          "endVw",
-          clamp(dragState.baseEndVw + deltaVw, END_VW_MIN, END_VW_MAX),
-        );
+        if (dragState.mode === "freeFrame") {
+          setTuneField(
+            "startVw",
+            clamp(dragState.baseStartVw + deltaVw, START_VW_MIN, START_VW_MAX),
+          );
+          setTuneField(
+            "endVw",
+            clamp(dragState.baseEndVw + deltaVw, END_VW_MIN, END_VW_MAX),
+          );
+        } else {
+          // In rabbit-framing phase we drive only end anchor for visible horizontal pan.
+          setTuneField(
+            "endVw",
+            clamp(dragState.baseEndVw + deltaVw, END_VW_MIN, END_VW_MAX),
+          );
+        }
       }
       if (dragState.mode === "freeFrame" || dragState.mode === "verticalFrame") {
         setTuneField(
@@ -489,7 +497,7 @@ export function AudioReactiveBackground({
         );
       }
       const nextStart =
-        dragState.mode === "freeFrame" || dragState.mode === "horizontalFrame"
+        dragState.mode === "freeFrame"
           ? clamp(dragState.baseStartVw + deltaVw, START_VW_MIN, START_VW_MAX)
           : dragState.baseStartVw;
       const nextEnd =
