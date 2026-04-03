@@ -24,10 +24,27 @@ import {
 } from "@/lib/background-parallax";
 import { heroContent, site } from "@/lib/content";
 import { useIsNarrowViewport } from "@/lib/use-max-width-media";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useScrollDrivenShiftX } from "@/lib/use-scroll-driven-shift-x";
+import { PARALLAX_EDITOR_DRAFT_KEY, isEditorPreviewEnabled } from "@/lib/parallax-editor";
 
 export function HomePageContent() {
+  const [previewLayerOverrides, setPreviewLayerOverrides] = useState<{
+    baseImageSrc?: string;
+    beatFlashImageSrc?: string;
+    beatFlashOpacityGain?: number;
+    smokeImageSrc?: string;
+    rainVideoSrc?: string;
+    rainVideoBlend?: "normal" | "screen" | "plus-lighter";
+    rainVideoKey?: "none" | "luma";
+    rainVideoLumaThreshold?: number;
+    rainVideoLumaSoften?: number;
+    rainVideoLumaCeiling?: number;
+    rainVideoLumaCeilingSoften?: number;
+    atmosphereMistLayers?: boolean;
+    foregroundSmokeEnabled?: boolean;
+    foregroundSmokeIntensity?: "low" | "default" | "high";
+  } | null>(null);
   const { isMatrixMode, hydrated, experienceMode } = useProgression();
   const narrowViewport = useIsNarrowViewport();
   const bgVideoSrc = site.backgroundVideo?.src?.trim();
@@ -75,7 +92,8 @@ export function HomePageContent() {
       Boolean(ar?.enabled) ||
       experienceMode === "wonderland");
   const atmosphereLayerOn = isMatrixMode || (atmosphereOn && !useAudioReactive);
-  const backgroundMistLayersEnabled = !useAudioReactive;
+  const backgroundMistLayersEnabled =
+    previewLayerOverrides?.atmosphereMistLayers ?? !useAudioReactive;
   /**
    * Guardrail: Foreground smoke enablement is decided once here (not spread across components).
    * This prevents "it worked, then disappeared" regressions from branch-specific conditions.
@@ -83,16 +101,38 @@ export function HomePageContent() {
   const foregroundDebug = foregroundSmoke?.debugBlatantCenter === true;
   const foregroundSmokeEnabled =
     hydrated &&
-    foregroundSmoke?.enabled !== false &&
+    (previewLayerOverrides?.foregroundSmokeEnabled ??
+      foregroundSmoke?.enabled !== false) &&
     (foregroundDebug ||
       ((!isMatrixMode && experienceMode === "wonderland") ||
         (isMatrixMode && foregroundSmoke?.inMatrixMode === true)));
-  const foregroundSmokeIntensity = foregroundSmoke?.intensity ?? "default";
+  const foregroundSmokeIntensity =
+    previewLayerOverrides?.foregroundSmokeIntensity ??
+    foregroundSmoke?.intensity ??
+    "default";
   const showFixedBlackBackdrop =
     !isMatrixMode &&
     !bgVideoSrc?.trim() &&
     !useAudioReactive &&
     !showFallbackWonderlandBackground;
+
+  useEffect(() => {
+    if (typeof window === "undefined" || !isEditorPreviewEnabled()) {
+      setPreviewLayerOverrides(null);
+      return;
+    }
+    try {
+      const raw = window.localStorage.getItem(PARALLAX_EDITOR_DRAFT_KEY);
+      if (!raw) {
+        setPreviewLayerOverrides(null);
+        return;
+      }
+      const parsed = JSON.parse(raw) as { layers?: typeof previewLayerOverrides };
+      setPreviewLayerOverrides(parsed.layers ?? null);
+    } catch {
+      setPreviewLayerOverrides(null);
+    }
+  }, []);
 
   useEffect(() => {
     // #region agent log
@@ -150,17 +190,34 @@ export function HomePageContent() {
         />
       ) : useAudioReactive && arAudio ? (
         <AudioReactiveBackground
-          imageSrc={arImage ?? ""}
-          beatFlashImageSrc={ar?.beatFlashImageSrc?.trim() ?? ""}
-          beatFlashOpacityGain={ar?.beatFlashOpacityGain}
-          mushroomImageSrc={arMushroomImage ?? ""}
-          rainVideoSrc={ar?.rainVideoSrc?.trim() ?? ""}
-          rainVideoBlend={ar?.rainVideoBlend}
-          rainVideoKey={ar?.rainVideoKey}
-          rainVideoLumaThreshold={ar?.rainVideoLumaThreshold}
-          rainVideoLumaSoften={ar?.rainVideoLumaSoften}
-          rainVideoLumaCeiling={ar?.rainVideoLumaCeiling}
-          rainVideoLumaCeilingSoften={ar?.rainVideoLumaCeilingSoften}
+          imageSrc={previewLayerOverrides?.baseImageSrc ?? arImage ?? ""}
+          beatFlashImageSrc={
+            previewLayerOverrides?.beatFlashImageSrc ??
+            ar?.beatFlashImageSrc?.trim() ??
+            ""
+          }
+          beatFlashOpacityGain={
+            previewLayerOverrides?.beatFlashOpacityGain ?? ar?.beatFlashOpacityGain
+          }
+          mushroomImageSrc={previewLayerOverrides?.smokeImageSrc ?? arMushroomImage ?? ""}
+          rainVideoSrc={previewLayerOverrides?.rainVideoSrc ?? ar?.rainVideoSrc?.trim() ?? ""}
+          rainVideoBlend={previewLayerOverrides?.rainVideoBlend ?? ar?.rainVideoBlend}
+          rainVideoKey={previewLayerOverrides?.rainVideoKey ?? ar?.rainVideoKey}
+          rainVideoLumaThreshold={
+            previewLayerOverrides?.rainVideoLumaThreshold ?? ar?.rainVideoLumaThreshold
+          }
+          rainVideoLumaSoften={
+            previewLayerOverrides?.rainVideoLumaSoften ?? ar?.rainVideoLumaSoften
+          }
+          rainVideoLumaCeiling={
+            previewLayerOverrides?.rainVideoLumaCeiling ?? ar?.rainVideoLumaCeiling
+          }
+          rainVideoLumaCeilingSoften={
+            previewLayerOverrides?.rainVideoLumaCeilingSoften ??
+            ar?.rainVideoLumaCeilingSoften
+          }
+          mobileTune={ar?.mobileTune}
+          desktopTune={ar?.desktopTune}
           imageAlt={ar?.imageAlt?.trim() ?? ""}
           mushroomImageAlt={ar?.mushroomImageAlt?.trim() ?? ""}
         />

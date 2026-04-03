@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { CSSProperties, PointerEvent as ReactPointerEvent } from "react";
 import { useReducedMotion } from "framer-motion";
@@ -20,6 +20,7 @@ import { useIsNarrowViewport } from "@/lib/use-max-width-media";
 import { useScrollDrivenShiftX } from "@/lib/use-scroll-driven-shift-x";
 import { RainLumaKeyCanvas } from "@/components/effects/RainLumaKeyCanvas";
 import { useGlobalAtmosphereAudio } from "@/components/audio/GlobalAtmosphereAudio";
+import { isEditorPreviewEnabled } from "@/lib/parallax-editor";
 
 type AudioReactiveBackgroundProps = {
   imageSrc: string;
@@ -35,6 +36,8 @@ type AudioReactiveBackgroundProps = {
   rainVideoLumaCeilingSoften?: number;
   imageAlt?: string;
   mushroomImageAlt?: string;
+  mobileTune?: Partial<MobileArpTune>;
+  desktopTune?: Partial<MobileArpTune>;
 };
 
 const SMOKE_OVERLAY_WIDTH_DESKTOP = "max(150vw, 98rem)";
@@ -113,6 +116,8 @@ export function AudioReactiveBackground({
   rainVideoLumaCeilingSoften = 0.05,
   imageAlt = "",
   mushroomImageAlt = "",
+  mobileTune,
+  desktopTune,
 }: AudioReactiveBackgroundProps) {
   const hydrated = useHydrated();
   const reduceMotion = useReducedMotion();
@@ -124,13 +129,28 @@ export function AudioReactiveBackground({
   const [beatFlashImageFailed, setBeatFlashImageFailed] = useState(false);
   const [mushroomImageFailed, setMushroomImageFailed] = useState(false);
   const [rainVideoFailed, setRainVideoFailed] = useState(false);
+  const seededMobileTune = useMemo<MobileArpTune>(
+    () => ({
+      ...DEFAULT_MOBILE_TUNE,
+      ...mobileTune,
+    }),
+    [mobileTune],
+  );
+  const seededDesktopTune = useMemo<MobileArpTune>(
+    () => ({
+      ...DEFAULT_DESKTOP_TUNE,
+      ...desktopTune,
+    }),
+    [desktopTune],
+  );
   const [tuneMode, setTuneMode] = useState(false);
+  const [previewTuneMode, setPreviewTuneMode] = useState(false);
   const [dragMode, setDragMode] = useState<DragMode>("off");
   const [previewMode, setPreviewMode] = useState<PreviewMode>("scroll");
   const [selectedProfile, setSelectedProfile] = useState<TuneProfileName>("mobile");
   const [tuneProfiles, setTuneProfiles] = useState<TuneProfiles>({
-    mobile: DEFAULT_MOBILE_TUNE,
-    desktop: DEFAULT_DESKTOP_TUNE,
+    mobile: seededMobileTune,
+    desktop: seededDesktopTune,
   });
   const [guidedStep, setGuidedStep] = useState(0);
   const [guidedMode, setGuidedMode] = useState(false);
@@ -198,10 +218,11 @@ export function AudioReactiveBackground({
     if (!hydrated || typeof window === "undefined") {
       return;
     }
-    const params = new URLSearchParams(window.location.search);
-    const enabled = params.get("arpTune") === "1";
-    setTuneMode(enabled);
-    if (!enabled) {
+    const tuneEnabled = new URLSearchParams(window.location.search).get("arpTune") === "1";
+    const previewEnabled = isEditorPreviewEnabled();
+    setTuneMode(tuneEnabled);
+    setPreviewTuneMode(previewEnabled);
+    if (!tuneEnabled && !previewEnabled) {
       return;
     }
     try {
@@ -246,13 +267,13 @@ export function AudioReactiveBackground({
           ? parsed.desktop
           : undefined;
       setTuneProfiles({
-        mobile: parseTune(mobileSource, DEFAULT_MOBILE_TUNE),
-        desktop: parseTune(desktopSource, DEFAULT_DESKTOP_TUNE),
+        mobile: parseTune(mobileSource, seededMobileTune),
+        desktop: parseTune(desktopSource, seededDesktopTune),
       });
     } catch {
       /* ignore malformed local tune payload */
     }
-  }, [hydrated]);
+  }, [hydrated, seededDesktopTune, seededMobileTune]);
 
   useEffect(() => {
     if (!hydrated || !tuneMode || typeof window === "undefined") {
@@ -265,47 +286,66 @@ export function AudioReactiveBackground({
     setSelectedProfile(narrowViewport ? "mobile" : "desktop");
   }, [narrowViewport]);
 
+  const localTuneActive = tuneMode || previewTuneMode;
   const activeTune =
     selectedProfile === "mobile" ? tuneProfiles.mobile : tuneProfiles.desktop;
   const safeActiveTune = getSafeTuneValues(activeTune);
   const mobileWidthVw =
-    tuneMode && selectedProfile === "mobile"
+    localTuneActive && selectedProfile === "mobile"
       ? activeTune.widthVw
-      : BG_PANORAMA_MIN_WIDTH_VW_MOBILE;
+      : seededMobileTune.widthVw;
   const desktopWidthVw =
-    tuneMode && selectedProfile === "desktop"
+    localTuneActive && selectedProfile === "desktop"
       ? activeTune.widthVw
-      : BG_PANORAMA_MIN_WIDTH_VW;
+      : seededDesktopTune.widthVw;
   const mobileStartVw =
-    tuneMode && selectedProfile === "mobile"
+    localTuneActive && selectedProfile === "mobile"
       ? safeActiveTune.startVw
-      : MOBILE_ARP_SHIFT_START_VW;
+      : seededMobileTune.startVw;
   const mobileEndVw =
-    tuneMode && selectedProfile === "mobile"
+    localTuneActive && selectedProfile === "mobile"
       ? safeActiveTune.endVw
-      : MOBILE_ARP_SHIFT_END_VW;
+      : seededMobileTune.endVw;
   const mobileSnapPx =
-    tuneMode && selectedProfile === "mobile" ? activeTune.snapToEndWithinPx : 220;
+    localTuneActive && selectedProfile === "mobile"
+      ? activeTune.snapToEndWithinPx
+      : seededMobileTune.snapToEndWithinPx;
   const desktopStartVw =
-    tuneMode && selectedProfile === "desktop" ? safeActiveTune.startVw : 0;
+    localTuneActive && selectedProfile === "desktop"
+      ? safeActiveTune.startVw
+      : seededDesktopTune.startVw;
   const desktopEndVw =
-    tuneMode && selectedProfile === "desktop"
+    localTuneActive && selectedProfile === "desktop"
       ? safeActiveTune.endVw
-      : -panoramaScrollRangeVw(BG_PANORAMA_MIN_WIDTH_VW);
+      : seededDesktopTune.endVw;
   const desktopSnapPx =
-    tuneMode && selectedProfile === "desktop" ? activeTune.snapToEndWithinPx : 0;
+    localTuneActive && selectedProfile === "desktop"
+      ? activeTune.snapToEndWithinPx
+      : seededDesktopTune.snapToEndWithinPx;
   const mobileObjectPosX =
-    tuneMode && selectedProfile === "mobile" ? activeTune.objectPosX : 2;
+    localTuneActive && selectedProfile === "mobile"
+      ? activeTune.objectPosX
+      : seededMobileTune.objectPosX;
   const mobileObjectPosY =
-    tuneMode && selectedProfile === "mobile" ? activeTune.objectPosY : 0;
+    localTuneActive && selectedProfile === "mobile"
+      ? activeTune.objectPosY
+      : seededMobileTune.objectPosY;
   const desktopObjectPosX =
-    tuneMode && selectedProfile === "desktop" ? activeTune.objectPosX : 0;
+    localTuneActive && selectedProfile === "desktop"
+      ? activeTune.objectPosX
+      : seededDesktopTune.objectPosX;
   const desktopObjectPosY =
-    tuneMode && selectedProfile === "desktop" ? activeTune.objectPosY : 0;
+    localTuneActive && selectedProfile === "desktop"
+      ? activeTune.objectPosY
+      : seededDesktopTune.objectPosY;
   const mobileTunePulseScale =
-    tuneMode && selectedProfile === "mobile" ? activeTune.pulseScale : 0;
+    localTuneActive && selectedProfile === "mobile"
+      ? activeTune.pulseScale
+      : seededMobileTune.pulseScale;
   const desktopTunePulseScale =
-    tuneMode && selectedProfile === "desktop" ? activeTune.pulseScale : 0.1;
+    localTuneActive && selectedProfile === "desktop"
+      ? activeTune.pulseScale
+      : seededDesktopTune.pulseScale;
   const forcedScrollX =
     tuneMode && previewMode !== "scroll"
       ? previewMode === "start"
@@ -1119,8 +1159,8 @@ export function AudioReactiveBackground({
                   ...s,
                   [selectedProfile]:
                     selectedProfile === "mobile"
-                      ? DEFAULT_MOBILE_TUNE
-                      : DEFAULT_DESKTOP_TUNE,
+                      ? seededMobileTune
+                      : seededDesktopTune,
                 }))
               }
             >

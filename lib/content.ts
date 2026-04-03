@@ -114,6 +114,25 @@ export type AudioReactiveBackgroundConfig = {
   rainVideoLumaCeiling?: number;
   /** Band below ceiling (0–1). */
   rainVideoLumaCeilingSoften?: number;
+  /** Optional per-profile panorama tuning from parallax editor publish. */
+  mobileTune?: {
+    widthVw?: number;
+    startVw?: number;
+    endVw?: number;
+    objectPosX?: number;
+    objectPosY?: number;
+    snapToEndWithinPx?: number;
+    pulseScale?: number;
+  };
+  desktopTune?: {
+    widthVw?: number;
+    startVw?: number;
+    endVw?: number;
+    objectPosX?: number;
+    objectPosY?: number;
+    snapToEndWithinPx?: number;
+    pulseScale?: number;
+  };
 };
 
 export type ForegroundSmokeConfig = {
