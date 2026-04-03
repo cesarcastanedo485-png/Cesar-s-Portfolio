@@ -380,8 +380,8 @@ export function AudioReactiveBackground({
   const forcedScrollX =
     tuneMode && previewMode !== "scroll"
       ? previewMode === "start"
-        ? `${safeActiveTune.startVw}vw`
-        : `${safeActiveTune.endVw}vw`
+        ? `${(guidedMode ? activeTune.startVw : safeActiveTune.startVw).toFixed(4)}vw`
+        : `${(guidedMode ? activeTune.endVw : safeActiveTune.endVw).toFixed(4)}vw`
       : undefined;
 
   useEffect(() => {
