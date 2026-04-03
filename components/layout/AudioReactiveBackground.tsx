@@ -54,7 +54,14 @@ type MobileArpTune = {
   pulseScale: number;
 };
 
-type DragMode = "off" | "start" | "end" | "frameY";
+type DragMode =
+  | "off"
+  | "start"
+  | "end"
+  | "frameY"
+  | "freeFrame"
+  | "horizontalFrame"
+  | "verticalFrame";
 type PreviewMode = "scroll" | "start" | "end";
 type TuneProfileName = "mobile" | "desktop";
 
@@ -168,18 +175,14 @@ export function AudioReactiveBackground({
     startX: number;
     startY: number;
     mode: DragMode;
+    baseStartVw: number;
+    baseEndVw: number;
+    baseObjectPosY: number;
   } | null>(null);
   const pointerCacheRef = useRef<Map<number, { x: number; y: number }>>(new Map());
   const pinchStateRef = useRef<{
     startDistance: number;
     baseWidthVw: number;
-  } | null>(null);
-  const twoFingerDragRef = useRef<{
-    anchorId: number;
-    controlId: number;
-    controlStartY: number;
-    mode: DragMode;
-    baseValue: number;
   } | null>(null);
   const hasBaseImage = Boolean(imageSrc?.trim()) && !baseImageFailed;
   const hasBeatFlashImage =
@@ -295,8 +298,10 @@ export function AudioReactiveBackground({
     }
     window.localStorage.setItem(ARP_TUNE_STORAGE_KEY, JSON.stringify(tuneProfiles));
     setLastSavedAt(Date.now());
-    setTunerNotice("Saved locally.");
-  }, [hydrated, tuneMode, tuneProfiles]);
+    if (!tunerNotice || tunerNotice.startsWith("Saved locally")) {
+      setTunerNotice("Saved locally.");
+    }
+  }, [hydrated, tuneMode, tuneProfiles, tunerNotice]);
 
   useEffect(() => {
     setSelectedProfile(narrowViewport ? "mobile" : "desktop");
@@ -374,34 +379,7 @@ export function AudioReactiveBackground({
       return;
     }
     pointerCacheRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (
-      (dragMode === "start" || dragMode === "end" || dragMode === "frameY") &&
-      pointerCacheRef.current.size === 2 &&
-      dragStateRef.current
-    ) {
-      const ids = Array.from(pointerCacheRef.current.keys());
-      const anchorId = dragStateRef.current.pointerId;
-      const controlId = ids.find((id) => id !== anchorId);
-      if (typeof controlId === "number") {
-        const controlPoint = pointerCacheRef.current.get(controlId);
-        if (controlPoint) {
-          const baseValue =
-            dragMode === "start"
-              ? activeTune.startVw
-              : dragMode === "end"
-                ? activeTune.endVw
-                : activeTune.objectPosY;
-          twoFingerDragRef.current = {
-            anchorId,
-            controlId,
-            controlStartY: controlPoint.y,
-            mode: dragMode,
-            baseValue,
-          };
-        }
-      }
-    }
-    if (dragMode !== "frameY" && pointerCacheRef.current.size === 2) {
+    if (!guidedMode && dragMode !== "frameY" && pointerCacheRef.current.size === 2) {
       const [a, b] = Array.from(pointerCacheRef.current.values());
       const dist = Math.hypot(a.x - b.x, a.y - b.y);
       pinchStateRef.current = {
@@ -414,6 +392,9 @@ export function AudioReactiveBackground({
       startX: e.clientX,
       startY: e.clientY,
       mode: dragMode,
+      baseStartVw: activeTune.startVw,
+      baseEndVw: activeTune.endVw,
+      baseObjectPosY: activeTune.objectPosY,
     };
     e.currentTarget.setPointerCapture(e.pointerId);
     e.preventDefault();
@@ -422,38 +403,39 @@ export function AudioReactiveBackground({
   const onDragPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
     pointerCacheRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     const dragState = dragStateRef.current;
-    const twoFingerDrag = twoFingerDragRef.current;
-    if (twoFingerDrag && pointerCacheRef.current.size >= 2) {
-      const controlPoint = pointerCacheRef.current.get(twoFingerDrag.controlId);
-      if (controlPoint) {
-        const deltaY = controlPoint.y - twoFingerDrag.controlStartY;
-        if (twoFingerDrag.mode === "start" || twoFingerDrag.mode === "end") {
-          const deltaVw = (deltaY / Math.max(1, window.innerHeight)) * 220;
-          const raw = twoFingerDrag.baseValue + deltaVw;
-          if (twoFingerDrag.mode === "start") {
-            setTuneField("startVw", clamp(raw, START_VW_MIN, START_VW_MAX));
-          } else {
-            setTuneField("endVw", clamp(raw, END_VW_MIN, END_VW_MAX));
-          }
-        } else if (twoFingerDrag.mode === "frameY") {
-          const deltaYPercent = (deltaY / Math.max(1, window.innerHeight)) * 70;
-          setTuneField(
-            "objectPosY",
-            clamp(twoFingerDrag.baseValue + deltaYPercent, -30, 40),
-          );
-        }
-        const anchorPoint = pointerCacheRef.current.get(twoFingerDrag.anchorId);
-        if (anchorPoint) {
-          setMarker({
-            x: (anchorPoint.x + controlPoint.x) / 2,
-            y: (anchorPoint.y + controlPoint.y) / 2,
-          });
-        }
-        e.preventDefault();
-        return;
+    if (
+      guidedMode &&
+      dragState &&
+      (dragState.mode === "freeFrame" ||
+        dragState.mode === "horizontalFrame" ||
+        dragState.mode === "verticalFrame") &&
+      dragState.pointerId === e.pointerId
+    ) {
+      const deltaX = e.clientX - dragState.startX;
+      const deltaY = e.clientY - dragState.startY;
+      const deltaVw = (deltaX / Math.max(1, window.innerWidth)) * 220;
+      const deltaYPercent = (deltaY / Math.max(1, window.innerHeight)) * 70;
+      if (dragState.mode === "freeFrame" || dragState.mode === "horizontalFrame") {
+        setTuneField(
+          "startVw",
+          clamp(dragState.baseStartVw + deltaVw, START_VW_MIN, START_VW_MAX),
+        );
+        setTuneField(
+          "endVw",
+          clamp(dragState.baseEndVw + deltaVw, END_VW_MIN, END_VW_MAX),
+        );
       }
+      if (dragState.mode === "freeFrame" || dragState.mode === "verticalFrame") {
+        setTuneField(
+          "objectPosY",
+          clamp(dragState.baseObjectPosY + deltaYPercent, -30, 40),
+        );
+      }
+      setMarker({ x: e.clientX, y: e.clientY });
+      e.preventDefault();
+      return;
     }
-    if (dragState?.mode === "frameY" && pointerCacheRef.current.size >= 2) {
+    if (!guidedMode && dragState?.mode === "frameY" && pointerCacheRef.current.size >= 2) {
       const points = Array.from(pointerCacheRef.current.values());
       const centerY = points.reduce((acc, p) => acc + p.y, 0) / points.length;
       const centerX = points.reduce((acc, p) => acc + p.x, 0) / points.length;
@@ -464,7 +446,7 @@ export function AudioReactiveBackground({
       e.preventDefault();
       return;
     }
-    if (pinchStateRef.current && pointerCacheRef.current.size >= 2) {
+    if (!guidedMode && pinchStateRef.current && pointerCacheRef.current.size >= 2) {
       const [a, b] = Array.from(pointerCacheRef.current.values());
       const currentDistance = Math.hypot(a.x - b.x, a.y - b.y);
       const deltaDistance = currentDistance - pinchStateRef.current.startDistance;
@@ -503,7 +485,6 @@ export function AudioReactiveBackground({
     pointerCacheRef.current.delete(e.pointerId);
     if (pointerCacheRef.current.size < 2) {
       pinchStateRef.current = null;
-      twoFingerDragRef.current = null;
     }
     if (dragStateRef.current?.pointerId === e.pointerId) {
       dragStateRef.current = null;
@@ -600,13 +581,61 @@ export function AudioReactiveBackground({
 
   const guidedSteps: Array<{
     label: string;
+    help: string;
     drag: DragMode;
     preview: PreviewMode;
+    confirmLabel: string;
   }> = [
-    { label: "Place TOP anchor (Mad Hatter)", drag: "start", preview: "start" },
-    { label: "Place BOTTOM anchor (White Rabbit)", drag: "end", preview: "end" },
-    { label: "Adjust vertical framing (head/tail)", drag: "frameY", preview: "start" },
+    {
+      label: "Set phone viewer framing",
+      help: "Drag freely to place the starting view (left/right and up/down).",
+      drag: "freeFrame",
+      preview: "start",
+      confirmLabel: "Confirm Viewer Position",
+    },
+    {
+      label: "Place TOP anchor (Mad Hatter)",
+      help: "Tap and drag to set the exact top anchor position.",
+      drag: "start",
+      preview: "start",
+      confirmLabel: "Confirm Top Anchor",
+    },
+    {
+      label: "Pan toward rabbit",
+      help: "Drag left/right only until White Rabbit side is framed.",
+      drag: "horizontalFrame",
+      preview: "end",
+      confirmLabel: "Confirm Rabbit Framing",
+    },
+    {
+      label: "Place BOTTOM anchor (White Rabbit)",
+      help: "Tap and drag to set the exact bottom anchor position.",
+      drag: "end",
+      preview: "end",
+      confirmLabel: "Confirm Bottom Anchor",
+    },
+    {
+      label: "Adjust vertical framing",
+      help: "Drag up/down only to fit head and tail cleanly.",
+      drag: "verticalFrame",
+      preview: "start",
+      confirmLabel: "Confirm Vertical Framing",
+    },
   ];
+  const currentGuidedStep = guidedSteps[guidedStep];
+
+  const applyNormalizeSafe = () => {
+    setTuneProfiles((s) => ({
+      ...s,
+      [selectedProfile]: getSafeTuneValues({
+        ...(selectedProfile === "mobile" ? s.mobile : s.desktop),
+        widthVw: Math.max(
+          selectedProfile === "mobile" ? s.mobile.widthVw : s.desktop.widthVw,
+          selectedProfile === "mobile" ? 132 : WIDTH_VW_MIN,
+        ),
+      }),
+    }));
+  };
 
   const beginGuided = () => {
     setTunerMinimized(false);
@@ -620,10 +649,13 @@ export function AudioReactiveBackground({
   const advanceGuided = () => {
     const next = guidedStep + 1;
     if (next >= guidedSteps.length) {
+      applyNormalizeSafe();
+      setTunerNotice("Normalize Safe applied. Auto preview started.");
       setGuidedMode(false);
       setDragMode("off");
       setPreviewMode("scroll");
       setMarker(null);
+      runAutoPreview();
       return;
     }
     setGuidedStep(next);
@@ -1028,18 +1060,24 @@ export function AudioReactiveBackground({
       {tuneMode && !tunerMinimized && guidedMode ? (
         <div className="fixed left-2 right-2 top-2 z-[1000] rounded-lg border border-white/20 bg-black/75 p-3 text-xs text-white shadow-2xl backdrop-blur">
           <p className="font-semibold">
-            Step {guidedStep + 1}/{guidedSteps.length}: {guidedSteps[guidedStep]?.label}
+            Step {guidedStep + 1}/{guidedSteps.length}: {currentGuidedStep?.label}
           </p>
           <p className="mt-1 text-[11px] text-white/70">
-            Drag on the image to place this target, then confirm.
+            {currentGuidedStep?.help}
           </p>
+          {tunerNotice ? (
+            <p className="mt-2 rounded border border-cyan-300/30 bg-cyan-400/10 px-2 py-1 text-[11px] text-cyan-100">
+              {tunerNotice}
+              {lastSavedAt ? ` Last save: ${new Date(lastSavedAt).toLocaleTimeString()}` : ""}
+            </p>
+          ) : null}
           <div className="mt-2 flex gap-2">
             <button
               type="button"
               className="rounded bg-cyan-500/60 px-2 py-1"
               onClick={advanceGuided}
             >
-              Confirm & Next
+              {currentGuidedStep?.confirmLabel ?? "Confirm & Next"}
             </button>
             <button
               type="button"
@@ -1049,6 +1087,7 @@ export function AudioReactiveBackground({
                 setDragMode("off");
                 setPreviewMode("scroll");
                 setMarker(null);
+                setTunerNotice("Guided setup canceled.");
               }}
             >
               Cancel Guided
