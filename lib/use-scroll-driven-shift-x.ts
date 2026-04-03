@@ -147,12 +147,18 @@ export function useScrollDrivenShiftX(
       const root = document.scrollingElement ?? document.documentElement;
       const scrollTop = root.scrollTop;
       const maxScroll = Math.max(0, root.scrollHeight - root.clientHeight);
-      const t =
+      const useLinear =
+        typeof shiftStartVw === "number" && typeof shiftEndVw === "number";
+      const distanceToBottom = Math.max(0, maxScroll - scrollTop);
+      const tRaw =
         maxScroll <= 0
           ? 0
           : Math.min(1, Math.max(0, scrollTop / maxScroll));
-      const useLinear =
-        typeof shiftStartVw === "number" && typeof shiftEndVw === "number";
+      /**
+       * Mobile browser chrome can keep `t` from ever reaching 1 at visual bottom.
+       * Snap the final segment for linear sweeps so anchor endpoints are reliable.
+       */
+      const t = useLinear && distanceToBottom <= 220 ? 1 : tRaw;
       const useLinearY =
         typeof shiftStartVh === "number" && typeof shiftEndVh === "number";
       const shiftVw = useLinear
@@ -219,8 +225,10 @@ export function useScrollDrivenShiftX(
             message: "scroll parallax computed sample",
             data: {
               t,
+              tRaw,
               scrollTop,
               maxScroll,
+              distanceToBottom,
               useLinear,
               useLinearY,
               shiftStartVw,
