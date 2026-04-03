@@ -28,6 +28,11 @@ type Options = {
   cssVarNameY?: string;
   /** Mirror `--arp-scroll-x` onto `document.documentElement` (portaled layers). */
   mirrorVarToDocumentElement?: boolean;
+  /**
+   * Optional near-bottom snap threshold for linear maps.
+   * Useful on mobile browsers where dynamic URL bars prevent t from reaching 1.0.
+   */
+  snapToEndWithinPx?: number;
 };
 
 /**
@@ -45,6 +50,7 @@ export function useScrollDrivenShiftX(
     cssVarName = "--arp-scroll-x",
     cssVarNameY = "--arp-scroll-y",
     mirrorVarToDocumentElement = false,
+    snapToEndWithinPx = 0,
     shiftStartVh,
     shiftEndVh,
   }: Options,
@@ -154,11 +160,9 @@ export function useScrollDrivenShiftX(
         maxScroll <= 0
           ? 0
           : Math.min(1, Math.max(0, scrollTop / maxScroll));
-      /**
-       * Mobile browser chrome can keep `t` from ever reaching 1 at visual bottom.
-       * Snap the final segment for linear sweeps so anchor endpoints are reliable.
-       */
-      const t = useLinear && distanceToBottom <= 220 ? 1 : tRaw;
+      const shouldSnapToEnd =
+        useLinear && snapToEndWithinPx > 0 && distanceToBottom <= snapToEndWithinPx;
+      const t = shouldSnapToEnd ? 1 : tRaw;
       const useLinearY =
         typeof shiftStartVh === "number" && typeof shiftEndVh === "number";
       const shiftVw = useLinear
@@ -231,6 +235,7 @@ export function useScrollDrivenShiftX(
               distanceToBottom,
               useLinear,
               useLinearY,
+              snapToEndWithinPx,
               shiftStartVw,
               shiftEndVw,
               shiftVw,
@@ -281,6 +286,7 @@ export function useScrollDrivenShiftX(
     cssVarNameY,
     enabled,
     mirrorVarToDocumentElement,
+    snapToEndWithinPx,
     rangeVh,
     rangeVw,
     shiftStartVh,

@@ -129,6 +129,7 @@ export function AudioReactiveBackground({
           shiftEndVw: MOBILE_ARP_SHIFT_END_VW,
           shiftStartVh: MOBILE_ARP_SHIFT_START_VH,
           shiftEndVh: MOBILE_ARP_SHIFT_END_VH,
+          snapToEndWithinPx: 220,
         }
       : {
           shiftStartVw: 0,
@@ -167,7 +168,7 @@ export function AudioReactiveBackground({
   const smokeOverlayWidth = narrowViewport
     ? SMOKE_OVERLAY_WIDTH_MOBILE
     : SMOKE_OVERLAY_WIDTH_DESKTOP;
-  const mobileObjectPosition = narrowViewport ? "0% 0%" : "left top";
+  const mobileObjectPosition = narrowViewport ? "2% 0%" : "left top";
   const mobileObjectFit = "cover";
   const mobilePulseScale = narrowViewport ? 0 : 0.1;
   const flashGain =
@@ -363,7 +364,7 @@ export function AudioReactiveBackground({
                 decoding="async"
                 fetchPriority="low"
                 sizes="100vw"
-                className="absolute left-0 top-0 h-full min-h-full max-w-none object-cover will-change-transform max-md:object-[50%_18%] md:object-top-left"
+                className="absolute left-0 top-0 h-full min-h-full max-w-none object-cover will-change-transform md:object-top-left"
                 style={{
                   width: panoramaWidth,
                   minWidth: panoramaWidth,
@@ -383,7 +384,7 @@ export function AudioReactiveBackground({
                   decoding="async"
                   fetchPriority="low"
                   sizes="100vw"
-                  className="pointer-events-none absolute left-0 top-0 h-full min-h-full max-w-none object-cover mix-blend-screen will-change-transform max-md:object-[50%_18%] md:object-top-left"
+                  className="pointer-events-none absolute left-0 top-0 h-full min-h-full max-w-none object-cover mix-blend-screen will-change-transform md:object-top-left"
                   style={{
                     width: panoramaWidth,
                     minWidth: panoramaWidth,
