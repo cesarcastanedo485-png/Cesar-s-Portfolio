@@ -86,6 +86,15 @@ const END_VW_MAX = 80;
 const WIDTH_VW_MIN = 120;
 const WIDTH_VW_MAX = 260;
 
+function getSafeTuneValues(tune: MobileArpTune): MobileArpTune {
+  const maxTravel = Math.max(0, tune.widthVw - 100);
+  return {
+    ...tune,
+    startVw: clamp(tune.startVw, -maxTravel, maxTravel),
+    endVw: clamp(tune.endVw, -maxTravel, maxTravel),
+  };
+}
+
 function clamp(value: number, min: number, max: number): number {
   return Math.min(max, Math.max(min, value));
 }
@@ -258,6 +267,7 @@ export function AudioReactiveBackground({
 
   const activeTune =
     selectedProfile === "mobile" ? tuneProfiles.mobile : tuneProfiles.desktop;
+  const safeActiveTune = getSafeTuneValues(activeTune);
   const mobileWidthVw =
     tuneMode && selectedProfile === "mobile"
       ? activeTune.widthVw
@@ -268,19 +278,19 @@ export function AudioReactiveBackground({
       : BG_PANORAMA_MIN_WIDTH_VW;
   const mobileStartVw =
     tuneMode && selectedProfile === "mobile"
-      ? activeTune.startVw
+      ? safeActiveTune.startVw
       : MOBILE_ARP_SHIFT_START_VW;
   const mobileEndVw =
     tuneMode && selectedProfile === "mobile"
-      ? activeTune.endVw
+      ? safeActiveTune.endVw
       : MOBILE_ARP_SHIFT_END_VW;
   const mobileSnapPx =
     tuneMode && selectedProfile === "mobile" ? activeTune.snapToEndWithinPx : 220;
   const desktopStartVw =
-    tuneMode && selectedProfile === "desktop" ? activeTune.startVw : 0;
+    tuneMode && selectedProfile === "desktop" ? safeActiveTune.startVw : 0;
   const desktopEndVw =
     tuneMode && selectedProfile === "desktop"
-      ? activeTune.endVw
+      ? safeActiveTune.endVw
       : -panoramaScrollRangeVw(BG_PANORAMA_MIN_WIDTH_VW);
   const desktopSnapPx =
     tuneMode && selectedProfile === "desktop" ? activeTune.snapToEndWithinPx : 0;
@@ -299,8 +309,8 @@ export function AudioReactiveBackground({
   const forcedScrollX =
     tuneMode && previewMode !== "scroll"
       ? previewMode === "start"
-        ? `${activeTune.startVw}vw`
-        : `${activeTune.endVw}vw`
+        ? `${safeActiveTune.startVw}vw`
+        : `${safeActiveTune.endVw}vw`
       : undefined;
 
   const onDragPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -446,6 +456,9 @@ export function AudioReactiveBackground({
     typeof beatFlashOpacityGain === "number" && Number.isFinite(beatFlashOpacityGain)
       ? Math.min(2, Math.max(0, beatFlashOpacityGain))
       : 1;
+  const hasUnsafeEdges =
+    safeActiveTune.startVw !== activeTune.startVw ||
+    safeActiveTune.endVw !== activeTune.endVw;
   const setTuneField = <K extends keyof MobileArpTune>(
     key: K,
     value: MobileArpTune[K],
@@ -488,6 +501,10 @@ export function AudioReactiveBackground({
     setGuidedStep(next);
     setPreviewMode(guidedSteps[next].preview);
     setDragMode(guidedSteps[next].drag);
+  };
+
+  const adjustWidthVw = (delta: number) => {
+    setTuneField("widthVw", clamp(activeTune.widthVw + delta, WIDTH_VW_MIN, WIDTH_VW_MAX));
   };
 
   useEffect(() => {
@@ -871,8 +888,31 @@ export function AudioReactiveBackground({
         <div className="fixed bottom-3 right-3 z-[999] w-[min(22rem,92vw)] rounded-xl border border-white/20 bg-black/80 p-3 text-xs text-white shadow-2xl backdrop-blur">
           <p className="mb-2 font-semibold">Mobile Parallax Tuner</p>
           <p className="mb-2 text-[11px] text-white/70">
-            Active only with <code>?arpTune=1</code>. Values persist locally.
+            Active only with <code>?arpTune=1</code>. Tuner values are local-only and
+            do not affect normal live rendering.
           </p>
+          <div className="mb-2 flex gap-2">
+            <button
+              type="button"
+              className="rounded bg-white/20 px-2 py-1"
+              onClick={() => adjustWidthVw(-2)}
+            >
+              Zoom Out
+            </button>
+            <button
+              type="button"
+              className="rounded bg-white/20 px-2 py-1"
+              onClick={() => adjustWidthVw(2)}
+            >
+              Zoom In
+            </button>
+          </div>
+          {hasUnsafeEdges ? (
+            <p className="mb-2 rounded border border-amber-300/40 bg-amber-400/10 px-2 py-1 text-[11px] text-amber-100">
+              Edge warning: current start/end can reveal black space. Use Normalize Safe
+              before exporting.
+            </p>
+          ) : null}
           <div className="mb-2 grid grid-cols-2 gap-2">
             <button
               type="button"
@@ -1089,13 +1129,25 @@ export function AudioReactiveBackground({
             <button
               type="button"
               className="rounded bg-white/20 px-2 py-1"
+              onClick={() =>
+                setTuneProfiles((s) => ({
+                  ...s,
+                  [selectedProfile]: safeActiveTune,
+                }))
+              }
+            >
+              Normalize Safe
+            </button>
+            <button
+              type="button"
+              className="rounded bg-white/20 px-2 py-1"
               onClick={() => {
                 if (typeof navigator !== "undefined" && navigator.clipboard) {
                   void navigator.clipboard.writeText(
                     JSON.stringify(
                       {
                         profile: selectedProfile,
-                        values: tuneProfiles[selectedProfile],
+                        values: safeActiveTune,
                       },
                       null,
                       2,
