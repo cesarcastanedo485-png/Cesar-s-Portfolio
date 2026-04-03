@@ -150,6 +150,8 @@ export function AudioReactiveBackground({
   const [previewTuneMode, setPreviewTuneMode] = useState(false);
   const [tunerMinimized, setTunerMinimized] = useState(false);
   const [autoPreviewRunning, setAutoPreviewRunning] = useState(false);
+  const [tunerNotice, setTunerNotice] = useState("");
+  const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
   const [dragMode, setDragMode] = useState<DragMode>("off");
   const [previewMode, setPreviewMode] = useState<PreviewMode>("scroll");
   const [selectedProfile, setSelectedProfile] = useState<TuneProfileName>("mobile");
@@ -171,6 +173,13 @@ export function AudioReactiveBackground({
   const pinchStateRef = useRef<{
     startDistance: number;
     baseWidthVw: number;
+  } | null>(null);
+  const twoFingerDragRef = useRef<{
+    anchorId: number;
+    controlId: number;
+    controlStartY: number;
+    mode: DragMode;
+    baseValue: number;
   } | null>(null);
   const hasBaseImage = Boolean(imageSrc?.trim()) && !baseImageFailed;
   const hasBeatFlashImage =
@@ -285,6 +294,8 @@ export function AudioReactiveBackground({
       return;
     }
     window.localStorage.setItem(ARP_TUNE_STORAGE_KEY, JSON.stringify(tuneProfiles));
+    setLastSavedAt(Date.now());
+    setTunerNotice("Saved locally.");
   }, [hydrated, tuneMode, tuneProfiles]);
 
   useEffect(() => {
@@ -363,6 +374,33 @@ export function AudioReactiveBackground({
       return;
     }
     pointerCacheRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (
+      (dragMode === "start" || dragMode === "end" || dragMode === "frameY") &&
+      pointerCacheRef.current.size === 2 &&
+      dragStateRef.current
+    ) {
+      const ids = Array.from(pointerCacheRef.current.keys());
+      const anchorId = dragStateRef.current.pointerId;
+      const controlId = ids.find((id) => id !== anchorId);
+      if (typeof controlId === "number") {
+        const controlPoint = pointerCacheRef.current.get(controlId);
+        if (controlPoint) {
+          const baseValue =
+            dragMode === "start"
+              ? activeTune.startVw
+              : dragMode === "end"
+                ? activeTune.endVw
+                : activeTune.objectPosY;
+          twoFingerDragRef.current = {
+            anchorId,
+            controlId,
+            controlStartY: controlPoint.y,
+            mode: dragMode,
+            baseValue,
+          };
+        }
+      }
+    }
     if (dragMode !== "frameY" && pointerCacheRef.current.size === 2) {
       const [a, b] = Array.from(pointerCacheRef.current.values());
       const dist = Math.hypot(a.x - b.x, a.y - b.y);
@@ -384,6 +422,37 @@ export function AudioReactiveBackground({
   const onDragPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
     pointerCacheRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     const dragState = dragStateRef.current;
+    const twoFingerDrag = twoFingerDragRef.current;
+    if (twoFingerDrag && pointerCacheRef.current.size >= 2) {
+      const controlPoint = pointerCacheRef.current.get(twoFingerDrag.controlId);
+      if (controlPoint) {
+        const deltaY = controlPoint.y - twoFingerDrag.controlStartY;
+        if (twoFingerDrag.mode === "start" || twoFingerDrag.mode === "end") {
+          const deltaVw = (deltaY / Math.max(1, window.innerHeight)) * 220;
+          const raw = twoFingerDrag.baseValue + deltaVw;
+          if (twoFingerDrag.mode === "start") {
+            setTuneField("startVw", clamp(raw, START_VW_MIN, START_VW_MAX));
+          } else {
+            setTuneField("endVw", clamp(raw, END_VW_MIN, END_VW_MAX));
+          }
+        } else if (twoFingerDrag.mode === "frameY") {
+          const deltaYPercent = (deltaY / Math.max(1, window.innerHeight)) * 70;
+          setTuneField(
+            "objectPosY",
+            clamp(twoFingerDrag.baseValue + deltaYPercent, -30, 40),
+          );
+        }
+        const anchorPoint = pointerCacheRef.current.get(twoFingerDrag.anchorId);
+        if (anchorPoint) {
+          setMarker({
+            x: (anchorPoint.x + controlPoint.x) / 2,
+            y: (anchorPoint.y + controlPoint.y) / 2,
+          });
+        }
+        e.preventDefault();
+        return;
+      }
+    }
     if (dragState?.mode === "frameY" && pointerCacheRef.current.size >= 2) {
       const points = Array.from(pointerCacheRef.current.values());
       const centerY = points.reduce((acc, p) => acc + p.y, 0) / points.length;
@@ -434,6 +503,7 @@ export function AudioReactiveBackground({
     pointerCacheRef.current.delete(e.pointerId);
     if (pointerCacheRef.current.size < 2) {
       pinchStateRef.current = null;
+      twoFingerDragRef.current = null;
     }
     if (dragStateRef.current?.pointerId === e.pointerId) {
       dragStateRef.current = null;
@@ -544,6 +614,7 @@ export function AudioReactiveBackground({
     setGuidedStep(0);
     setPreviewMode(guidedSteps[0].preview);
     setDragMode(guidedSteps[0].drag);
+    setTunerNotice("Guided setup started.");
   };
 
   const advanceGuided = () => {
@@ -922,6 +993,9 @@ export function AudioReactiveBackground({
                 setDragMode("off");
                 setPreviewMode("scroll");
                 setMarker(null);
+                setTunerNotice("Tuner minimized. Current values kept.");
+              } else {
+                setTunerNotice("Tuner reopened. Previous values restored.");
               }
               return next;
             });
@@ -990,6 +1064,12 @@ export function AudioReactiveBackground({
             Active only with <code>?arpTune=1</code>. Tuner values are local-only and
             do not affect normal live rendering.
           </p>
+          {tunerNotice ? (
+            <p className="mb-2 rounded border border-cyan-300/30 bg-cyan-400/10 px-2 py-1 text-[11px] text-cyan-100">
+              {tunerNotice}
+              {lastSavedAt ? ` Last save: ${new Date(lastSavedAt).toLocaleTimeString()}` : ""}
+            </p>
+          ) : null}
           <div className="mb-2 flex gap-2">
             <button
               type="button"
@@ -1221,22 +1301,25 @@ export function AudioReactiveBackground({
             <button
               type="button"
               className="rounded bg-white/20 px-2 py-1"
-              onClick={() =>
+              onClick={() => {
                 setTuneProfiles((s) => ({
                   ...s,
                   [selectedProfile]:
                     selectedProfile === "mobile"
                       ? seededMobileTune
                       : seededDesktopTune,
-                }))
-              }
+                }));
+                setTunerNotice(
+                  `Reset ${selectedProfile} profile to defaults.`,
+                );
+              }}
             >
               Reset
             </button>
             <button
               type="button"
               className="rounded bg-white/20 px-2 py-1"
-              onClick={() =>
+              onClick={() => {
                 setTuneProfiles((s) => ({
                   ...s,
                   [selectedProfile]: getSafeTuneValues({
@@ -1246,8 +1329,11 @@ export function AudioReactiveBackground({
                       selectedProfile === "mobile" ? 132 : WIDTH_VW_MIN,
                     ),
                   }),
-                }))
-              }
+                }));
+                setTunerNotice(
+                  `Normalize Safe applied on ${selectedProfile}.`,
+                );
+              }}
             >
               Normalize Safe
             </button>
