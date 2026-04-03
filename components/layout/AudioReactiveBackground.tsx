@@ -96,6 +96,7 @@ const END_VW_MAX = 220;
 const WIDTH_VW_MIN = 120;
 const WIDTH_VW_MAX = 260;
 const GUIDED_MOBILE_MIN_WIDTH_VW = WIDTH_VW_MAX;
+const GUIDED_HORIZONTAL_SWIPE_VW_FACTOR = 360;
 
 function getSafeTuneValues(
   tune: MobileArpTune,
@@ -571,7 +572,8 @@ export function AudioReactiveBackground({
         dragSweepDebugRef.current.maxX = Math.max(dragSweepDebugRef.current.maxX, e.clientX);
         dragSweepDebugRef.current.lastX = e.clientX;
       }
-      const deltaVw = (deltaX / Math.max(1, window.innerWidth)) * 220;
+      const deltaVw =
+        (deltaX / Math.max(1, window.innerWidth)) * GUIDED_HORIZONTAL_SWIPE_VW_FACTOR;
       const deltaYPercent = (deltaY / Math.max(1, window.innerHeight)) * 70;
       guidedMoveDebugRef.current.moveCount += 1;
       if (dragState.mode === "freeFrame" || dragState.mode === "horizontalFrame") {
