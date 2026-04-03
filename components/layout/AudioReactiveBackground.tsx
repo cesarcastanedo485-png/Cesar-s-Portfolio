@@ -187,6 +187,7 @@ export function AudioReactiveBackground({
   } | null>(null);
   const dragDebugRef = useRef<{ hasLoggedMove: boolean }>({ hasLoggedMove: false });
   const guidedMoveDebugRef = useRef<{ moveCount: number }>({ moveCount: 0 });
+  const forcedLogRef = useRef<string>("");
   const appendMobileTrace = (entry: string) => {
     setMobileDebugTrace((prev) => {
       const next = [...prev, `${new Date().toLocaleTimeString()} ${entry}`];
@@ -382,6 +383,38 @@ export function AudioReactiveBackground({
         ? `${safeActiveTune.startVw}vw`
         : `${safeActiveTune.endVw}vw`
       : undefined;
+
+  useEffect(() => {
+    if (!tuneMode || !guidedMode) {
+      return;
+    }
+    const key = `${guidedStep}|${previewMode}|${forcedScrollX ?? "scroll"}`;
+    if (forcedLogRef.current === key) {
+      return;
+    }
+    forcedLogRef.current = key;
+    const container = containerRef.current;
+    const baseImage = baseImageRef.current;
+    const computedX = container
+      ? getComputedStyle(container).getPropertyValue("--arp-scroll-x").trim()
+      : null;
+    const imageTransform = baseImage ? getComputedStyle(baseImage).transform : null;
+    appendMobileTrace(
+      `render-state step=${guidedStep} preview=${previewMode} forced=${forcedScrollX ?? "none"} cssX=${computedX ?? "none"} transform=${imageTransform ?? "none"}`,
+    );
+    // #region agent log
+    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix-v5", hypothesisId: "H9", location: "AudioReactiveBackground.tsx:guidedRenderState", message: "guided render state snapshot", data: { guidedStep, previewMode, forcedScrollX: forcedScrollX ?? null, cssVarX: computedX, imageTransform, safeStart: safeActiveTune.startVw, safeEnd: safeActiveTune.endVw, selectedProfile }, timestamp: Date.now() }) }).catch(() => {});
+    // #endregion
+  }, [
+    forcedScrollX,
+    guidedMode,
+    guidedStep,
+    previewMode,
+    safeActiveTune.endVw,
+    safeActiveTune.startVw,
+    selectedProfile,
+    tuneMode,
+  ]);
 
   const onDragPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (!tuneMode || tunerMinimized || dragMode === "off") {
