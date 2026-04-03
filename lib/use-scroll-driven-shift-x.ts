@@ -147,14 +147,10 @@ export function useScrollDrivenShiftX(
       const root = document.scrollingElement ?? document.documentElement;
       const scrollTop = root.scrollTop;
       const maxScroll = Math.max(0, root.scrollHeight - root.clientHeight);
-      const distanceToBottom = Math.max(0, maxScroll - scrollTop);
-      const tRaw =
+      const t =
         maxScroll <= 0
           ? 0
           : Math.min(1, Math.max(0, scrollTop / maxScroll));
-      // Mobile browsers can report a moving maxScroll near the bottom due to UI chrome.
-      // Snap to the end when close enough so the panorama reliably reaches the right anchor.
-      const t = distanceToBottom <= 140 ? 1 : tRaw;
       const useLinear =
         typeof shiftStartVw === "number" && typeof shiftEndVw === "number";
       const useLinearY =
@@ -223,10 +219,8 @@ export function useScrollDrivenShiftX(
             message: "scroll parallax computed sample",
             data: {
               t,
-              tRaw,
               scrollTop,
               maxScroll,
-              distanceToBottom,
               useLinear,
               useLinearY,
               shiftStartVw,
