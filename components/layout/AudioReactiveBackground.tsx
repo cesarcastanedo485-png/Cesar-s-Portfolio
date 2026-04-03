@@ -96,7 +96,6 @@ const END_VW_MAX = 220;
 const WIDTH_VW_MIN = 120;
 const WIDTH_VW_MAX = 360;
 const GUIDED_MOBILE_MIN_WIDTH_VW = WIDTH_VW_MAX;
-const GUIDED_HORIZONTAL_SWIPE_VW_FACTOR = 360;
 
 function getSafeTuneValues(
   tune: MobileArpTune,
@@ -585,56 +584,64 @@ export function AudioReactiveBackground({
         dragSweepDebugRef.current.maxX = Math.max(dragSweepDebugRef.current.maxX, e.clientX);
         dragSweepDebugRef.current.lastX = e.clientX;
       }
-      const sweepSpanX =
-        dragSweepDebugRef.current.pointerId === e.pointerId
-          ? dragSweepDebugRef.current.maxX - dragSweepDebugRef.current.minX
-          : 0;
-      const effectiveDeltaX =
-        dragState.mode === "freeFrame" ? Math.max(Math.abs(deltaX), sweepSpanX) : deltaX;
-      const deltaDirection =
-        dragState.mode === "freeFrame" && deltaX < 0 ? -1 : 1;
-      const deltaVw =
-        ((effectiveDeltaX * deltaDirection) / Math.max(1, window.innerWidth)) *
-        GUIDED_HORIZONTAL_SWIPE_VW_FACTOR;
+      const safeWidthVw = clamp(activeTune.widthVw, 132, WIDTH_VW_MAX);
+      const maxTravel = Math.max(0, safeWidthVw - 100);
+      const xRatio = clamp(e.clientX / Math.max(1, window.innerWidth), 0, 1);
+      const yRatio = clamp(e.clientY / Math.max(1, window.innerHeight), 0, 1);
+      const absoluteVw = -maxTravel + xRatio * (maxTravel * 2);
       const deltaYPercent = (deltaY / Math.max(1, window.innerHeight)) * 70;
       guidedMoveDebugRef.current.moveCount += 1;
       if (dragState.mode === "freeFrame" || dragState.mode === "horizontalFrame") {
         if (dragState.mode === "freeFrame") {
+          const baseSpan = dragState.baseEndVw - dragState.baseStartVw;
+          const nextStartAbs = clamp(absoluteVw, -maxTravel, maxTravel);
+          const nextEndAbs = clamp(nextStartAbs + baseSpan, -maxTravel, maxTravel);
           setTuneField(
             "startVw",
-            clamp(dragState.baseStartVw + deltaVw, START_VW_MIN, START_VW_MAX),
+            nextStartAbs,
           );
           setTuneField(
             "endVw",
-            clamp(dragState.baseEndVw + deltaVw, END_VW_MIN, END_VW_MAX),
+            nextEndAbs,
           );
         } else {
           // In rabbit-framing phase we drive only end anchor for visible horizontal pan.
           setTuneField(
             "endVw",
-            clamp(dragState.baseEndVw + deltaVw, END_VW_MIN, END_VW_MAX),
+            clamp(absoluteVw, -maxTravel, maxTravel),
           );
         }
       }
       if (dragState.mode === "freeFrame" || dragState.mode === "verticalFrame") {
         setTuneField(
           "objectPosY",
-          clamp(dragState.baseObjectPosY + deltaYPercent, -30, 40),
+          clamp(-30 + yRatio * 70, -30, 40),
         );
       }
       const nextStart =
         dragState.mode === "freeFrame"
-          ? clamp(dragState.baseStartVw + deltaVw, START_VW_MIN, START_VW_MAX)
+          ? clamp(absoluteVw, -maxTravel, maxTravel)
           : dragState.baseStartVw;
       const nextEnd =
         dragState.mode === "freeFrame" || dragState.mode === "horizontalFrame"
-          ? clamp(dragState.baseEndVw + deltaVw, END_VW_MIN, END_VW_MAX)
+          ? clamp(
+              dragState.mode === "freeFrame"
+                ? clamp(
+                    clamp(absoluteVw, -maxTravel, maxTravel) +
+                        (dragState.baseEndVw - dragState.baseStartVw),
+                    -maxTravel,
+                    maxTravel,
+                  )
+                : absoluteVw,
+              -maxTravel,
+              maxTravel,
+            )
           : dragState.baseEndVw;
       const nextY =
         dragState.mode === "freeFrame" || dragState.mode === "verticalFrame"
-          ? clamp(dragState.baseObjectPosY + deltaYPercent, -30, 40)
+          ? clamp(-30 + yRatio * 70, -30, 40)
           : dragState.baseObjectPosY;
-      const maxTravelPreview = Math.max(0, Math.max(132, activeTune.widthVw) - 100);
+      const maxTravelPreview = maxTravel;
       const safeStartPreview = clamp(nextStart, -maxTravelPreview, maxTravelPreview);
       const safeEndPreview = clamp(nextEnd, -maxTravelPreview, maxTravelPreview);
       if (!dragDebugRef.current.hasLoggedMove) {
@@ -643,7 +650,7 @@ export function AudioReactiveBackground({
           `guided-move step=${guidedStep} mode=${dragState.mode} pid=${e.pointerId} dX=${Math.round(deltaX)} dY=${Math.round(deltaY)}`,
         );
         // #region agent log
-        fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix", hypothesisId: "H1_H3", location: "AudioReactiveBackground.tsx:onDragPointerMove-guidedBranch", message: "guided drag branch executed", data: { guidedStep, mode: dragState.mode, pointerId: e.pointerId, deltaX, deltaY, deltaVw, deltaYPercent, nextStartVw: dragState.baseStartVw + deltaVw, nextEndVw: dragState.baseEndVw + deltaVw, nextObjectPosY: dragState.baseObjectPosY + deltaYPercent }, timestamp: Date.now() }) }).catch(() => {});
+        fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix", hypothesisId: "H1_H3", location: "AudioReactiveBackground.tsx:onDragPointerMove-guidedBranch", message: "guided drag branch executed", data: { guidedStep, mode: dragState.mode, pointerId: e.pointerId, deltaX, deltaY, absoluteVw, deltaYPercent, nextStartVw: nextStart, nextEndVw: nextEnd, nextObjectPosY: nextY }, timestamp: Date.now() }) }).catch(() => {});
         // #endregion
       }
       if (guidedMoveDebugRef.current.moveCount <= 5) {
