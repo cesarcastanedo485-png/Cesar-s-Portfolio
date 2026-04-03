@@ -75,7 +75,7 @@ function clamp(n: number, min: number, max: number): number {
 
 export function sanitizeEditorTune(input: EditorDraft["arp"]["mobile"]): EditorArpTune {
   return {
-    widthVw: clamp(input.widthVw, 120, 260),
+    widthVw: clamp(input.widthVw, 120, 360),
     startVw: clamp(input.startVw, -220, 160),
     endVw: clamp(input.endVw, -220, 160),
     objectPosX: clamp(input.objectPosX, 0, 100),
