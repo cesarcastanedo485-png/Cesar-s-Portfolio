@@ -95,10 +95,6 @@ const END_VW_MIN = -220;
 const END_VW_MAX = 80;
 const WIDTH_VW_MIN = 120;
 const WIDTH_VW_MAX = 260;
-const MOBILE_START_VW_VISUAL_MIN = -70;
-const MOBILE_START_VW_VISUAL_MAX = 36;
-const MOBILE_END_VW_VISUAL_MIN = -140;
-const MOBILE_END_VW_VISUAL_MAX = 24;
 
 function getSafeTuneValues(
   tune: MobileArpTune,
@@ -106,18 +102,10 @@ function getSafeTuneValues(
 ): MobileArpTune {
   const safeWidthVw = clamp(tune.widthVw, 132, WIDTH_VW_MAX);
   const maxTravel = Math.max(0, safeWidthVw - 100);
-  const startMin =
-    profile === "mobile"
-      ? Math.max(-maxTravel, MOBILE_START_VW_VISUAL_MIN)
-      : -maxTravel;
-  const startMax =
-    profile === "mobile"
-      ? Math.min(maxTravel, MOBILE_START_VW_VISUAL_MAX)
-      : maxTravel;
-  const endMin =
-    profile === "mobile" ? Math.max(-maxTravel, MOBILE_END_VW_VISUAL_MIN) : -maxTravel;
-  const endMax =
-    profile === "mobile" ? Math.min(maxTravel, MOBILE_END_VW_VISUAL_MAX) : maxTravel;
+  const startMin = -maxTravel;
+  const startMax = maxTravel;
+  const endMin = -maxTravel;
+  const endMax = maxTravel;
   return {
     ...tune,
     widthVw: safeWidthVw,
@@ -786,27 +774,11 @@ export function AudioReactiveBackground({
         } as MobileArpTune;
         const safeWidthVw = clamp(next.widthVw, 132, WIDTH_VW_MAX);
         const maxTravel = Math.max(0, safeWidthVw - 100);
-        const startMin =
-          selectedProfile === "mobile"
-            ? Math.max(-maxTravel, MOBILE_START_VW_VISUAL_MIN)
-            : -maxTravel;
-        const startMax =
-          selectedProfile === "mobile"
-            ? Math.min(maxTravel, MOBILE_START_VW_VISUAL_MAX)
-            : maxTravel;
-        const endMin =
-          selectedProfile === "mobile"
-            ? Math.max(-maxTravel, MOBILE_END_VW_VISUAL_MIN)
-            : -maxTravel;
-        const endMax =
-          selectedProfile === "mobile"
-            ? Math.min(maxTravel, MOBILE_END_VW_VISUAL_MAX)
-            : maxTravel;
         return {
           ...next,
           widthVw: safeWidthVw,
-          startVw: clamp(next.startVw, startMin, startMax),
-          endVw: clamp(next.endVw, endMin, endMax),
+          startVw: clamp(next.startVw, -maxTravel, maxTravel),
+          endVw: clamp(next.endVw, -maxTravel, maxTravel),
         };
       })(),
     }));
