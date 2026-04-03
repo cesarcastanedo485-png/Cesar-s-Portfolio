@@ -39,6 +39,17 @@ type AudioReactiveBackgroundProps = {
 
 const SMOKE_OVERLAY_WIDTH_DESKTOP = "max(150vw, 98rem)";
 const SMOKE_OVERLAY_WIDTH_MOBILE = "max(255vw, 92rem)";
+const ARP_TUNE_STORAGE_KEY = "arp-mobile-tune-v1";
+
+type MobileArpTune = {
+  widthVw: number;
+  startVw: number;
+  endVw: number;
+  objectPosX: number;
+  objectPosY: number;
+  snapToEndWithinPx: number;
+  pulseScale: number;
+};
 
 export function AudioReactiveBackground({
   imageSrc,
@@ -65,6 +76,16 @@ export function AudioReactiveBackground({
   const [beatFlashImageFailed, setBeatFlashImageFailed] = useState(false);
   const [mushroomImageFailed, setMushroomImageFailed] = useState(false);
   const [rainVideoFailed, setRainVideoFailed] = useState(false);
+  const [tuneMode, setTuneMode] = useState(false);
+  const [mobileTune, setMobileTune] = useState<MobileArpTune>({
+    widthVw: BG_PANORAMA_MIN_WIDTH_VW_MOBILE,
+    startVw: MOBILE_ARP_SHIFT_START_VW,
+    endVw: MOBILE_ARP_SHIFT_END_VW,
+    objectPosX: 2,
+    objectPosY: 0,
+    snapToEndWithinPx: 220,
+    pulseScale: 0,
+  });
   const { playing } = useGlobalAtmosphereAudio();
   const hasBaseImage = Boolean(imageSrc?.trim()) && !baseImageFailed;
   const hasBeatFlashImage =
@@ -113,9 +134,71 @@ export function AudioReactiveBackground({
     setRainVideoFailed(false);
   }, [rainVideoSrc]);
 
+  useEffect(() => {
+    if (!hydrated || typeof window === "undefined") {
+      return;
+    }
+    const params = new URLSearchParams(window.location.search);
+    const enabled = params.get("arpTune") === "1";
+    setTuneMode(enabled);
+    if (!enabled) {
+      return;
+    }
+    try {
+      const raw = window.localStorage.getItem(ARP_TUNE_STORAGE_KEY);
+      if (!raw) {
+        return;
+      }
+      const parsed = JSON.parse(raw) as Partial<MobileArpTune>;
+      setMobileTune((prev) => ({
+        widthVw: typeof parsed.widthVw === "number" ? parsed.widthVw : prev.widthVw,
+        startVw:
+          typeof parsed.startVw === "number" ? parsed.startVw : prev.startVw,
+        endVw: typeof parsed.endVw === "number" ? parsed.endVw : prev.endVw,
+        objectPosX:
+          typeof parsed.objectPosX === "number"
+            ? parsed.objectPosX
+            : prev.objectPosX,
+        objectPosY:
+          typeof parsed.objectPosY === "number"
+            ? parsed.objectPosY
+            : prev.objectPosY,
+        snapToEndWithinPx:
+          typeof parsed.snapToEndWithinPx === "number"
+            ? parsed.snapToEndWithinPx
+            : prev.snapToEndWithinPx,
+        pulseScale:
+          typeof parsed.pulseScale === "number"
+            ? parsed.pulseScale
+            : prev.pulseScale,
+      }));
+    } catch {
+      /* ignore malformed local tune payload */
+    }
+  }, [hydrated]);
+
+  useEffect(() => {
+    if (!hydrated || !tuneMode || typeof window === "undefined") {
+      return;
+    }
+    window.localStorage.setItem(ARP_TUNE_STORAGE_KEY, JSON.stringify(mobileTune));
+  }, [hydrated, mobileTune, tuneMode]);
+
+  const mobileWidthVw = tuneMode
+    ? mobileTune.widthVw
+    : BG_PANORAMA_MIN_WIDTH_VW_MOBILE;
+  const mobileStartVw = tuneMode
+    ? mobileTune.startVw
+    : MOBILE_ARP_SHIFT_START_VW;
+  const mobileEndVw = tuneMode ? mobileTune.endVw : MOBILE_ARP_SHIFT_END_VW;
+  const mobileSnapPx = tuneMode ? mobileTune.snapToEndWithinPx : 220;
+  const mobileObjectPosX = tuneMode ? mobileTune.objectPosX : 2;
+  const mobileObjectPosY = tuneMode ? mobileTune.objectPosY : 0;
+  const mobileTunePulseScale = tuneMode ? mobileTune.pulseScale : 0;
+
   const scrollParallaxEnabled = hydrated;
   const panoramaMinWidthVw = narrowViewport
-    ? BG_PANORAMA_MIN_WIDTH_VW_MOBILE
+    ? mobileWidthVw
     : BG_PANORAMA_MIN_WIDTH_VW;
   const scrollRangeVw = panoramaScrollRangeVw(panoramaMinWidthVw);
   const scrollRangeVh = panoramaScrollRangeVh(BG_SCROLL_SHIFT_RANGE_VH);
@@ -125,11 +208,11 @@ export function AudioReactiveBackground({
     mirrorVarToDocumentElement: hasRainVideo,
     ...(narrowViewport
       ? {
-          shiftStartVw: MOBILE_ARP_SHIFT_START_VW,
-          shiftEndVw: MOBILE_ARP_SHIFT_END_VW,
+          shiftStartVw: mobileStartVw,
+          shiftEndVw: mobileEndVw,
           shiftStartVh: MOBILE_ARP_SHIFT_START_VH,
           shiftEndVh: MOBILE_ARP_SHIFT_END_VH,
-          snapToEndWithinPx: 220,
+          snapToEndWithinPx: mobileSnapPx,
         }
       : {
           shiftStartVw: 0,
@@ -168,9 +251,11 @@ export function AudioReactiveBackground({
   const smokeOverlayWidth = narrowViewport
     ? SMOKE_OVERLAY_WIDTH_MOBILE
     : SMOKE_OVERLAY_WIDTH_DESKTOP;
-  const mobileObjectPosition = narrowViewport ? "2% 0%" : "left top";
+  const mobileObjectPosition = narrowViewport
+    ? `${mobileObjectPosX}% ${mobileObjectPosY}%`
+    : "left top";
   const mobileObjectFit = "cover";
-  const mobilePulseScale = narrowViewport ? 0 : 0.1;
+  const mobilePulseScale = narrowViewport ? mobileTunePulseScale : 0.1;
   const flashGain =
     typeof beatFlashOpacityGain === "number" && Number.isFinite(beatFlashOpacityGain)
       ? Math.min(2, Math.max(0, beatFlashOpacityGain))
@@ -492,6 +577,157 @@ export function AudioReactiveBackground({
       {hydrated && rainPortalLayer
         ? createPortal(rainPortalLayer, document.body)
         : null}
+
+      {tuneMode ? (
+        <div className="fixed bottom-3 right-3 z-[999] w-[min(22rem,92vw)] rounded-xl border border-white/20 bg-black/80 p-3 text-xs text-white shadow-2xl backdrop-blur">
+          <p className="mb-2 font-semibold">Mobile Parallax Tuner</p>
+          <p className="mb-2 text-[11px] text-white/70">
+            Active only with <code>?arpTune=1</code>. Values persist locally.
+          </p>
+          <label className="mb-1 block">
+            widthVw: {mobileTune.widthVw}
+            <input
+              type="range"
+              min={120}
+              max={220}
+              step={1}
+              value={mobileTune.widthVw}
+              onChange={(e) =>
+                setMobileTune((s) => ({ ...s, widthVw: Number(e.target.value) }))
+              }
+              className="w-full"
+            />
+          </label>
+          <label className="mb-1 block">
+            startVw: {mobileTune.startVw}
+            <input
+              type="range"
+              min={-40}
+              max={40}
+              step={1}
+              value={mobileTune.startVw}
+              onChange={(e) =>
+                setMobileTune((s) => ({ ...s, startVw: Number(e.target.value) }))
+              }
+              className="w-full"
+            />
+          </label>
+          <label className="mb-1 block">
+            endVw: {mobileTune.endVw}
+            <input
+              type="range"
+              min={-120}
+              max={0}
+              step={1}
+              value={mobileTune.endVw}
+              onChange={(e) =>
+                setMobileTune((s) => ({ ...s, endVw: Number(e.target.value) }))
+              }
+              className="w-full"
+            />
+          </label>
+          <label className="mb-1 block">
+            objectPosX: {mobileTune.objectPosX}%
+            <input
+              type="range"
+              min={0}
+              max={100}
+              step={1}
+              value={mobileTune.objectPosX}
+              onChange={(e) =>
+                setMobileTune((s) => ({
+                  ...s,
+                  objectPosX: Number(e.target.value),
+                }))
+              }
+              className="w-full"
+            />
+          </label>
+          <label className="mb-1 block">
+            objectPosY: {mobileTune.objectPosY}%
+            <input
+              type="range"
+              min={-20}
+              max={30}
+              step={1}
+              value={mobileTune.objectPosY}
+              onChange={(e) =>
+                setMobileTune((s) => ({
+                  ...s,
+                  objectPosY: Number(e.target.value),
+                }))
+              }
+              className="w-full"
+            />
+          </label>
+          <label className="mb-1 block">
+            snapToEndWithinPx: {mobileTune.snapToEndWithinPx}
+            <input
+              type="range"
+              min={0}
+              max={500}
+              step={10}
+              value={mobileTune.snapToEndWithinPx}
+              onChange={(e) =>
+                setMobileTune((s) => ({
+                  ...s,
+                  snapToEndWithinPx: Number(e.target.value),
+                }))
+              }
+              className="w-full"
+            />
+          </label>
+          <label className="mb-2 block">
+            pulseScale: {mobileTune.pulseScale.toFixed(3)}
+            <input
+              type="range"
+              min={0}
+              max={0.12}
+              step={0.005}
+              value={mobileTune.pulseScale}
+              onChange={(e) =>
+                setMobileTune((s) => ({
+                  ...s,
+                  pulseScale: Number(e.target.value),
+                }))
+              }
+              className="w-full"
+            />
+          </label>
+          <div className="flex gap-2">
+            <button
+              type="button"
+              className="rounded bg-white/20 px-2 py-1"
+              onClick={() =>
+                setMobileTune({
+                  widthVw: BG_PANORAMA_MIN_WIDTH_VW_MOBILE,
+                  startVw: MOBILE_ARP_SHIFT_START_VW,
+                  endVw: MOBILE_ARP_SHIFT_END_VW,
+                  objectPosX: 2,
+                  objectPosY: 0,
+                  snapToEndWithinPx: 220,
+                  pulseScale: 0,
+                })
+              }
+            >
+              Reset
+            </button>
+            <button
+              type="button"
+              className="rounded bg-white/20 px-2 py-1"
+              onClick={() => {
+                if (typeof navigator !== "undefined" && navigator.clipboard) {
+                  void navigator.clipboard.writeText(
+                    JSON.stringify(mobileTune, null, 2),
+                  );
+                }
+              }}
+            >
+              Copy JSON
+            </button>
+          </div>
+        </div>
+      ) : null}
     </>
   );
 }
