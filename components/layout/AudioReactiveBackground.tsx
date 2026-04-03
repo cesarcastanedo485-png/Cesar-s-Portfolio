@@ -159,6 +159,7 @@ export function AudioReactiveBackground({
   const [autoPreviewRunning, setAutoPreviewRunning] = useState(false);
   const [tunerNotice, setTunerNotice] = useState("");
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
+  const [mobileDebugTrace, setMobileDebugTrace] = useState<string[]>([]);
   const [dragMode, setDragMode] = useState<DragMode>("off");
   const [previewMode, setPreviewMode] = useState<PreviewMode>("scroll");
   const [selectedProfile, setSelectedProfile] = useState<TuneProfileName>("mobile");
@@ -184,6 +185,13 @@ export function AudioReactiveBackground({
     startDistance: number;
     baseWidthVw: number;
   } | null>(null);
+  const dragDebugRef = useRef<{ hasLoggedMove: boolean }>({ hasLoggedMove: false });
+  const appendMobileTrace = (entry: string) => {
+    setMobileDebugTrace((prev) => {
+      const next = [...prev, `${new Date().toLocaleTimeString()} ${entry}`];
+      return next.length > 20 ? next.slice(next.length - 20) : next;
+    });
+  };
   const hasBaseImage = Boolean(imageSrc?.trim()) && !baseImageFailed;
   const hasBeatFlashImage =
     Boolean((beatFlashImageSrc || imageSrc)?.trim()) && !beatFlashImageFailed;
@@ -396,6 +404,13 @@ export function AudioReactiveBackground({
       baseEndVw: activeTune.endVw,
       baseObjectPosY: activeTune.objectPosY,
     };
+    dragDebugRef.current.hasLoggedMove = false;
+    appendMobileTrace(
+      `down step=${guidedStep} mode=${dragMode} x=${Math.round(e.clientX)} y=${Math.round(e.clientY)}`,
+    );
+    // #region agent log
+    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix", hypothesisId: "H1_H2", location: "AudioReactiveBackground.tsx:onDragPointerDown", message: "pointer down in tuner overlay", data: { guidedMode, guidedStep, dragMode, pointerId: e.pointerId, clientX: e.clientX, clientY: e.clientY, selectedProfile, startVw: activeTune.startVw, endVw: activeTune.endVw, objectPosY: activeTune.objectPosY }, timestamp: Date.now() }) }).catch(() => {});
+    // #endregion
     e.currentTarget.setPointerCapture(e.pointerId);
     e.preventDefault();
   };
@@ -431,6 +446,15 @@ export function AudioReactiveBackground({
           clamp(dragState.baseObjectPosY + deltaYPercent, -30, 40),
         );
       }
+      if (!dragDebugRef.current.hasLoggedMove) {
+        dragDebugRef.current.hasLoggedMove = true;
+        appendMobileTrace(
+          `guided-move step=${guidedStep} mode=${dragState.mode} dX=${Math.round(deltaX)} dY=${Math.round(deltaY)}`,
+        );
+        // #region agent log
+        fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix", hypothesisId: "H1_H3", location: "AudioReactiveBackground.tsx:onDragPointerMove-guidedBranch", message: "guided drag branch executed", data: { guidedStep, mode: dragState.mode, pointerId: e.pointerId, deltaX, deltaY, deltaVw, deltaYPercent, nextStartVw: dragState.baseStartVw + deltaVw, nextEndVw: dragState.baseEndVw + deltaVw, nextObjectPosY: dragState.baseObjectPosY + deltaYPercent }, timestamp: Date.now() }) }).catch(() => {});
+        // #endregion
+      }
       setMarker({ x: e.clientX, y: e.clientY });
       e.preventDefault();
       return;
@@ -463,6 +487,12 @@ export function AudioReactiveBackground({
       return;
     }
     if (!dragState || dragState.pointerId !== e.pointerId) {
+      appendMobileTrace(
+        `guard-return step=${guidedStep} mode=${dragMode} eventPid=${e.pointerId} dragPid=${dragState?.pointerId ?? "none"}`,
+      );
+      // #region agent log
+      fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix", hypothesisId: "H2", location: "AudioReactiveBackground.tsx:onDragPointerMove-guardReturn", message: "move ignored due to dragState mismatch", data: { guidedMode, guidedStep, dragMode, eventPointerId: e.pointerId, dragPointerId: dragState?.pointerId ?? null }, timestamp: Date.now() }) }).catch(() => {});
+      // #endregion
       return;
     }
     const xRatio = clamp(e.clientX / Math.max(1, window.innerWidth), 0, 1);
@@ -648,14 +678,25 @@ export function AudioReactiveBackground({
 
   const advanceGuided = () => {
     const next = guidedStep + 1;
+    appendMobileTrace(
+      `advance from=${guidedStep} to=${next >= guidedSteps.length ? "finalize" : next}`,
+    );
+    // #region agent log
+    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix", hypothesisId: "H4_H5", location: "AudioReactiveBackground.tsx:advanceGuided-before", message: "advance guided requested", data: { guidedStep, next, totalSteps: guidedSteps.length, dragMode, previewMode, tunerMinimized, selectedProfile, startVw: activeTune.startVw, endVw: activeTune.endVw, objectPosY: activeTune.objectPosY }, timestamp: Date.now() }) }).catch(() => {});
+    // #endregion
     if (next >= guidedSteps.length) {
       applyNormalizeSafe();
       setTunerNotice("Normalize Safe applied. Auto preview started.");
       setGuidedMode(false);
       setDragMode("off");
       setPreviewMode("scroll");
+      setTunerMinimized(true);
       setMarker(null);
       runAutoPreview();
+      appendMobileTrace("finalize normalize+autopreview");
+      // #region agent log
+      fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-post-fix", hypothesisId: "H5", location: "AudioReactiveBackground.tsx:advanceGuided-finalize", message: "guided finalize triggered normalize + auto preview + minimize", data: { selectedProfile, tunerMinimized: true }, timestamp: Date.now() }) }).catch(() => {});
+      // #endregion
       return;
     }
     setGuidedStep(next);
@@ -1092,6 +1133,26 @@ export function AudioReactiveBackground({
             >
               Cancel Guided
             </button>
+          </div>
+          <div className="mt-2 rounded border border-white/15 bg-black/40 p-2">
+            <div className="mb-1 flex items-center justify-between">
+              <p className="text-[11px] font-semibold text-cyan-100">Mobile Runtime Trace</p>
+              <button
+                type="button"
+                className="rounded bg-white/20 px-2 py-1 text-[10px]"
+                onClick={() => {
+                  if (typeof navigator !== "undefined" && navigator.clipboard) {
+                    void navigator.clipboard.writeText(mobileDebugTrace.join("\n"));
+                    setTunerNotice("Runtime trace copied.");
+                  }
+                }}
+              >
+                Copy Trace
+              </button>
+            </div>
+            <pre className="max-h-28 overflow-auto whitespace-pre-wrap text-[10px] text-cyan-50/90">
+              {mobileDebugTrace.length ? mobileDebugTrace.join("\n") : "No runtime entries yet."}
+            </pre>
           </div>
         </div>
       ) : null}
