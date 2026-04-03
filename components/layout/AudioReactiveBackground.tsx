@@ -386,6 +386,18 @@ export function AudioReactiveBackground({
     if (!tuneMode || tunerMinimized || dragMode === "off") {
       return;
     }
+    if (
+      guidedMode &&
+      (dragMode === "freeFrame" ||
+        dragMode === "horizontalFrame" ||
+        dragMode === "verticalFrame") &&
+      !e.isPrimary
+    ) {
+      appendMobileTrace(
+        `ignore-non-primary-down step=${guidedStep} mode=${dragMode} pid=${e.pointerId} type=${e.pointerType}`,
+      );
+      return;
+    }
     pointerCacheRef.current.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (!guidedMode && dragMode !== "frameY" && pointerCacheRef.current.size === 2) {
       const [a, b] = Array.from(pointerCacheRef.current.values());
@@ -406,7 +418,7 @@ export function AudioReactiveBackground({
     };
     dragDebugRef.current.hasLoggedMove = false;
     appendMobileTrace(
-      `down step=${guidedStep} mode=${dragMode} x=${Math.round(e.clientX)} y=${Math.round(e.clientY)}`,
+      `down step=${guidedStep} mode=${dragMode} pid=${e.pointerId} primary=${e.isPrimary} type=${e.pointerType} x=${Math.round(e.clientX)} y=${Math.round(e.clientY)}`,
     );
     // #region agent log
     fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix", hypothesisId: "H1_H2", location: "AudioReactiveBackground.tsx:onDragPointerDown", message: "pointer down in tuner overlay", data: { guidedMode, guidedStep, dragMode, pointerId: e.pointerId, clientX: e.clientX, clientY: e.clientY, selectedProfile, startVw: activeTune.startVw, endVw: activeTune.endVw, objectPosY: activeTune.objectPosY }, timestamp: Date.now() }) }).catch(() => {});
@@ -424,6 +436,12 @@ export function AudioReactiveBackground({
         dragMode === "horizontalFrame" ||
         dragMode === "verticalFrame")
     ) {
+      if (!e.isPrimary) {
+        appendMobileTrace(
+          `ignore-non-primary-move step=${guidedStep} mode=${dragMode} pid=${e.pointerId} type=${e.pointerType}`,
+        );
+        return;
+      }
       if (!dragState) {
         dragState = {
           pointerId: e.pointerId,
@@ -436,7 +454,7 @@ export function AudioReactiveBackground({
         };
         dragStateRef.current = dragState;
         appendMobileTrace(
-          `init-guided-pointer step=${guidedStep} mode=${dragState.mode} pid=${e.pointerId}`,
+          `init-guided-pointer step=${guidedStep} mode=${dragState.mode} pid=${e.pointerId} primary=${e.isPrimary} type=${e.pointerType}`,
         );
         // #region agent log
         fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-post-fix-v2", hypothesisId: "H2", location: "AudioReactiveBackground.tsx:onDragPointerMove-guidedInit", message: "guided pointer lazily initialized on move", data: { guidedStep, mode: dragState.mode, pointerId: e.pointerId, startVw: activeTune.startVw, endVw: activeTune.endVw, objectPosY: activeTune.objectPosY }, timestamp: Date.now() }) }).catch(() => {});
@@ -470,7 +488,7 @@ export function AudioReactiveBackground({
       if (!dragDebugRef.current.hasLoggedMove) {
         dragDebugRef.current.hasLoggedMove = true;
         appendMobileTrace(
-          `guided-move step=${guidedStep} mode=${dragState.mode} dX=${Math.round(deltaX)} dY=${Math.round(deltaY)}`,
+          `guided-move step=${guidedStep} mode=${dragState.mode} pid=${e.pointerId} dX=${Math.round(deltaX)} dY=${Math.round(deltaY)}`,
         );
         // #region agent log
         fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix", hypothesisId: "H1_H3", location: "AudioReactiveBackground.tsx:onDragPointerMove-guidedBranch", message: "guided drag branch executed", data: { guidedStep, mode: dragState.mode, pointerId: e.pointerId, deltaX, deltaY, deltaVw, deltaYPercent, nextStartVw: dragState.baseStartVw + deltaVw, nextEndVw: dragState.baseEndVw + deltaVw, nextObjectPosY: dragState.baseObjectPosY + deltaYPercent }, timestamp: Date.now() }) }).catch(() => {});
