@@ -90,12 +90,12 @@ const DEFAULT_DESKTOP_TUNE: MobileArpTune = {
   pulseScale: 0.1,
 };
 const START_VW_MIN = -140;
-const START_VW_MAX = 140;
+const START_VW_MAX = 220;
 const END_VW_MIN = -220;
-const END_VW_MAX = 80;
+const END_VW_MAX = 220;
 const WIDTH_VW_MIN = 120;
 const WIDTH_VW_MAX = 260;
-const GUIDED_MOBILE_MIN_WIDTH_VW = 200;
+const GUIDED_MOBILE_MIN_WIDTH_VW = WIDTH_VW_MAX;
 
 function getSafeTuneValues(
   tune: MobileArpTune,
