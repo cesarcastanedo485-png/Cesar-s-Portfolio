@@ -160,6 +160,7 @@ export function AudioReactiveBackground({
   const [tunerNotice, setTunerNotice] = useState("");
   const [lastSavedAt, setLastSavedAt] = useState<number | null>(null);
   const [mobileDebugTrace, setMobileDebugTrace] = useState<string[]>([]);
+  const [sendingTrace, setSendingTrace] = useState(false);
   const [dragMode, setDragMode] = useState<DragMode>("off");
   const [previewMode, setPreviewMode] = useState<PreviewMode>("scroll");
   const [selectedProfile, setSelectedProfile] = useState<TuneProfileName>("mobile");
@@ -193,6 +194,36 @@ export function AudioReactiveBackground({
       const next = [...prev, `${new Date().toLocaleTimeString()} ${entry}`];
       return next.length > 20 ? next.slice(next.length - 20) : next;
     });
+  };
+  const sendTraceToServer = async () => {
+    if (!mobileDebugTrace.length || sendingTrace) {
+      return;
+    }
+    setSendingTrace(true);
+    try {
+      const res = await fetch("/api/mobile-trace", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          trace: mobileDebugTrace,
+          context: {
+            route: typeof window !== "undefined" ? window.location.href : "",
+            userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
+            timestamp: Date.now(),
+          },
+        }),
+      });
+      const data = (await res.json()) as { ok?: boolean; id?: string };
+      if (res.ok && data.ok) {
+        setTunerNotice(`Trace sent. Share ID: ${data.id ?? "unknown"}`);
+      } else {
+        setTunerNotice("Trace send failed.");
+      }
+    } catch {
+      setTunerNotice("Trace send failed.");
+    } finally {
+      setSendingTrace(false);
+    }
   };
   const hasBaseImage = Boolean(imageSrc?.trim()) && !baseImageFailed;
   const hasBeatFlashImage =
@@ -1254,18 +1285,28 @@ export function AudioReactiveBackground({
           <div className="mt-2 rounded border border-white/15 bg-black/40 p-2">
             <div className="mb-1 flex items-center justify-between">
               <p className="text-[11px] font-semibold text-cyan-100">Mobile Runtime Trace</p>
-              <button
-                type="button"
-                className="rounded bg-white/20 px-2 py-1 text-[10px]"
-                onClick={() => {
-                  if (typeof navigator !== "undefined" && navigator.clipboard) {
-                    void navigator.clipboard.writeText(mobileDebugTrace.join("\n"));
-                    setTunerNotice("Runtime trace copied.");
-                  }
-                }}
-              >
-                Copy Trace
-              </button>
+              <div className="flex gap-1">
+                <button
+                  type="button"
+                  className="rounded bg-white/20 px-2 py-1 text-[10px]"
+                  onClick={() => {
+                    if (typeof navigator !== "undefined" && navigator.clipboard) {
+                      void navigator.clipboard.writeText(mobileDebugTrace.join("\n"));
+                      setTunerNotice("Runtime trace copied.");
+                    }
+                  }}
+                >
+                  Copy Trace
+                </button>
+                <button
+                  type="button"
+                  className="rounded bg-cyan-500/60 px-2 py-1 text-[10px]"
+                  onClick={() => void sendTraceToServer()}
+                  disabled={sendingTrace || mobileDebugTrace.length === 0}
+                >
+                  {sendingTrace ? "Sending..." : "Send Trace"}
+                </button>
+              </div>
             </div>
             <pre className="max-h-28 overflow-auto whitespace-pre-wrap text-[10px] text-cyan-50/90">
               {mobileDebugTrace.length ? mobileDebugTrace.join("\n") : "No runtime entries yet."}
