@@ -64,6 +64,7 @@ type DragMode =
   | "verticalFrame";
 type PreviewMode = "scroll" | "start" | "end";
 type TuneProfileName = "mobile" | "desktop";
+type ParallaxLayerName = "all" | "base" | "beatFlash" | "smoke" | "rain";
 
 type TuneProfiles = {
   mobile: MobileArpTune;
@@ -172,6 +173,9 @@ export function AudioReactiveBackground({
   const [dragMode, setDragMode] = useState<DragMode>("off");
   const [previewMode, setPreviewMode] = useState<PreviewMode>("scroll");
   const [selectedProfile, setSelectedProfile] = useState<TuneProfileName>("mobile");
+  const [selectedParallaxLayer, setSelectedParallaxLayer] =
+    useState<ParallaxLayerName>("base");
+  const [pendingGuidedFinalize, setPendingGuidedFinalize] = useState(false);
   const [tuneProfiles, setTuneProfiles] = useState<TuneProfiles>({
     mobile: seededMobileTune,
     desktop: seededDesktopTune,
@@ -260,6 +264,8 @@ export function AudioReactiveBackground({
     Boolean((beatFlashImageSrc || imageSrc)?.trim()) && !beatFlashImageFailed;
   const hasMushroomImage = Boolean(mushroomImageSrc?.trim()) && !mushroomImageFailed;
   const hasRainVideo = Boolean(rainVideoSrc?.trim()) && !rainVideoFailed;
+  const isLayerSelected = (layer: Exclude<ParallaxLayerName, "all">) =>
+    selectedParallaxLayer === "all" || selectedParallaxLayer === layer;
 
   const rainBlendRaw = (rainVideoBlend ?? "normal").toString().trim().toLowerCase();
   const rainBlendMode: "normal" | "screen" | "plus-lighter" =
@@ -377,6 +383,16 @@ export function AudioReactiveBackground({
   useEffect(() => {
     setSelectedProfile(narrowViewport ? "mobile" : "desktop");
   }, [narrowViewport]);
+
+  useEffect(() => {
+    if (!tuneMode) {
+      return;
+    }
+    appendMobileTrace(`layer-select layer=${selectedParallaxLayer}`);
+    // #region agent log
+    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix-v3", hypothesisId: "H14_H15", location: "AudioReactiveBackground.tsx:layerSelect-d3e82a", message: "tuner parallax layer selection changed", data: { selectedParallaxLayer, selectedProfile, guidedMode }, timestamp: Date.now() }) }).catch(() => {});
+    // #endregion
+  }, [guidedMode, selectedParallaxLayer, selectedProfile, tuneMode]);
 
   const localTuneActive = tuneMode || previewTuneMode;
   const activeTune =
@@ -987,6 +1003,7 @@ export function AudioReactiveBackground({
   };
 
   const beginGuided = () => {
+    setSelectedParallaxLayer("base");
     if (selectedProfile === "mobile") {
       setTuneProfiles((s) => ({
         ...s,
@@ -1025,16 +1042,16 @@ export function AudioReactiveBackground({
     // #endregion
     if (next >= guidedSteps.length) {
       applyNormalizeSafe();
-      setTunerNotice("Normalize Safe applied. Auto preview started.");
+      setPendingGuidedFinalize(true);
+      setTunerNotice("Normalize Safe queued. Auto preview starts after safe values apply.");
       setGuidedMode(false);
       setDragMode("off");
       setPreviewMode("scroll");
       setTunerMinimized(true);
       setMarker(null);
-      runAutoPreview();
-      appendMobileTrace("finalize normalize+autopreview");
+      appendMobileTrace("finalize normalize queued; waiting before autopreview");
       // #region agent log
-      fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-post-fix", hypothesisId: "H5", location: "AudioReactiveBackground.tsx:advanceGuided-finalize", message: "guided finalize triggered normalize + auto preview + minimize", data: { selectedProfile, tunerMinimized: true }, timestamp: Date.now() }) }).catch(() => {});
+      fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-post-fix", hypothesisId: "H5", location: "AudioReactiveBackground.tsx:advanceGuided-finalize", message: "guided finalize queued normalize before autoplay", data: { selectedProfile, pendingGuidedFinalize: true, tunerMinimized: true }, timestamp: Date.now() }) }).catch(() => {});
       // #endregion
       return;
     }
@@ -1069,6 +1086,35 @@ export function AudioReactiveBackground({
       }, 1400);
     }, 500);
   };
+
+  useEffect(() => {
+    if (!pendingGuidedFinalize) {
+      return;
+    }
+    const profileTune =
+      selectedProfile === "mobile" ? tuneProfiles.mobile : tuneProfiles.desktop;
+    const safeTune = getSafeTuneValues(profileTune, selectedProfile);
+    const isNormalized =
+      profileTune.widthVw === safeTune.widthVw &&
+      profileTune.startVw === safeTune.startVw &&
+      profileTune.endVw === safeTune.endVw &&
+      profileTune.objectPosY === safeTune.objectPosY;
+    if (!isNormalized) {
+      appendMobileTrace(
+        `finalize-wait profile=${selectedProfile} start=${profileTune.startVw.toFixed(2)} safeStart=${safeTune.startVw.toFixed(2)} end=${profileTune.endVw.toFixed(2)} safeEnd=${safeTune.endVw.toFixed(2)}`,
+      );
+      return;
+    }
+    appendMobileTrace(
+      `finalize-ready profile=${selectedProfile} start=${profileTune.startVw.toFixed(2)} end=${profileTune.endVw.toFixed(2)}; starting autopreview`,
+    );
+    // #region agent log
+    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix-v3", hypothesisId: "H12_H13", location: "AudioReactiveBackground.tsx:guidedFinalizeReady-d3e82a", message: "normalize-safe confirmed before autoplay", data: { selectedProfile, widthVw: profileTune.widthVw, startVw: profileTune.startVw, endVw: profileTune.endVw, objectPosY: profileTune.objectPosY }, timestamp: Date.now() }) }).catch(() => {});
+    // #endregion
+    setPendingGuidedFinalize(false);
+    setTunerNotice("Normalize Safe applied. Auto preview started.");
+    runAutoPreview();
+  }, [pendingGuidedFinalize, selectedProfile, tuneProfiles]);
 
   useEffect(() => {
     // #region agent log
@@ -1189,11 +1235,13 @@ export function AudioReactiveBackground({
   }, [hasBaseImage, hydrated, narrowViewport, panoramaWidth, playing]);
 
   const rainOpacityStyle: CSSProperties = {
-    opacity: playing
-      ? reduceMotion
-        ? "calc(0.07 + var(--arp-pulse, 0) * 0.22 + var(--arp-pulse-spike, 0) * 0.16)"
-        : "calc(0.14 + var(--arp-pulse, 0) * 0.42 + var(--arp-pulse-spike, 0) * 0.36)"
-      : 0,
+    opacity: tuneMode
+      ? 1
+      : playing
+        ? reduceMotion
+          ? "calc(0.07 + var(--arp-pulse, 0) * 0.22 + var(--arp-pulse-spike, 0) * 0.16)"
+          : "calc(0.14 + var(--arp-pulse, 0) * 0.42 + var(--arp-pulse-spike, 0) * 0.36)"
+        : 0,
   };
 
   const rainVideoStyle: CSSProperties = useLumaKey
@@ -1213,7 +1261,15 @@ export function AudioReactiveBackground({
   };
 
   const showCinematicFx = !tuneMode;
-  const rainPortalLayer = showCinematicFx && hasRainVideo ? (
+  const showBaseLayer = hasBaseImage && (!tuneMode || isLayerSelected("base"));
+  const showBeatFlashLayer =
+    hasBeatFlashImage &&
+    (!tuneMode ? showCinematicFx : isLayerSelected("beatFlash"));
+  const showSmokeLayer =
+    hasMushroomImage && (!tuneMode ? showCinematicFx : isLayerSelected("smoke"));
+  const showRainLayer =
+    hasRainVideo && (!tuneMode ? showCinematicFx : isLayerSelected("rain"));
+  const rainPortalLayer = showRainLayer ? (
       <div
         className="portfolio-rain-overlay pointer-events-none fixed inset-0 z-[520] min-h-[100svh] min-h-[100dvh] overflow-hidden"
         aria-hidden
@@ -1260,29 +1316,33 @@ export function AudioReactiveBackground({
         <div className="pointer-events-none absolute inset-0 min-h-[100svh] min-h-[100dvh]">
           {hasBaseImage ? (
             <>
-              {/* eslint-disable-next-line @next/next/no-img-element -- decorative full-bleed background */}
-              <img
-                src={imageSrc.trim()}
-                alt={imageAlt || ""}
-                ref={baseImageRef}
-                decoding="async"
-                fetchPriority="low"
-                sizes="100vw"
-                className="absolute left-0 top-0 h-full min-h-full max-w-none object-cover will-change-transform md:object-top-left"
-                style={{
-                  width: panoramaWidth,
-                  minWidth: panoramaWidth,
-                  objectPosition,
-                  objectFit: mobileObjectFit,
-                  transform:
-                    `translate3d(${baseScrollX}, 0, 0) scale(calc(1 + var(--arp-pulse, 0) * ${mobilePulseScale} * var(--arp-visual-mul, 1)))`,
-                  filter: showCinematicFx
-                    ? "brightness(calc(0.9 + var(--arp-pulse, 0) * 0.22 * var(--arp-visual-mul, 1))) contrast(calc(1 + var(--arp-pulse, 0) * 0.09 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.26 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 9deg))"
-                    : "none",
-                }}
-                onError={() => setBaseImageFailed(true)}
-              />
-              {showCinematicFx && hasBeatFlashImage ? (
+              {showBaseLayer ? (
+                <>
+                  {/* eslint-disable-next-line @next/next/no-img-element -- decorative full-bleed background */}
+                  <img
+                    src={imageSrc.trim()}
+                    alt={imageAlt || ""}
+                    ref={baseImageRef}
+                    decoding="async"
+                    fetchPriority="low"
+                    sizes="100vw"
+                    className="absolute left-0 top-0 h-full min-h-full max-w-none object-cover will-change-transform md:object-top-left"
+                    style={{
+                      width: panoramaWidth,
+                      minWidth: panoramaWidth,
+                      objectPosition,
+                      objectFit: mobileObjectFit,
+                      transform:
+                        `translate3d(${baseScrollX}, 0, 0) scale(calc(1 + var(--arp-pulse, 0) * ${mobilePulseScale} * var(--arp-visual-mul, 1)))`,
+                      filter: showCinematicFx
+                        ? "brightness(calc(0.9 + var(--arp-pulse, 0) * 0.22 * var(--arp-visual-mul, 1))) contrast(calc(1 + var(--arp-pulse, 0) * 0.09 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.26 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 9deg))"
+                        : "none",
+                    }}
+                    onError={() => setBaseImageFailed(true)}
+                  />
+                </>
+              ) : null}
+              {showBeatFlashLayer ? (
                 <img
                   src={(beatFlashImageSrc || imageSrc).trim()}
                   alt=""
@@ -1296,9 +1356,11 @@ export function AudioReactiveBackground({
                     objectPosition,
                     objectFit: mobileObjectFit,
                     transform: `translate3d(${baseScrollX}, 0, 0)`,
-                    opacity: playing
-                      ? `calc((0.03 + var(--arp-pulse, 0) * 0.08 + var(--arp-pulse-spike, 0) * 0.22) * ${flashGain})`
-                      : "0",
+                    opacity: tuneMode
+                      ? "1"
+                      : playing
+                        ? `calc((0.03 + var(--arp-pulse, 0) * 0.08 + var(--arp-pulse-spike, 0) * 0.22) * ${flashGain})`
+                        : "0",
                     filter:
                       "hue-rotate(86deg) saturate(1.5) contrast(1.14) brightness(1.1)",
                   }}
@@ -1353,7 +1415,7 @@ export function AudioReactiveBackground({
                 }}
                 />
               ) : null}
-              {showCinematicFx && hasMushroomImage ? (
+              {showSmokeLayer ? (
                 <div className="portfolio-smoke-parallax pointer-events-none absolute inset-0">
                   {/* eslint-disable-next-line @next/next/no-img-element -- bottom smoke parallax sits above dark plate, below rain/text chrome */}
                   <img
@@ -1367,15 +1429,17 @@ export function AudioReactiveBackground({
                       width: smokeOverlayWidth,
                       transform:
                         `translate3d(calc(-50% - var(--arp-scroll-x, 0vw) * 0.26), 20%, 0) scale(${narrowViewport ? "calc(1.3 + var(--arp-pulse, 0) * 0.12 + var(--arp-pulse-spike, 0) * 0.1)" : "calc(1.04 + var(--arp-pulse, 0) * 0.08 + var(--arp-pulse-spike, 0) * 0.05)"})`,
-                      opacity: playing
-                        ? narrowViewport
-                          ? reduceMotion
-                            ? "calc(0.54 + var(--arp-pulse, 0) * 0.24 + var(--arp-pulse-spike, 0) * 0.3)"
-                            : "calc(0.68 + var(--arp-pulse, 0) * 0.32 + var(--arp-pulse-spike, 0) * 0.4)"
-                          : reduceMotion
-                            ? "calc(0.24 + var(--arp-pulse, 0) * 0.16 + var(--arp-pulse-spike, 0) * 0.2)"
-                            : "calc(0.3 + var(--arp-pulse, 0) * 0.24 + var(--arp-pulse-spike, 0) * 0.32)"
-                        : "0",
+                      opacity: tuneMode
+                        ? "1"
+                        : playing
+                          ? narrowViewport
+                            ? reduceMotion
+                              ? "calc(0.54 + var(--arp-pulse, 0) * 0.24 + var(--arp-pulse-spike, 0) * 0.3)"
+                              : "calc(0.68 + var(--arp-pulse, 0) * 0.32 + var(--arp-pulse-spike, 0) * 0.4)"
+                            : reduceMotion
+                              ? "calc(0.24 + var(--arp-pulse, 0) * 0.16 + var(--arp-pulse-spike, 0) * 0.2)"
+                              : "calc(0.3 + var(--arp-pulse, 0) * 0.24 + var(--arp-pulse-spike, 0) * 0.32)"
+                          : "0",
                       filter:
                         "brightness(calc(0.96 + var(--arp-pulse, 0) * 0.24 + var(--arp-pulse-spike, 0) * 0.16)) contrast(1.28) saturate(calc(1.1 + var(--arp-pulse, 0) * 0.24))",
                     }}
@@ -1529,6 +1593,35 @@ export function AudioReactiveBackground({
               {lastSavedAt ? ` Last save: ${new Date(lastSavedAt).toLocaleTimeString()}` : ""}
             </p>
           ) : null}
+          <label className="mb-2 block text-[11px] text-white/80">
+            Parallax Select
+            <select
+              className="mt-1 w-full rounded border border-white/20 bg-black/70 px-2 py-1 text-xs text-white"
+              value={selectedParallaxLayer}
+              onChange={(e) =>
+                setSelectedParallaxLayer(e.target.value as ParallaxLayerName)
+              }
+            >
+              <option value="base">Background Layer</option>
+              <option value="beatFlash">Beat Flash Layer</option>
+              <option value="smoke">Smoke Layer</option>
+              <option value="rain">Rain Layer</option>
+              <option value="all">All Layers</option>
+            </select>
+          </label>
+          <p className="mb-2 text-[11px] text-white/65">
+            Editing layer:{" "}
+            {selectedParallaxLayer === "base"
+              ? "Background"
+              : selectedParallaxLayer === "beatFlash"
+                ? "Beat Flash"
+                : selectedParallaxLayer === "smoke"
+                  ? "Smoke"
+                  : selectedParallaxLayer === "rain"
+                    ? "Rain"
+                    : "All Layers"}{" "}
+            (anchors/zoom are shared across layers).
+          </p>
           <div className="mb-2 flex gap-2">
             <button
               type="button"
