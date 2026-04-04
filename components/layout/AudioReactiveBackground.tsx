@@ -511,7 +511,7 @@ export function AudioReactiveBackground({
     const safeWidth = Math.max(132, Math.min(WIDTH_VW_MAX, activeTune.widthVw));
     const safeTravel = Math.max(0, safeWidth - 100);
     appendMobileTrace(
-      `render-state step=${guidedStep} preview=${previewMode} forced=${forcedScrollX ?? "none"} cssX=${computedX ?? "none"} width=${activeTune.widthVw.toFixed(2)} safeTravel=${safeTravel.toFixed(2)} activeStart=${activeTune.startVw.toFixed(2)} activeEnd=${activeTune.endVw.toFixed(2)} safeStart=${safeActiveTune.startVw.toFixed(2)} safeEnd=${safeActiveTune.endVw.toFixed(2)} fit=${fitMode} cropX=${intrinsicCropX.toFixed(1)} src=${(baseImage?.currentSrc ?? imageSrc).split("/").slice(-1)[0] ?? "unknown"} op=${baseImage ? getComputedStyle(baseImage).opacity : "n/a"} vis=${baseImage ? getComputedStyle(baseImage).visibility : "n/a"} top=${topTag} topClass=${topClass || "none"} stack=${stack} transform=${imageTransform ?? "none"}`,
+      `render-state step=${guidedStep} preview=${previewMode} forced=${forcedScrollX ?? "none"} cssX=${computedX ?? "none"} width=${activeTune.widthVw.toFixed(2)} safeTravel=${safeTravel.toFixed(2)} activeStart=${activeTune.startVw.toFixed(2)} activeEnd=${activeTune.endVw.toFixed(2)} safeStart=${safeActiveTune.startVw.toFixed(2)} safeEnd=${safeActiveTune.endVw.toFixed(2)} layer=${selectedParallaxLayer} fit=${fitMode} cropX=${intrinsicCropX.toFixed(1)} src=${(baseImage?.currentSrc ?? imageSrc).split("/").slice(-1)[0] ?? "unknown"} op=${baseImage ? getComputedStyle(baseImage).opacity : "n/a"} vis=${baseImage ? getComputedStyle(baseImage).visibility : "n/a"} top=${topTag} topClass=${topClass || "none"} stack=${stack} transform=${imageTransform ?? "none"}`,
     );
     // #region agent log
     fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix-v5", hypothesisId: "H9", location: "AudioReactiveBackground.tsx:guidedRenderState", message: "guided render state snapshot", data: { guidedStep, previewMode, forcedScrollX: forcedScrollX ?? null, cssVarX: computedX, imageTransform, safeStart: safeActiveTune.startVw, safeEnd: safeActiveTune.endVw, selectedProfile }, timestamp: Date.now() }) }).catch(() => {});
@@ -527,6 +527,7 @@ export function AudioReactiveBackground({
     safeActiveTune.endVw,
     safeActiveTune.startVw,
     selectedProfile,
+    selectedParallaxLayer,
     tuneMode,
   ]);
 
@@ -1518,6 +1519,34 @@ export function AudioReactiveBackground({
         <div className="fixed left-2 right-2 top-2 z-[9102] rounded-xl border border-cyan-300/20 bg-black/85 p-3 text-xs text-white shadow-2xl backdrop-blur">
           <p className="text-sm font-semibold text-cyan-100">
             Step {guidedStep + 1}/{guidedSteps.length}: {currentGuidedStep?.label}
+          </p>
+          <label className="mt-2 block text-[11px] font-semibold text-cyan-100">
+            Parallax Select
+            <select
+              className="mt-1 w-full rounded-md border border-white/25 bg-black/60 px-2 py-1.5 text-xs text-white outline-none transition focus:border-cyan-300/60"
+              value={selectedParallaxLayer}
+              onChange={(e) =>
+                setSelectedParallaxLayer(e.target.value as ParallaxLayerName)
+              }
+            >
+              <option value="base">Background Layer</option>
+              <option value="beatFlash">Beat Flash Layer</option>
+              <option value="smoke">Smoke Layer</option>
+              <option value="rain">Rain Layer</option>
+              <option value="all">All Layers</option>
+            </select>
+          </label>
+          <p className="mt-1 text-[10px] text-white/60">
+            Editing layer:{" "}
+            {selectedParallaxLayer === "base"
+              ? "Background"
+              : selectedParallaxLayer === "beatFlash"
+                ? "Beat Flash"
+                : selectedParallaxLayer === "smoke"
+                  ? "Smoke"
+                  : selectedParallaxLayer === "rain"
+                    ? "Rain"
+                    : "All Layers"}
           </p>
           <p className="mt-1 text-[11px] text-white/70">
             {currentGuidedStep?.help}
