@@ -1304,13 +1304,16 @@ export function AudioReactiveBackground({
       {/* Visual layers only: stacking context stays behind page content */}
       <div
         ref={containerRef}
-        className={`audio-reactive-bg-root pointer-events-none fixed inset-x-0 top-0 bottom-0 ${tuneMode ? "z-[997]" : "z-0"} min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-visual-mul:0.96] md:[--arp-visual-mul:1]`}
+        className={`audio-reactive-bg-root pointer-events-none fixed inset-x-0 top-0 bottom-0 ${tuneMode ? "z-[9000]" : "z-0"} min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-visual-mul:0.96] md:[--arp-visual-mul:1]`}
         style={
           forcedScrollX
             ? ({
                 "--arp-scroll-x": forcedScrollX,
+                background: tuneMode ? "#000" : undefined,
               } as CSSProperties)
-            : undefined
+            : tuneMode
+              ? ({ background: "#000" } as CSSProperties)
+              : undefined
         }
       >
         <div className="pointer-events-none absolute inset-0 min-h-[100svh] min-h-[100dvh]">
@@ -1470,7 +1473,7 @@ export function AudioReactiveBackground({
       {tuneMode ? (
         <button
           type="button"
-          className="fixed right-3 top-3 z-[1001] rounded-full border border-cyan-300/40 bg-cyan-600/90 px-4 py-2 text-xs font-semibold text-white shadow-xl backdrop-blur transition hover:bg-cyan-500/90 md:right-[23.5rem]"
+          className="fixed right-3 top-3 z-[9103] rounded-full border border-cyan-300/40 bg-cyan-600/90 px-4 py-2 text-xs font-semibold text-white shadow-xl backdrop-blur transition hover:bg-cyan-500/90 md:right-[23.5rem]"
           onClick={() => {
             setTunerMinimized((prev) => {
               const next = !prev;
@@ -1494,7 +1497,7 @@ export function AudioReactiveBackground({
 
       {tuneMode && !tunerMinimized && dragMode !== "off" ? (
         <div
-          className="fixed inset-0 z-[998] cursor-grab touch-none active:cursor-grabbing"
+          className="fixed inset-0 z-[9100] cursor-grab touch-none active:cursor-grabbing"
           onPointerDown={onDragPointerDown}
           onPointerMove={onDragPointerMove}
           onPointerUp={onDragPointerUp}
@@ -1505,14 +1508,14 @@ export function AudioReactiveBackground({
 
       {tuneMode && !tunerMinimized && marker ? (
         <div
-          className="fixed z-[999] h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-cyan-300 bg-cyan-400/30"
+          className="fixed z-[9101] h-4 w-4 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-cyan-300 bg-cyan-400/30"
           style={{ left: marker.x, top: marker.y }}
           aria-hidden
         />
       ) : null}
 
       {tuneMode && !tunerMinimized && guidedMode ? (
-        <div className="fixed left-2 right-2 top-2 z-[1000] rounded-xl border border-cyan-300/20 bg-black/85 p-3 text-xs text-white shadow-2xl backdrop-blur">
+        <div className="fixed left-2 right-2 top-2 z-[9102] rounded-xl border border-cyan-300/20 bg-black/85 p-3 text-xs text-white shadow-2xl backdrop-blur">
           <p className="text-sm font-semibold text-cyan-100">
             Step {guidedStep + 1}/{guidedSteps.length}: {currentGuidedStep?.label}
           </p>
@@ -1581,7 +1584,7 @@ export function AudioReactiveBackground({
       ) : null}
 
       {tuneMode && !tunerMinimized && !guidedMode ? (
-        <div className="fixed bottom-3 right-3 z-[999] w-[min(23.5rem,94vw)] rounded-xl border border-cyan-300/20 bg-black/85 p-3 text-xs text-white shadow-2xl backdrop-blur">
+        <div className="fixed bottom-3 right-3 z-[9102] w-[min(23.5rem,94vw)] rounded-xl border border-cyan-300/20 bg-black/85 p-3 text-xs text-white shadow-2xl backdrop-blur">
           <p className="mb-1 text-sm font-semibold text-cyan-100">Mobile Parallax Tuner</p>
           <p className="mb-2 text-[11px] text-white/70">
             Active only with <code>?arpTune=1</code>. Tuner values are local-only and
