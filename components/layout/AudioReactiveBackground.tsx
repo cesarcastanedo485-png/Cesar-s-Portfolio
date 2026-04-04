@@ -463,7 +463,7 @@ export function AudioReactiveBackground({
     const imageRect = baseImage?.getBoundingClientRect();
     const naturalW = baseImage?.naturalWidth ?? 0;
     const naturalH = baseImage?.naturalHeight ?? 0;
-    const fitMode = tuneMode ? "contain" : "cover";
+    const fitMode = "cover";
     let intrinsicCropX = 0;
     if (imageRect && naturalW > 0 && naturalH > 0) {
       const scale =
@@ -476,7 +476,7 @@ export function AudioReactiveBackground({
     const safeWidth = Math.max(132, Math.min(WIDTH_VW_MAX, activeTune.widthVw));
     const safeTravel = Math.max(0, safeWidth - 100);
     appendMobileTrace(
-      `render-state step=${guidedStep} preview=${previewMode} forced=${forcedScrollX ?? "none"} cssX=${computedX ?? "none"} width=${activeTune.widthVw.toFixed(2)} safeTravel=${safeTravel.toFixed(2)} activeStart=${activeTune.startVw.toFixed(2)} activeEnd=${activeTune.endVw.toFixed(2)} safeStart=${safeActiveTune.startVw.toFixed(2)} safeEnd=${safeActiveTune.endVw.toFixed(2)} fit=${fitMode} cropX=${intrinsicCropX.toFixed(1)} transform=${imageTransform ?? "none"}`,
+      `render-state step=${guidedStep} preview=${previewMode} forced=${forcedScrollX ?? "none"} cssX=${computedX ?? "none"} width=${activeTune.widthVw.toFixed(2)} safeTravel=${safeTravel.toFixed(2)} activeStart=${activeTune.startVw.toFixed(2)} activeEnd=${activeTune.endVw.toFixed(2)} safeStart=${safeActiveTune.startVw.toFixed(2)} safeEnd=${safeActiveTune.endVw.toFixed(2)} objX=${activeTune.objectPosX.toFixed(2)} fit=${fitMode} cropX=${intrinsicCropX.toFixed(1)} transform=${imageTransform ?? "none"}`,
     );
     // #region agent log
     fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix-v5", hypothesisId: "H9", location: "AudioReactiveBackground.tsx:guidedRenderState", message: "guided render state snapshot", data: { guidedStep, previewMode, forcedScrollX: forcedScrollX ?? null, cssVarX: computedX, imageTransform, safeStart: safeActiveTune.startVw, safeEnd: safeActiveTune.endVw, selectedProfile }, timestamp: Date.now() }) }).catch(() => {});
@@ -853,7 +853,7 @@ export function AudioReactiveBackground({
   const objectPosition = narrowViewport
     ? `${mobileObjectPosX}% ${mobileObjectPosY}%`
     : `${desktopObjectPosX}% ${desktopObjectPosY}%`;
-  const mobileObjectFit = tuneMode ? "contain" : "cover";
+  const mobileObjectFit = "cover";
   const mobilePulseScale = narrowViewport
     ? mobileTunePulseScale
     : desktopTunePulseScale;
@@ -957,6 +957,7 @@ export function AudioReactiveBackground({
             // Reset guided baseline so each run starts from a predictable center frame.
             startVw: 0,
             endVw: MOBILE_ARP_SHIFT_END_VW,
+            objectPosX: 50,
             objectPosY: 0,
           },
           "mobile",
