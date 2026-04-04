@@ -1606,7 +1606,7 @@ export function AudioReactiveBackground({
             <button
               type="button"
               className={`rounded-md px-2 py-1.5 transition ${autoPreviewRunning ? "bg-cyan-600 font-semibold text-white" : "border border-white/20 bg-white/10 text-white/90 hover:bg-white/20"}`}
-              onClick={runAutoPreview}
+              onClick={() => runAutoPreview()}
               disabled={autoPreviewRunning}
             >
               {autoPreviewRunning ? "Previewing..." : "Auto Preview"}
