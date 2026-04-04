@@ -468,6 +468,17 @@ export function AudioReactiveBackground({
         : null;
     const topTag = topEl?.tagName?.toLowerCase() ?? "none";
     const topClass = typeof topEl?.className === "string" ? topEl.className : "none";
+    const stack =
+      typeof document !== "undefined"
+        ? document
+            .elementsFromPoint(centerX, centerY)
+            .slice(0, 4)
+            .map((el) => {
+              const cls = typeof el.className === "string" ? el.className : "";
+              return `${el.tagName.toLowerCase()}:${cls || "none"}`;
+            })
+            .join(" > ")
+        : "none";
     const imageRect = baseImage?.getBoundingClientRect();
     const naturalW = baseImage?.naturalWidth ?? 0;
     const naturalH = baseImage?.naturalHeight ?? 0;
@@ -484,7 +495,7 @@ export function AudioReactiveBackground({
     const safeWidth = Math.max(132, Math.min(WIDTH_VW_MAX, activeTune.widthVw));
     const safeTravel = Math.max(0, safeWidth - 100);
     appendMobileTrace(
-      `render-state step=${guidedStep} preview=${previewMode} forced=${forcedScrollX ?? "none"} cssX=${computedX ?? "none"} width=${activeTune.widthVw.toFixed(2)} safeTravel=${safeTravel.toFixed(2)} activeStart=${activeTune.startVw.toFixed(2)} activeEnd=${activeTune.endVw.toFixed(2)} safeStart=${safeActiveTune.startVw.toFixed(2)} safeEnd=${safeActiveTune.endVw.toFixed(2)} fit=${fitMode} cropX=${intrinsicCropX.toFixed(1)} src=${(baseImage?.currentSrc ?? imageSrc).split("/").slice(-1)[0] ?? "unknown"} op=${baseImage ? getComputedStyle(baseImage).opacity : "n/a"} vis=${baseImage ? getComputedStyle(baseImage).visibility : "n/a"} top=${topTag} topClass=${topClass || "none"} transform=${imageTransform ?? "none"}`,
+      `render-state step=${guidedStep} preview=${previewMode} forced=${forcedScrollX ?? "none"} cssX=${computedX ?? "none"} width=${activeTune.widthVw.toFixed(2)} safeTravel=${safeTravel.toFixed(2)} activeStart=${activeTune.startVw.toFixed(2)} activeEnd=${activeTune.endVw.toFixed(2)} safeStart=${safeActiveTune.startVw.toFixed(2)} safeEnd=${safeActiveTune.endVw.toFixed(2)} fit=${fitMode} cropX=${intrinsicCropX.toFixed(1)} src=${(baseImage?.currentSrc ?? imageSrc).split("/").slice(-1)[0] ?? "unknown"} op=${baseImage ? getComputedStyle(baseImage).opacity : "n/a"} vis=${baseImage ? getComputedStyle(baseImage).visibility : "n/a"} top=${topTag} topClass=${topClass || "none"} stack=${stack} transform=${imageTransform ?? "none"}`,
     );
     // #region agent log
     fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix-v5", hypothesisId: "H9", location: "AudioReactiveBackground.tsx:guidedRenderState", message: "guided render state snapshot", data: { guidedStep, previewMode, forcedScrollX: forcedScrollX ?? null, cssVarX: computedX, imageTransform, safeStart: safeActiveTune.startVw, safeEnd: safeActiveTune.endVw, selectedProfile }, timestamp: Date.now() }) }).catch(() => {});
@@ -1237,7 +1248,7 @@ export function AudioReactiveBackground({
       {/* Visual layers only: stacking context stays behind page content */}
       <div
         ref={containerRef}
-        className="audio-reactive-bg-root pointer-events-none fixed inset-x-0 top-0 bottom-0 z-0 min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-visual-mul:0.96] md:[--arp-visual-mul:1]"
+        className={`audio-reactive-bg-root pointer-events-none fixed inset-x-0 top-0 bottom-0 ${tuneMode ? "z-[997]" : "z-0"} min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-visual-mul:0.96] md:[--arp-visual-mul:1]`}
         style={
           forcedScrollX
             ? ({
