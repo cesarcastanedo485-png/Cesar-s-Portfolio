@@ -511,7 +511,7 @@ export function AudioReactiveBackground({
     const safeWidth = Math.max(132, Math.min(WIDTH_VW_MAX, activeTune.widthVw));
     const safeTravel = Math.max(0, safeWidth - 100);
     appendMobileTrace(
-      `render-state step=${guidedStep} preview=${previewMode} forced=${forcedScrollX ?? "none"} cssX=${computedX ?? "none"} width=${activeTune.widthVw.toFixed(2)} safeTravel=${safeTravel.toFixed(2)} activeStart=${activeTune.startVw.toFixed(2)} activeEnd=${activeTune.endVw.toFixed(2)} safeStart=${safeActiveTune.startVw.toFixed(2)} safeEnd=${safeActiveTune.endVw.toFixed(2)} layer=${selectedParallaxLayer} fit=${fitMode} cropX=${intrinsicCropX.toFixed(1)} src=${(baseImage?.currentSrc ?? imageSrc).split("/").slice(-1)[0] ?? "unknown"} op=${baseImage ? getComputedStyle(baseImage).opacity : "n/a"} vis=${baseImage ? getComputedStyle(baseImage).visibility : "n/a"} top=${topTag} topClass=${topClass || "none"} stack=${stack} transform=${imageTransform ?? "none"}`,
+      `render-state step=${guidedStep} preview=${previewMode} forced=${forcedScrollX ?? "none"} cssX=${computedX ?? "none"} width=${activeTune.widthVw.toFixed(2)} safeTravel=${safeTravel.toFixed(2)} activeStart=${activeTune.startVw.toFixed(2)} activeEnd=${activeTune.endVw.toFixed(2)} safeStart=${safeActiveTune.startVw.toFixed(2)} safeEnd=${safeActiveTune.endVw.toFixed(2)} layer=${selectedParallaxLayer} lock=${layerSelectLocked ? 1 : 0} showBase=${showBaseLayer ? 1 : 0} showBeat=${showBeatFlashLayer ? 1 : 0} showSmoke=${showSmokeLayer ? 1 : 0} showRain=${showRainLayer ? 1 : 0} fit=${fitMode} cropX=${intrinsicCropX.toFixed(1)} src=${(baseImage?.currentSrc ?? imageSrc).split("/").slice(-1)[0] ?? "unknown"} op=${baseImage ? getComputedStyle(baseImage).opacity : "n/a"} vis=${baseImage ? getComputedStyle(baseImage).visibility : "n/a"} top=${topTag} topClass=${topClass || "none"} stack=${stack} transform=${imageTransform ?? "none"}`,
     );
     // #region agent log
     fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix-v5", hypothesisId: "H9", location: "AudioReactiveBackground.tsx:guidedRenderState", message: "guided render state snapshot", data: { guidedStep, previewMode, forcedScrollX: forcedScrollX ?? null, cssVarX: computedX, imageTransform, safeStart: safeActiveTune.startVw, safeEnd: safeActiveTune.endVw, selectedProfile }, timestamp: Date.now() }) }).catch(() => {});
@@ -528,6 +528,11 @@ export function AudioReactiveBackground({
     safeActiveTune.startVw,
     selectedProfile,
     selectedParallaxLayer,
+    showBaseLayer,
+    showBeatFlashLayer,
+    showSmokeLayer,
+    showRainLayer,
+    layerSelectLocked,
     tuneMode,
   ]);
 
@@ -1270,6 +1275,7 @@ export function AudioReactiveBackground({
     hasMushroomImage && (!tuneMode ? showCinematicFx : isLayerSelected("smoke"));
   const showRainLayer =
     hasRainVideo && (!tuneMode ? showCinematicFx : isLayerSelected("rain"));
+  const layerSelectLocked = guidedMode && guidedStep > 0;
   const rainPortalLayer = showRainLayer ? (
       <div
         className="portfolio-rain-overlay pointer-events-none fixed inset-0 z-[520] min-h-[100svh] min-h-[100dvh] overflow-hidden"
@@ -1299,6 +1305,10 @@ export function AudioReactiveBackground({
         </div>
       </div>
   ) : null;
+
+  const baseTransform = tuneMode
+    ? `translate3d(${baseScrollX}, 0, 0)`
+    : `translate3d(${baseScrollX}, 0, 0) scale(calc(1 + var(--arp-pulse, 0) * ${mobilePulseScale} * var(--arp-visual-mul, 1)))`;
 
   return (
     <>
@@ -1336,8 +1346,7 @@ export function AudioReactiveBackground({
                       minWidth: panoramaWidth,
                       objectPosition,
                       objectFit: mobileObjectFit,
-                      transform:
-                        `translate3d(${baseScrollX}, 0, 0) scale(calc(1 + var(--arp-pulse, 0) * ${mobilePulseScale} * var(--arp-visual-mul, 1)))`,
+                      transform: baseTransform,
                       filter: showCinematicFx
                         ? "brightness(calc(0.9 + var(--arp-pulse, 0) * 0.22 * var(--arp-visual-mul, 1))) contrast(calc(1 + var(--arp-pulse, 0) * 0.09 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.26 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 9deg))"
                         : "none",
@@ -1525,6 +1534,7 @@ export function AudioReactiveBackground({
             <select
               className="mt-1 w-full rounded-md border border-white/25 bg-black/60 px-2 py-1.5 text-xs text-white outline-none transition focus:border-cyan-300/60"
               value={selectedParallaxLayer}
+              disabled={layerSelectLocked}
               onChange={(e) =>
                 setSelectedParallaxLayer(e.target.value as ParallaxLayerName)
               }
@@ -1548,6 +1558,11 @@ export function AudioReactiveBackground({
                     ? "Rain"
                     : "All Layers"}
           </p>
+          {layerSelectLocked ? (
+            <p className="mt-1 text-[10px] text-amber-200/90">
+              Layer selection locked after Step 1.
+            </p>
+          ) : null}
           <p className="mt-1 text-[11px] text-white/70">
             {currentGuidedStep?.help}
           </p>
@@ -1630,6 +1645,7 @@ export function AudioReactiveBackground({
             <select
               className="mt-1 w-full rounded-md border border-white/25 bg-black/60 px-2 py-1.5 text-xs text-white outline-none transition focus:border-cyan-300/60"
               value={selectedParallaxLayer}
+              disabled={layerSelectLocked}
               onChange={(e) =>
                 setSelectedParallaxLayer(e.target.value as ParallaxLayerName)
               }
@@ -1654,6 +1670,11 @@ export function AudioReactiveBackground({
                     : "All Layers"}{" "}
             (anchors/zoom are shared across layers).
           </p>
+          {layerSelectLocked ? (
+            <p className="mb-2 text-[10px] text-amber-200/90">
+              Layer selection locked after Step 1.
+            </p>
+          ) : null}
           <div className="mb-3 flex gap-2">
             <button
               type="button"
