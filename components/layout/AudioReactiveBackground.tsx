@@ -463,7 +463,7 @@ export function AudioReactiveBackground({
     const imageRect = baseImage?.getBoundingClientRect();
     const naturalW = baseImage?.naturalWidth ?? 0;
     const naturalH = baseImage?.naturalHeight ?? 0;
-    const fitMode = "cover";
+    const fitMode = tuneMode ? "contain" : "cover";
     let intrinsicCropX = 0;
     if (imageRect && naturalW > 0 && naturalH > 0) {
       const scale =
@@ -476,7 +476,7 @@ export function AudioReactiveBackground({
     const safeWidth = Math.max(132, Math.min(WIDTH_VW_MAX, activeTune.widthVw));
     const safeTravel = Math.max(0, safeWidth - 100);
     appendMobileTrace(
-      `render-state step=${guidedStep} preview=${previewMode} forced=${forcedScrollX ?? "none"} cssX=${computedX ?? "none"} width=${activeTune.widthVw.toFixed(2)} safeTravel=${safeTravel.toFixed(2)} activeStart=${activeTune.startVw.toFixed(2)} activeEnd=${activeTune.endVw.toFixed(2)} safeStart=${safeActiveTune.startVw.toFixed(2)} safeEnd=${safeActiveTune.endVw.toFixed(2)} objX=${activeTune.objectPosX.toFixed(2)} fit=${fitMode} cropX=${intrinsicCropX.toFixed(1)} transform=${imageTransform ?? "none"}`,
+      `render-state step=${guidedStep} preview=${previewMode} forced=${forcedScrollX ?? "none"} cssX=${computedX ?? "none"} width=${activeTune.widthVw.toFixed(2)} safeTravel=${safeTravel.toFixed(2)} activeStart=${activeTune.startVw.toFixed(2)} activeEnd=${activeTune.endVw.toFixed(2)} safeStart=${safeActiveTune.startVw.toFixed(2)} safeEnd=${safeActiveTune.endVw.toFixed(2)} fit=${fitMode} cropX=${intrinsicCropX.toFixed(1)} src=${(baseImage?.currentSrc ?? imageSrc).split("/").slice(-1)[0] ?? "unknown"} op=${baseImage ? getComputedStyle(baseImage).opacity : "n/a"} vis=${baseImage ? getComputedStyle(baseImage).visibility : "n/a"} transform=${imageTransform ?? "none"}`,
     );
     // #region agent log
     fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix-v5", hypothesisId: "H9", location: "AudioReactiveBackground.tsx:guidedRenderState", message: "guided render state snapshot", data: { guidedStep, previewMode, forcedScrollX: forcedScrollX ?? null, cssVarX: computedX, imageTransform, safeStart: safeActiveTune.startVw, safeEnd: safeActiveTune.endVw, selectedProfile }, timestamp: Date.now() }) }).catch(() => {});
@@ -494,6 +494,27 @@ export function AudioReactiveBackground({
     selectedProfile,
     tuneMode,
   ]);
+
+  useEffect(() => {
+    if (!tuneMode || !guidedMode || typeof window === "undefined") {
+      return;
+    }
+    const frame = requestAnimationFrame(() => {
+      const centerX = Math.round(window.innerWidth / 2);
+      const centerY = Math.round(window.innerHeight / 2);
+      const topEl = document.elementFromPoint(centerX, centerY);
+      const topTag = topEl?.tagName?.toLowerCase() ?? "none";
+      const topClass =
+        typeof topEl?.className === "string" ? topEl.className : "";
+      appendMobileTrace(
+        `hit-test step=${guidedStep} preview=${previewMode} center=(${centerX},${centerY}) top=${topTag} class=${topClass || "none"} tunerMin=${tunerMinimized ? 1 : 0}`,
+      );
+      // #region agent log
+      fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix-v2", hypothesisId: "H9_H10_H11", location: "AudioReactiveBackground.tsx:guidedHitTest-d3e82a", message: "center-point top element while guided", data: { guidedStep, previewMode, centerX, centerY, topTag, topClass, tunerMinimized }, timestamp: Date.now() }) }).catch(() => {});
+      // #endregion
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [guidedMode, guidedStep, previewMode, tuneMode, tunerMinimized]);
 
   const onDragPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (!tuneMode || tunerMinimized || dragMode === "off") {
@@ -853,7 +874,7 @@ export function AudioReactiveBackground({
   const objectPosition = narrowViewport
     ? `${mobileObjectPosX}% ${mobileObjectPosY}%`
     : `${desktopObjectPosX}% ${desktopObjectPosY}%`;
-  const mobileObjectFit = "cover";
+  const mobileObjectFit = tuneMode ? "contain" : "cover";
   const mobilePulseScale = narrowViewport
     ? mobileTunePulseScale
     : desktopTunePulseScale;
@@ -957,7 +978,6 @@ export function AudioReactiveBackground({
             // Reset guided baseline so each run starts from a predictable center frame.
             startVw: 0,
             endVw: MOBILE_ARP_SHIFT_END_VW,
-            objectPosX: 50,
             objectPosY: 0,
           },
           "mobile",
@@ -1359,7 +1379,7 @@ export function AudioReactiveBackground({
       {tuneMode ? (
         <button
           type="button"
-          className="fixed bottom-3 left-3 z-[1001] rounded-full border border-cyan-300/40 bg-cyan-600/90 px-3 py-2 text-[11px] font-semibold text-white shadow-xl backdrop-blur md:left-auto md:right-[23.5rem]"
+          className="fixed right-3 top-3 z-[1001] rounded-full border border-cyan-300/40 bg-cyan-600/90 px-3 py-2 text-[11px] font-semibold text-white shadow-xl backdrop-blur md:right-[23.5rem]"
           onClick={() => {
             setTunerMinimized((prev) => {
               const next = !prev;
