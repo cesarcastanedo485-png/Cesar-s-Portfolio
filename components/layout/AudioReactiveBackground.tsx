@@ -209,11 +209,20 @@ export function AudioReactiveBackground({
     startX: 0,
     lastX: 0,
   });
+  const guidedRangeDebugRef = useRef<{
+    pointerId: number | null;
+    minStartVw: number;
+    maxStartVw: number;
+  }>({
+    pointerId: null,
+    minStartVw: 0,
+    maxStartVw: 0,
+  });
   const forcedLogRef = useRef<string>("");
   const appendMobileTrace = (entry: string) => {
     setMobileDebugTrace((prev) => {
       const next = [...prev, `${new Date().toLocaleTimeString()} ${entry}`];
-      return next.length > 20 ? next.slice(next.length - 20) : next;
+      return next.length > 120 ? next.slice(next.length - 120) : next;
     });
   };
   const sendTraceToServer = async () => {
@@ -529,6 +538,11 @@ export function AudioReactiveBackground({
       startX: e.clientX,
       lastX: e.clientX,
     };
+    guidedRangeDebugRef.current = {
+      pointerId: e.pointerId,
+      minStartVw: activeTune.startVw,
+      maxStartVw: activeTune.startVw,
+    };
     appendMobileTrace(
       `down step=${guidedStep} mode=${dragMode} pid=${e.pointerId} primary=${e.isPrimary} type=${e.pointerType} x=${Math.round(e.clientX)} y=${Math.round(e.clientY)}`,
     );
@@ -644,6 +658,16 @@ export function AudioReactiveBackground({
       const maxTravelPreview = maxTravel;
       const safeStartPreview = clamp(nextStart, -maxTravelPreview, maxTravelPreview);
       const safeEndPreview = clamp(nextEnd, -maxTravelPreview, maxTravelPreview);
+      if (guidedRangeDebugRef.current.pointerId === e.pointerId) {
+        guidedRangeDebugRef.current.minStartVw = Math.min(
+          guidedRangeDebugRef.current.minStartVw,
+          nextStart,
+        );
+        guidedRangeDebugRef.current.maxStartVw = Math.max(
+          guidedRangeDebugRef.current.maxStartVw,
+          nextStart,
+        );
+      }
       if (!dragDebugRef.current.hasLoggedMove) {
         dragDebugRef.current.hasLoggedMove = true;
         appendMobileTrace(
@@ -729,8 +753,16 @@ export function AudioReactiveBackground({
       const netPx = dragSweepDebugRef.current.lastX - dragSweepDebugRef.current.startX;
       const approxSpanVw = (spanPx / Math.max(1, window.innerWidth)) * 220;
       const approxNetVw = (netPx / Math.max(1, window.innerWidth)) * 220;
+      const rangeMin =
+        guidedRangeDebugRef.current.pointerId === e.pointerId
+          ? guidedRangeDebugRef.current.minStartVw
+          : activeTune.startVw;
+      const rangeMax =
+        guidedRangeDebugRef.current.pointerId === e.pointerId
+          ? guidedRangeDebugRef.current.maxStartVw
+          : activeTune.startVw;
       appendMobileTrace(
-        `sweep step=${guidedStep} mode=${dragMode} pid=${e.pointerId} spanPx=${spanPx.toFixed(1)} netPx=${netPx.toFixed(1)} approxSpanVw=${approxSpanVw.toFixed(2)} approxNetVw=${approxNetVw.toFixed(2)} width=${window.innerWidth}`,
+        `sweep step=${guidedStep} mode=${dragMode} pid=${e.pointerId} spanPx=${spanPx.toFixed(1)} netPx=${netPx.toFixed(1)} approxSpanVw=${approxSpanVw.toFixed(2)} approxNetVw=${approxNetVw.toFixed(2)} startRange=[${rangeMin.toFixed(2)},${rangeMax.toFixed(2)}] width=${window.innerWidth}`,
       );
     }
     appendMobileTrace(
@@ -748,6 +780,9 @@ export function AudioReactiveBackground({
     }
     if (dragSweepDebugRef.current.pointerId === e.pointerId) {
       dragSweepDebugRef.current.pointerId = null;
+    }
+    if (guidedRangeDebugRef.current.pointerId === e.pointerId) {
+      guidedRangeDebugRef.current.pointerId = null;
     }
     if (guidedMode) {
       void sendTraceToServer();
