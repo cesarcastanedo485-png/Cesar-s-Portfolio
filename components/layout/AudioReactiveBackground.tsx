@@ -177,6 +177,7 @@ export function AudioReactiveBackground({
     useState<ParallaxLayerName>("base");
   const [guidedLayerPickerOpen, setGuidedLayerPickerOpen] = useState(false);
   const [pendingGuidedFinalize, setPendingGuidedFinalize] = useState(false);
+  const [guidedReviewMode, setGuidedReviewMode] = useState(false);
   const [tuneProfiles, setTuneProfiles] = useState<TuneProfiles>({
     mobile: seededMobileTune,
     desktop: seededDesktopTune,
@@ -1061,6 +1062,7 @@ export function AudioReactiveBackground({
   };
 
   const beginGuided = (layer: Exclude<ParallaxLayerName, "all">) => {
+    setGuidedReviewMode(false);
     setSelectedParallaxLayer(layer);
     setGuidedLayerPickerOpen(false);
     appendMobileTrace(`guided-layer-picked layer=${layer}`);
@@ -1130,7 +1132,7 @@ export function AudioReactiveBackground({
   };
 
   const baseScrollX = "calc(var(--arp-scroll-x, 0vw) * -1)";
-  const runAutoPreview = () => {
+  const runAutoPreview = (options?: { reopenGuidedOnFinish?: boolean }) => {
     if (typeof window === "undefined") {
       return;
     }
@@ -1143,9 +1145,9 @@ export function AudioReactiveBackground({
     const cssYBefore = container
       ? getComputedStyle(container).getPropertyValue("--arp-scroll-y").trim()
       : "none";
-    setTunerMinimized(false);
+    setTunerMinimized(true);
     appendMobileTrace(
-      `auto-preview started; maxTop=${maxTop.toFixed(1)} rootH=${root.scrollHeight} clientH=${root.clientHeight} preview=${previewMode} min=0 cssX=${cssXBefore || "none"} cssY=${cssYBefore || "none"}`,
+      `auto-preview started; maxTop=${maxTop.toFixed(1)} rootH=${root.scrollHeight} clientH=${root.clientHeight} preview=${previewMode} min=1 cssX=${cssXBefore || "none"} cssY=${cssYBefore || "none"} reopenGuided=${options?.reopenGuidedOnFinish ? 1 : 0}`,
     );
     // #region agent log
     fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix-v10", hypothesisId: "H20_H22", location: "AudioReactiveBackground.tsx:runAutoPreview-start", message: "auto preview launched", data: { maxTop, rootScrollHeight: root.scrollHeight, rootClientHeight: root.clientHeight, previewModeBefore: previewMode, tunerMinimizedBefore: tunerMinimized, cssXBefore, cssYBefore }, timestamp: Date.now() }) }).catch(() => {});
@@ -1159,6 +1161,12 @@ export function AudioReactiveBackground({
         window.scrollTo({ top: 0, behavior: "smooth" });
         window.setTimeout(() => {
           setAutoPreviewRunning(false);
+          if (options?.reopenGuidedOnFinish) {
+            setGuidedReviewMode(true);
+            setTunerMinimized(false);
+            appendMobileTrace("auto-preview finished; guided review reopened");
+            setTunerNotice("Preview finished. Guided setup panel reopened for trace review.");
+          }
         }, 1200);
       }, 1400);
     }, 500);
@@ -1193,7 +1201,7 @@ export function AudioReactiveBackground({
     // #endregion
     setPendingGuidedFinalize(false);
     setTunerNotice("Normalize Safe applied. Auto preview started.");
-    runAutoPreview();
+    runAutoPreview({ reopenGuidedOnFinish: true });
   }, [
     pendingGuidedFinalize,
     previewMode,
@@ -1643,13 +1651,17 @@ export function AudioReactiveBackground({
         </div>
       ) : null}
 
-      {tuneMode && !tunerMinimized && guidedMode ? (
+      {tuneMode && !tunerMinimized && (guidedMode || guidedReviewMode) ? (
         <div className="fixed left-2 right-2 top-2 z-[9102] rounded-xl border border-cyan-300/20 bg-black/85 p-3 text-xs text-white shadow-2xl backdrop-blur">
           <p className="text-sm font-semibold text-cyan-100">
-            Step {guidedStep + 1}/{guidedSteps.length}: {currentGuidedStep?.label}
+            {guidedMode
+              ? `Step ${guidedStep + 1}/${guidedSteps.length}: ${currentGuidedStep?.label}`
+              : "Guided Setup Complete"}
           </p>
           <p className="mt-2 text-[11px] text-cyan-100">
-            Guided layer is locked for this run.
+            {guidedMode
+              ? "Guided layer is locked for this run."
+              : "Preview finished. Review trace below or replay preview."}
           </p>
           <p className="mt-1 text-[10px] text-white/60">
             Editing layer:{" "}
@@ -1663,9 +1675,11 @@ export function AudioReactiveBackground({
                     ? "Rain"
                     : "All Layers"}
           </p>
-          <p className="mt-1 text-[11px] text-white/70">
-            {currentGuidedStep?.help}
-          </p>
+          {guidedMode ? (
+            <p className="mt-1 text-[11px] text-white/70">
+              {currentGuidedStep?.help}
+            </p>
+          ) : null}
           {tunerNotice ? (
             <p className="mt-2 rounded border border-cyan-300/30 bg-cyan-400/10 px-2 py-1 text-[11px] text-cyan-100">
               {tunerNotice}
@@ -1673,26 +1687,52 @@ export function AudioReactiveBackground({
             </p>
           ) : null}
           <div className="mt-3 flex gap-2">
-            <button
-              type="button"
-              className="rounded-md bg-cyan-600 px-3 py-1.5 font-semibold text-white transition hover:bg-cyan-500"
-              onClick={advanceGuided}
-            >
-              {currentGuidedStep?.confirmLabel ?? "Confirm & Next"}
-            </button>
-            <button
-              type="button"
-              className="rounded-md border border-white/20 bg-white/10 px-3 py-1.5 text-white/90 transition hover:bg-white/20"
-              onClick={() => {
-                setGuidedMode(false);
-                setDragMode("off");
-                setPreviewMode("scroll");
-                setMarker(null);
-                setTunerNotice("Guided setup canceled.");
-              }}
-            >
-              Cancel Guided
-            </button>
+            {guidedMode ? (
+              <>
+                <button
+                  type="button"
+                  className="rounded-md bg-cyan-600 px-3 py-1.5 font-semibold text-white transition hover:bg-cyan-500"
+                  onClick={advanceGuided}
+                >
+                  {currentGuidedStep?.confirmLabel ?? "Confirm & Next"}
+                </button>
+                <button
+                  type="button"
+                  className="rounded-md border border-white/20 bg-white/10 px-3 py-1.5 text-white/90 transition hover:bg-white/20"
+                  onClick={() => {
+                    setGuidedMode(false);
+                    setGuidedReviewMode(false);
+                    setDragMode("off");
+                    setPreviewMode("scroll");
+                    setMarker(null);
+                    setTunerNotice("Guided setup canceled.");
+                  }}
+                >
+                  Cancel Guided
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  className="rounded-md bg-cyan-600 px-3 py-1.5 font-semibold text-white transition hover:bg-cyan-500"
+                  onClick={() => runAutoPreview({ reopenGuidedOnFinish: true })}
+                  disabled={autoPreviewRunning}
+                >
+                  {autoPreviewRunning ? "Previewing..." : "Replay Preview"}
+                </button>
+                <button
+                  type="button"
+                  className="rounded-md border border-white/20 bg-white/10 px-3 py-1.5 text-white/90 transition hover:bg-white/20"
+                  onClick={() => {
+                    setGuidedReviewMode(false);
+                    setTunerNotice("Guided review closed.");
+                  }}
+                >
+                  Close Guided Panel
+                </button>
+              </>
+            )}
           </div>
           <div className="mt-3 rounded-lg border border-white/15 bg-black/50 p-2">
             <div className="mb-1 flex items-center justify-between">
@@ -1727,7 +1767,7 @@ export function AudioReactiveBackground({
         </div>
       ) : null}
 
-      {tuneMode && !tunerMinimized && !guidedMode ? (
+      {tuneMode && !tunerMinimized && !guidedMode && !guidedReviewMode ? (
         <div className="fixed bottom-3 right-3 z-[9102] w-[min(23.5rem,94vw)] rounded-xl border border-cyan-300/20 bg-black/85 p-3 text-xs text-white shadow-2xl backdrop-blur">
           <p className="mb-1 text-sm font-semibold text-cyan-100">Mobile Parallax Tuner</p>
           <p className="mb-2 text-[11px] text-white/70">
