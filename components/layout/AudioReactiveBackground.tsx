@@ -913,7 +913,20 @@ export function AudioReactiveBackground({
 
   const beginGuided = () => {
     if (selectedProfile === "mobile") {
-      setTuneField("widthVw", Math.max(activeTune.widthVw, GUIDED_MOBILE_MIN_WIDTH_VW));
+      setTuneProfiles((s) => ({
+        ...s,
+        mobile: getSafeTuneValues(
+          {
+            ...s.mobile,
+            widthVw: Math.max(s.mobile.widthVw, GUIDED_MOBILE_MIN_WIDTH_VW),
+            // Reset guided baseline so each run starts from a predictable center frame.
+            startVw: 0,
+            endVw: MOBILE_ARP_SHIFT_END_VW,
+            objectPosY: 0,
+          },
+          "mobile",
+        ),
+      }));
     }
     setTunerMinimized(false);
     setGuidedMode(true);
