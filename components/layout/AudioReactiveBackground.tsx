@@ -842,6 +842,29 @@ export function AudioReactiveBackground({
     appendMobileTrace(
       `pointer-up step=${guidedStep} mode=${dragMode} pid=${e.pointerId} hasCapture=${e.currentTarget.hasPointerCapture(e.pointerId)}`,
     );
+    if (typeof document !== "undefined" && typeof window !== "undefined") {
+      const samplePoints: Array<[string, number, number]> = [
+        ["low-mid", Math.round(window.innerWidth * 0.5), Math.round(window.innerHeight * 0.72)],
+        ["low-left", Math.round(window.innerWidth * 0.22), Math.round(window.innerHeight * 0.72)],
+        ["low-right", Math.round(window.innerWidth * 0.78), Math.round(window.innerHeight * 0.72)],
+      ];
+      const sampledStacks = samplePoints
+        .map(([label, x, y]) => {
+          const stack = document
+            .elementsFromPoint(x, y)
+            .slice(0, 8)
+            .map((el) => {
+              const cls = typeof el.className === "string" ? el.className : "";
+              return `${el.tagName.toLowerCase()}:${cls || "none"}`;
+            })
+            .join(" > ");
+          return `${label}@(${x},${y})=${stack || "none"}`;
+        })
+        .join(" || ");
+      appendMobileTrace(
+        `post-up-stack step=${guidedStep} mode=${dragMode} preview=${previewMode} ${sampledStacks}`,
+      );
+    }
     // #region agent log
     fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix-v3", hypothesisId: "H6_H7", location: "AudioReactiveBackground.tsx:onDragPointerUp", message: "pointer up/cancel in tuner drag overlay", data: { guidedStep, dragMode, pointerId: e.pointerId, hadCapture: e.currentTarget.hasPointerCapture(e.pointerId) }, timestamp: Date.now() }) }).catch(() => {});
     // #endregion
