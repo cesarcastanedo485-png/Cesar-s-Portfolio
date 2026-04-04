@@ -1276,6 +1276,16 @@ export function AudioReactiveBackground({
   const showRainLayer =
     hasRainVideo && (!tuneMode ? showCinematicFx : isLayerSelected("rain"));
   const layerSelectLocked = guidedMode && guidedStep > 0;
+
+  useEffect(() => {
+    if (!tuneMode || !guidedMode) {
+      return;
+    }
+    // #region agent log
+    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix-v4", hypothesisId: "H2_H4", location: "AudioReactiveBackground.tsx:guidedLayerSnapshot-d3e82a", message: "guided layer lock + visibility snapshot", data: { guidedStep, selectedParallaxLayer, layerSelectLocked, showBaseLayer, showBeatFlashLayer, showSmokeLayer, showRainLayer }, timestamp: Date.now() }) }).catch(() => {});
+    // #endregion
+  }, [guidedMode, guidedStep, layerSelectLocked, selectedParallaxLayer, showBaseLayer, showBeatFlashLayer, showSmokeLayer, showRainLayer, tuneMode]);
+
   const rainPortalLayer = showRainLayer ? (
       <div
         className="portfolio-rain-overlay pointer-events-none fixed inset-0 z-[520] min-h-[100svh] min-h-[100dvh] overflow-hidden"
