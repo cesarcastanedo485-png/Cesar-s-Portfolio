@@ -1470,7 +1470,7 @@ export function AudioReactiveBackground({
       {tuneMode ? (
         <button
           type="button"
-          className="fixed right-3 top-3 z-[1001] rounded-full border border-cyan-300/40 bg-cyan-600/90 px-3 py-2 text-[11px] font-semibold text-white shadow-xl backdrop-blur md:right-[23.5rem]"
+          className="fixed right-3 top-3 z-[1001] rounded-full border border-cyan-300/40 bg-cyan-600/90 px-4 py-2 text-xs font-semibold text-white shadow-xl backdrop-blur transition hover:bg-cyan-500/90 md:right-[23.5rem]"
           onClick={() => {
             setTunerMinimized((prev) => {
               const next = !prev;
@@ -1512,8 +1512,8 @@ export function AudioReactiveBackground({
       ) : null}
 
       {tuneMode && !tunerMinimized && guidedMode ? (
-        <div className="fixed left-2 right-2 top-2 z-[1000] rounded-lg border border-white/20 bg-black/75 p-3 text-xs text-white shadow-2xl backdrop-blur">
-          <p className="font-semibold">
+        <div className="fixed left-2 right-2 top-2 z-[1000] rounded-xl border border-cyan-300/20 bg-black/85 p-3 text-xs text-white shadow-2xl backdrop-blur">
+          <p className="text-sm font-semibold text-cyan-100">
             Step {guidedStep + 1}/{guidedSteps.length}: {currentGuidedStep?.label}
           </p>
           <p className="mt-1 text-[11px] text-white/70">
@@ -1525,17 +1525,17 @@ export function AudioReactiveBackground({
               {lastSavedAt ? ` Last save: ${new Date(lastSavedAt).toLocaleTimeString()}` : ""}
             </p>
           ) : null}
-          <div className="mt-2 flex gap-2">
+          <div className="mt-3 flex gap-2">
             <button
               type="button"
-              className="rounded bg-cyan-500/60 px-2 py-1"
+              className="rounded-md bg-cyan-600 px-3 py-1.5 font-semibold text-white transition hover:bg-cyan-500"
               onClick={advanceGuided}
             >
               {currentGuidedStep?.confirmLabel ?? "Confirm & Next"}
             </button>
             <button
               type="button"
-              className="rounded bg-white/20 px-2 py-1"
+              className="rounded-md border border-white/20 bg-white/10 px-3 py-1.5 text-white/90 transition hover:bg-white/20"
               onClick={() => {
                 setGuidedMode(false);
                 setDragMode("off");
@@ -1547,13 +1547,13 @@ export function AudioReactiveBackground({
               Cancel Guided
             </button>
           </div>
-          <div className="mt-2 rounded border border-white/15 bg-black/40 p-2">
+          <div className="mt-3 rounded-lg border border-white/15 bg-black/50 p-2">
             <div className="mb-1 flex items-center justify-between">
               <p className="text-[11px] font-semibold text-cyan-100">Mobile Runtime Trace</p>
               <div className="flex gap-1">
                 <button
                   type="button"
-                  className="rounded bg-white/20 px-2 py-1 text-[10px]"
+                  className="rounded-md border border-white/20 bg-white/10 px-2 py-1 text-[10px] transition hover:bg-white/20"
                   onClick={() => {
                     if (typeof navigator !== "undefined" && navigator.clipboard) {
                       void navigator.clipboard.writeText(mobileDebugTrace.join("\n"));
@@ -1565,7 +1565,7 @@ export function AudioReactiveBackground({
                 </button>
                 <button
                   type="button"
-                  className="rounded bg-cyan-500/60 px-2 py-1 text-[10px]"
+                  className="rounded-md bg-cyan-600 px-2 py-1 text-[10px] font-semibold text-white transition hover:bg-cyan-500 disabled:opacity-60"
                   onClick={() => void sendTraceToServer()}
                   disabled={sendingTrace || mobileDebugTrace.length === 0}
                 >
@@ -1581,8 +1581,8 @@ export function AudioReactiveBackground({
       ) : null}
 
       {tuneMode && !tunerMinimized && !guidedMode ? (
-        <div className="fixed bottom-3 right-3 z-[999] w-[min(22rem,92vw)] rounded-xl border border-white/20 bg-black/80 p-3 text-xs text-white shadow-2xl backdrop-blur">
-          <p className="mb-2 font-semibold">Mobile Parallax Tuner</p>
+        <div className="fixed bottom-3 right-3 z-[999] w-[min(23.5rem,94vw)] rounded-xl border border-cyan-300/20 bg-black/85 p-3 text-xs text-white shadow-2xl backdrop-blur">
+          <p className="mb-1 text-sm font-semibold text-cyan-100">Mobile Parallax Tuner</p>
           <p className="mb-2 text-[11px] text-white/70">
             Active only with <code>?arpTune=1</code>. Tuner values are local-only and
             do not affect normal live rendering.
@@ -1593,10 +1593,10 @@ export function AudioReactiveBackground({
               {lastSavedAt ? ` Last save: ${new Date(lastSavedAt).toLocaleTimeString()}` : ""}
             </p>
           ) : null}
-          <label className="mb-2 block text-[11px] text-white/80">
+          <label className="mb-2 block text-[11px] font-semibold text-cyan-100">
             Parallax Select
             <select
-              className="mt-1 w-full rounded border border-white/20 bg-black/70 px-2 py-1 text-xs text-white"
+              className="mt-1 w-full rounded-md border border-white/25 bg-black/60 px-2 py-1.5 text-xs text-white outline-none transition focus:border-cyan-300/60"
               value={selectedParallaxLayer}
               onChange={(e) =>
                 setSelectedParallaxLayer(e.target.value as ParallaxLayerName)
@@ -1622,17 +1622,17 @@ export function AudioReactiveBackground({
                     : "All Layers"}{" "}
             (anchors/zoom are shared across layers).
           </p>
-          <div className="mb-2 flex gap-2">
+          <div className="mb-3 flex gap-2">
             <button
               type="button"
-              className="rounded bg-white/20 px-2 py-1"
+              className="rounded-md border border-white/20 bg-white/10 px-3 py-1.5 text-white/95 transition hover:bg-white/20"
               onClick={() => adjustWidthVw(-2)}
             >
               Zoom Out
             </button>
             <button
               type="button"
-              className="rounded bg-white/20 px-2 py-1"
+              className="rounded-md border border-white/20 bg-white/10 px-3 py-1.5 text-white/95 transition hover:bg-white/20"
               onClick={() => adjustWidthVw(2)}
             >
               Zoom In
@@ -1647,14 +1647,14 @@ export function AudioReactiveBackground({
           <div className="mb-2 grid grid-cols-2 gap-2">
             <button
               type="button"
-              className={`rounded px-2 py-1 ${selectedProfile === "mobile" ? "bg-cyan-500/60" : "bg-white/20"}`}
+              className={`rounded-md px-2 py-1.5 transition ${selectedProfile === "mobile" ? "bg-cyan-600 font-semibold text-white" : "border border-white/20 bg-white/10 text-white/90 hover:bg-white/20"}`}
               onClick={() => setSelectedProfile("mobile")}
             >
               Editing: Mobile
             </button>
             <button
               type="button"
-              className={`rounded px-2 py-1 ${selectedProfile === "desktop" ? "bg-cyan-500/60" : "bg-white/20"}`}
+              className={`rounded-md px-2 py-1.5 transition ${selectedProfile === "desktop" ? "bg-cyan-600 font-semibold text-white" : "border border-white/20 bg-white/10 text-white/90 hover:bg-white/20"}`}
               onClick={() => setSelectedProfile("desktop")}
             >
               Editing: Desktop
@@ -1663,7 +1663,7 @@ export function AudioReactiveBackground({
           <div className="mb-2">
             <button
               type="button"
-              className="w-full rounded bg-cyan-500/60 px-2 py-1 font-semibold"
+              className="w-full rounded-md bg-cyan-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-cyan-500"
               onClick={beginGuided}
             >
               Start Guided Setup
@@ -1672,7 +1672,7 @@ export function AudioReactiveBackground({
           <div className="mb-2 grid grid-cols-2 gap-2">
             <button
               type="button"
-              className={`rounded px-2 py-1 ${dragMode === "start" ? "bg-cyan-500/60" : "bg-white/20"}`}
+              className={`rounded-md px-2 py-1.5 transition ${dragMode === "start" ? "bg-cyan-600 font-semibold text-white" : "border border-white/20 bg-white/10 text-white/90 hover:bg-white/20"}`}
               onClick={() => {
                 setPreviewMode("start");
                 setDragMode("start");
@@ -1682,7 +1682,7 @@ export function AudioReactiveBackground({
             </button>
             <button
               type="button"
-              className={`rounded px-2 py-1 ${dragMode === "end" ? "bg-cyan-500/60" : "bg-white/20"}`}
+              className={`rounded-md px-2 py-1.5 transition ${dragMode === "end" ? "bg-cyan-600 font-semibold text-white" : "border border-white/20 bg-white/10 text-white/90 hover:bg-white/20"}`}
               onClick={() => {
                 setPreviewMode("end");
                 setDragMode("end");
@@ -1692,7 +1692,7 @@ export function AudioReactiveBackground({
             </button>
             <button
               type="button"
-              className={`rounded px-2 py-1 ${dragMode === "frameY" ? "bg-cyan-500/60" : "bg-white/20"}`}
+              className={`rounded-md px-2 py-1.5 transition ${dragMode === "frameY" ? "bg-cyan-600 font-semibold text-white" : "border border-white/20 bg-white/10 text-white/90 hover:bg-white/20"}`}
               onClick={() => {
                 setPreviewMode("start");
                 setDragMode("frameY");
@@ -1702,37 +1702,37 @@ export function AudioReactiveBackground({
             </button>
             <button
               type="button"
-              className="rounded bg-white/20 px-2 py-1"
+              className="rounded-md border border-white/20 bg-white/10 px-2 py-1.5 text-white/90 transition hover:bg-white/20"
               onClick={() => setDragMode("off")}
             >
               Stop Drag
             </button>
           </div>
-          <div className="mb-2 flex gap-2">
+          <div className="mb-2 grid grid-cols-2 gap-2">
             <button
               type="button"
-              className={`rounded px-2 py-1 ${previewMode === "scroll" ? "bg-cyan-500/60" : "bg-white/20"}`}
+              className={`rounded-md px-2 py-1.5 transition ${previewMode === "scroll" ? "bg-cyan-600 font-semibold text-white" : "border border-white/20 bg-white/10 text-white/90 hover:bg-white/20"}`}
               onClick={() => setPreviewMode("scroll")}
             >
               Use Scroll
             </button>
             <button
               type="button"
-              className={`rounded px-2 py-1 ${previewMode === "start" ? "bg-cyan-500/60" : "bg-white/20"}`}
+              className={`rounded-md px-2 py-1.5 transition ${previewMode === "start" ? "bg-cyan-600 font-semibold text-white" : "border border-white/20 bg-white/10 text-white/90 hover:bg-white/20"}`}
               onClick={() => setPreviewMode("start")}
             >
               Preview Start
             </button>
             <button
               type="button"
-              className={`rounded px-2 py-1 ${previewMode === "end" ? "bg-cyan-500/60" : "bg-white/20"}`}
+              className={`rounded-md px-2 py-1.5 transition ${previewMode === "end" ? "bg-cyan-600 font-semibold text-white" : "border border-white/20 bg-white/10 text-white/90 hover:bg-white/20"}`}
               onClick={() => setPreviewMode("end")}
             >
               Preview End
             </button>
             <button
               type="button"
-              className={`rounded px-2 py-1 ${autoPreviewRunning ? "bg-cyan-500/60" : "bg-white/20"}`}
+              className={`rounded-md px-2 py-1.5 transition ${autoPreviewRunning ? "bg-cyan-600 font-semibold text-white" : "border border-white/20 bg-white/10 text-white/90 hover:bg-white/20"}`}
               onClick={runAutoPreview}
               disabled={autoPreviewRunning}
             >
@@ -1742,14 +1742,14 @@ export function AudioReactiveBackground({
           <div className="mb-2 flex gap-2">
             <button
               type="button"
-              className="rounded bg-white/20 px-2 py-1"
+              className="rounded-md border border-white/20 bg-white/10 px-2 py-1.5 text-white/90 transition hover:bg-white/20"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             >
               Go Top
             </button>
             <button
               type="button"
-              className="rounded bg-white/20 px-2 py-1"
+              className="rounded-md border border-white/20 bg-white/10 px-2 py-1.5 text-white/90 transition hover:bg-white/20"
               onClick={() =>
                 window.scrollTo({
                   top: document.documentElement.scrollHeight,
@@ -1760,10 +1760,10 @@ export function AudioReactiveBackground({
               Go Bottom
             </button>
           </div>
-          <p className="mb-2 text-[11px] text-white/70">
+          <p className="mb-2 rounded-md border border-white/10 bg-white/[0.04] px-2 py-1 text-[11px] text-white/70">
             1) Tap drag mode 2) go top/bottom 3) drag background until framing looks right.
           </p>
-          <label className="mb-1 block">
+          <label className="mb-1 block text-[11px] text-white/90">
             widthVw ({selectedProfile} zoom level): {activeTune.widthVw}
             <input
               type="range"
@@ -1772,10 +1772,10 @@ export function AudioReactiveBackground({
               step={1}
               value={activeTune.widthVw}
               onChange={(e) => setTuneField("widthVw", Number(e.target.value))}
-              className="w-full"
+              className="mt-1 w-full accent-cyan-400"
             />
           </label>
-          <label className="mb-1 block">
+          <label className="mb-1 block text-[11px] text-white/90">
             startVw (top scroll anchor X): {activeTune.startVw}
             <input
               type="range"
@@ -1784,10 +1784,10 @@ export function AudioReactiveBackground({
               step={1}
               value={activeTune.startVw}
               onChange={(e) => setTuneField("startVw", Number(e.target.value))}
-              className="w-full"
+              className="mt-1 w-full accent-cyan-400"
             />
           </label>
-          <label className="mb-1 block">
+          <label className="mb-1 block text-[11px] text-white/90">
             endVw (bottom scroll anchor X): {activeTune.endVw}
             <input
               type="range"
@@ -1796,10 +1796,10 @@ export function AudioReactiveBackground({
               step={1}
               value={activeTune.endVw}
               onChange={(e) => setTuneField("endVw", Number(e.target.value))}
-              className="w-full"
+              className="mt-1 w-full accent-cyan-400"
             />
           </label>
-          <label className="mb-1 block">
+          <label className="mb-1 block text-[11px] text-white/90">
             objectPosX (left-right framing): {activeTune.objectPosX}%
             <input
               type="range"
@@ -1808,10 +1808,10 @@ export function AudioReactiveBackground({
               step={1}
               value={activeTune.objectPosX}
               onChange={(e) => setTuneField("objectPosX", Number(e.target.value))}
-              className="w-full"
+              className="mt-1 w-full accent-cyan-400"
             />
           </label>
-          <label className="mb-1 block">
+          <label className="mb-1 block text-[11px] text-white/90">
             objectPosY (up-down framing): {activeTune.objectPosY}%
             <input
               type="range"
@@ -1834,10 +1834,10 @@ export function AudioReactiveBackground({
               onChange={(e) =>
                 setTuneField("snapToEndWithinPx", Number(e.target.value))
               }
-              className="w-full"
+              className="mt-1 w-full accent-cyan-400"
             />
           </label>
-          <label className="mb-2 block">
+          <label className="mb-2 block text-[11px] text-white/90">
             pulseScale (music beat zoom intensity): {activeTune.pulseScale.toFixed(3)}
             <input
               type="range"
@@ -1846,13 +1846,13 @@ export function AudioReactiveBackground({
               step={0.005}
               value={activeTune.pulseScale}
               onChange={(e) => setTuneField("pulseScale", Number(e.target.value))}
-              className="w-full"
+              className="mt-1 w-full accent-cyan-400"
             />
           </label>
           <div className="flex gap-2">
             <button
               type="button"
-              className="rounded bg-white/20 px-2 py-1"
+              className="rounded-md border border-white/20 bg-white/10 px-2 py-1.5 text-white/90 transition hover:bg-white/20"
               onClick={() => {
                 setTuneProfiles((s) => ({
                   ...s,
@@ -1870,7 +1870,7 @@ export function AudioReactiveBackground({
             </button>
             <button
               type="button"
-              className="rounded bg-white/20 px-2 py-1"
+              className="rounded-md bg-cyan-600 px-2 py-1.5 font-semibold text-white transition hover:bg-cyan-500"
               onClick={() => {
                 setTuneProfiles((s) => ({
                   ...s,
@@ -1891,7 +1891,7 @@ export function AudioReactiveBackground({
             </button>
             <button
               type="button"
-              className="rounded bg-white/20 px-2 py-1"
+              className="rounded-md border border-white/20 bg-white/10 px-2 py-1.5 text-white/90 transition hover:bg-white/20"
               onClick={() => {
                 if (typeof navigator !== "undefined" && navigator.clipboard) {
                   void navigator.clipboard.writeText(
