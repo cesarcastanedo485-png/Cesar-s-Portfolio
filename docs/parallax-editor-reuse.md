@@ -46,3 +46,25 @@ This repo now isolates parallax-editor logic so it can be moved to other sites.
 - Publish path should include clamping (`sanitizeEditorTune`) to prevent out-of-range values.
 - Keep mobile and desktop profiles separate in all data models.
 
+## Copy and send tune JSON
+
+Use this when you want to share the exact tuned values and reapply them elsewhere.
+
+1. Open the tuned page with `?arpTune=1`.
+2. Open browser DevTools Console.
+3. Copy raw stored JSON:
+   - `copy(localStorage.getItem('arp-mobile-tune-v1'))`
+4. If you want pretty JSON:
+   - `copy(JSON.stringify(JSON.parse(localStorage.getItem('arp-mobile-tune-v1') || '{}'), null, 2))`
+5. Paste that JSON into chat or a file and send it.
+
+## Restore tune JSON
+
+On the target site/page:
+
+1. Open the same page with `?arpTune=1`.
+2. Open DevTools Console.
+3. Run:
+   - `localStorage.setItem('arp-mobile-tune-v1', '<PASTE_JSON_HERE>')`
+4. Refresh the page.
+

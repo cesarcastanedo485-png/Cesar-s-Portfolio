@@ -728,6 +728,13 @@ export function AudioReactiveBackground({
       guidedRangeDebugRef.current.pointerId = null;
     }
     if (guidedMode) {
+      if (dragMode === "freeFrame") {
+        setTunerNotice("Top anchor locked from current view. Drag again to update, then confirm.");
+      } else if (dragMode === "horizontalFrame") {
+        setTunerNotice("Bottom anchor locked from current view. Drag again to update, then confirm.");
+      } else if (dragMode === "verticalFrame") {
+        setTunerNotice("Vertical framing locked. Drag again to update, then confirm.");
+      }
       void sendTraceToServer();
     }
     if (e.currentTarget.hasPointerCapture(e.pointerId)) {
@@ -840,36 +847,22 @@ export function AudioReactiveBackground({
     confirmLabel: string;
   }> = [
     {
-      label: "Set phone viewer framing",
-      help: "Drag freely to place the starting view (left/right and up/down).",
+      label: "Set TOP anchor view",
+      help: "Drag to frame the top view. Release to lock this view as TOP anchor. Drag again to update, then confirm.",
       drag: "freeFrame",
       preview: "start",
-      confirmLabel: "Confirm Viewer Position",
+      confirmLabel: "Confirm Top View",
     },
     {
-      label: "Place TOP anchor (Mad Hatter)",
-      help: "Tap and drag to set the exact top anchor position.",
-      drag: "start",
-      preview: "start",
-      confirmLabel: "Confirm Top Anchor",
-    },
-    {
-      label: "Pan toward rabbit",
-      help: "Drag left/right only until White Rabbit side is framed.",
+      label: "Set BOTTOM anchor view",
+      help: "Drag left/right to frame the bottom view. Release to lock this view as BOTTOM anchor. Drag again to update, then confirm.",
       drag: "horizontalFrame",
       preview: "end",
-      confirmLabel: "Confirm Rabbit Framing",
-    },
-    {
-      label: "Place BOTTOM anchor (White Rabbit)",
-      help: "Tap and drag to set the exact bottom anchor position.",
-      drag: "end",
-      preview: "end",
-      confirmLabel: "Confirm Bottom Anchor",
+      confirmLabel: "Confirm Bottom View",
     },
     {
       label: "Adjust vertical framing",
-      help: "Drag up/down only to fit head and tail cleanly.",
+      help: "Drag up/down. Release to lock vertical framing. Drag again to update, then confirm.",
       drag: "verticalFrame",
       preview: "start",
       confirmLabel: "Confirm Vertical Framing",
