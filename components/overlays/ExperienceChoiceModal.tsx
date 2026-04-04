@@ -22,17 +22,28 @@ export function ExperienceChoiceModal() {
   const [editorMode, setEditorMode] = useState(false);
   const [config, setConfig] = useState(defaultExperienceChoiceConfig);
   const [configReady, setConfigReady] = useState(false);
-  const open = hydrated && (experienceMode === null || editorMode);
+  const [arpTuneMode, setArpTuneMode] = useState(false);
+  const open = hydrated && !arpTuneMode && (experienceMode === null || editorMode);
 
   useEffect(() => {
     if (!hydrated) return;
     setConfig(readExperienceChoiceConfigFromStorage());
     const params = new URLSearchParams(window.location.search);
+    setArpTuneMode(params.get("arpTune") === "1");
     const shouldOpenEditor =
       params.get("choiceEditor") === "1" || window.localStorage.getItem("choiceEditor") === "1";
     if (shouldOpenEditor) setEditorMode(true);
     setConfigReady(true);
   }, [hydrated]);
+
+  useEffect(() => {
+    if (!hydrated) {
+      return;
+    }
+    // #region agent log
+    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix-v6", hypothesisId: "H16", location: "ExperienceChoiceModal.tsx:open-gate-d3e82a", message: "experience modal open gate with arpTune mode", data: { hydrated, experienceMode, editorMode, arpTuneMode, open }, timestamp: Date.now() }) }).catch(() => {});
+    // #endregion
+  }, [arpTuneMode, editorMode, experienceMode, hydrated, open]);
 
   useEffect(() => {
     if (!configReady) return;
