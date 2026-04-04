@@ -510,8 +510,21 @@ export function AudioReactiveBackground({
     }
     const safeWidth = Math.max(132, Math.min(WIDTH_VW_MAX, activeTune.widthVw));
     const safeTravel = Math.max(0, safeWidth - 100);
+    const debugShowBase =
+      hasBaseImage &&
+      (selectedParallaxLayer === "all" || selectedParallaxLayer === "base");
+    const debugShowBeat =
+      hasBeatFlashImage &&
+      (selectedParallaxLayer === "all" || selectedParallaxLayer === "beatFlash");
+    const debugShowSmoke =
+      hasMushroomImage &&
+      (selectedParallaxLayer === "all" || selectedParallaxLayer === "smoke");
+    const debugShowRain =
+      hasRainVideo &&
+      (selectedParallaxLayer === "all" || selectedParallaxLayer === "rain");
+    const debugLayerLocked = guidedStep > 0;
     appendMobileTrace(
-      `render-state step=${guidedStep} preview=${previewMode} forced=${forcedScrollX ?? "none"} cssX=${computedX ?? "none"} width=${activeTune.widthVw.toFixed(2)} safeTravel=${safeTravel.toFixed(2)} activeStart=${activeTune.startVw.toFixed(2)} activeEnd=${activeTune.endVw.toFixed(2)} safeStart=${safeActiveTune.startVw.toFixed(2)} safeEnd=${safeActiveTune.endVw.toFixed(2)} layer=${selectedParallaxLayer} lock=${layerSelectLocked ? 1 : 0} showBase=${showBaseLayer ? 1 : 0} showBeat=${showBeatFlashLayer ? 1 : 0} showSmoke=${showSmokeLayer ? 1 : 0} showRain=${showRainLayer ? 1 : 0} fit=${fitMode} cropX=${intrinsicCropX.toFixed(1)} src=${(baseImage?.currentSrc ?? imageSrc).split("/").slice(-1)[0] ?? "unknown"} op=${baseImage ? getComputedStyle(baseImage).opacity : "n/a"} vis=${baseImage ? getComputedStyle(baseImage).visibility : "n/a"} top=${topTag} topClass=${topClass || "none"} stack=${stack} transform=${imageTransform ?? "none"}`,
+      `render-state step=${guidedStep} preview=${previewMode} forced=${forcedScrollX ?? "none"} cssX=${computedX ?? "none"} width=${activeTune.widthVw.toFixed(2)} safeTravel=${safeTravel.toFixed(2)} activeStart=${activeTune.startVw.toFixed(2)} activeEnd=${activeTune.endVw.toFixed(2)} safeStart=${safeActiveTune.startVw.toFixed(2)} safeEnd=${safeActiveTune.endVw.toFixed(2)} layer=${selectedParallaxLayer} lock=${debugLayerLocked ? 1 : 0} showBase=${debugShowBase ? 1 : 0} showBeat=${debugShowBeat ? 1 : 0} showSmoke=${debugShowSmoke ? 1 : 0} showRain=${debugShowRain ? 1 : 0} fit=${fitMode} cropX=${intrinsicCropX.toFixed(1)} src=${(baseImage?.currentSrc ?? imageSrc).split("/").slice(-1)[0] ?? "unknown"} op=${baseImage ? getComputedStyle(baseImage).opacity : "n/a"} vis=${baseImage ? getComputedStyle(baseImage).visibility : "n/a"} top=${topTag} topClass=${topClass || "none"} stack=${stack} transform=${imageTransform ?? "none"}`,
     );
     // #region agent log
     fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix-v5", hypothesisId: "H9", location: "AudioReactiveBackground.tsx:guidedRenderState", message: "guided render state snapshot", data: { guidedStep, previewMode, forcedScrollX: forcedScrollX ?? null, cssVarX: computedX, imageTransform, safeStart: safeActiveTune.startVw, safeEnd: safeActiveTune.endVw, selectedProfile }, timestamp: Date.now() }) }).catch(() => {});
@@ -528,11 +541,10 @@ export function AudioReactiveBackground({
     safeActiveTune.startVw,
     selectedProfile,
     selectedParallaxLayer,
-    showBaseLayer,
-    showBeatFlashLayer,
-    showSmokeLayer,
-    showRainLayer,
-    layerSelectLocked,
+    hasBaseImage,
+    hasBeatFlashImage,
+    hasMushroomImage,
+    hasRainVideo,
     tuneMode,
   ]);
 
