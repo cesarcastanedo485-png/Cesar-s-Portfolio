@@ -701,10 +701,15 @@ export function AudioReactiveBackground({
           );
         }
       }
-      if (dragState.mode === "freeFrame" || dragState.mode === "verticalFrame") {
+      if (dragState.mode === "freeFrame") {
         setTuneField(
           "objectPosY",
           clamp(-30 + yRatio * 70, -30, 40),
+        );
+      } else if (dragState.mode === "verticalFrame") {
+        setTuneField(
+          "objectPosY",
+          clamp(dragState.baseObjectPosY + deltaYPercent, -30, 40),
         );
       }
       const nextStart =
@@ -727,9 +732,11 @@ export function AudioReactiveBackground({
             )
           : dragState.baseEndVw;
       const nextY =
-        dragState.mode === "freeFrame" || dragState.mode === "verticalFrame"
+        dragState.mode === "freeFrame"
           ? clamp(-30 + yRatio * 70, -30, 40)
-          : dragState.baseObjectPosY;
+          : dragState.mode === "verticalFrame"
+            ? clamp(dragState.baseObjectPosY + deltaYPercent, -30, 40)
+            : dragState.baseObjectPosY;
       const maxTravelPreview = maxTravel;
       const safeStartPreview = clamp(nextStart, -maxTravelPreview, maxTravelPreview);
       const safeEndPreview = clamp(nextEnd, -maxTravelPreview, maxTravelPreview);
@@ -892,7 +899,15 @@ export function AudioReactiveBackground({
   };
 
   const scrollParallaxEnabled =
-    hydrated && (!tuneMode || (previewMode === "scroll" && !tunerMinimized));
+    hydrated && (!tuneMode || previewMode === "scroll");
+  useEffect(() => {
+    appendMobileTrace(
+      `scroll-gate tune=${tuneMode ? 1 : 0} preview=${previewMode} min=${tunerMinimized ? 1 : 0} auto=${autoPreviewRunning ? 1 : 0} enabled=${scrollParallaxEnabled ? 1 : 0}`,
+    );
+    // #region agent log
+    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix-v10", hypothesisId: "H20_H21", location: "AudioReactiveBackground.tsx:scrollParallaxGate", message: "parallax enable gate snapshot", data: { tuneMode, previewMode, tunerMinimized, autoPreviewRunning, scrollParallaxEnabled }, timestamp: Date.now() }) }).catch(() => {});
+    // #endregion
+  }, [autoPreviewRunning, previewMode, scrollParallaxEnabled, tuneMode, tunerMinimized]);
   const panoramaMinWidthVw = narrowViewport
     ? mobileWidthVw
     : desktopWidthVw;
@@ -1095,9 +1110,11 @@ export function AudioReactiveBackground({
       setGuidedMode(false);
       setDragMode("off");
       setPreviewMode("scroll");
-      setTunerMinimized(true);
+      setTunerMinimized(false);
       setMarker(null);
-      appendMobileTrace("finalize normalize queued; waiting before autopreview");
+      appendMobileTrace(
+        "finalize normalize queued; waiting before autopreview (tuner kept open)",
+      );
       // #region agent log
       fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-post-fix", hypothesisId: "H5", location: "AudioReactiveBackground.tsx:advanceGuided-finalize", message: "guided finalize queued normalize before autoplay", data: { selectedProfile, pendingGuidedFinalize: true, tunerMinimized: true }, timestamp: Date.now() }) }).catch(() => {});
       // #endregion
@@ -1117,12 +1134,24 @@ export function AudioReactiveBackground({
     if (typeof window === "undefined") {
       return;
     }
-    setTunerMinimized(true);
-    appendMobileTrace("auto-preview started; tuner minimized");
-    setAutoPreviewRunning(true);
-    setPreviewMode("scroll");
     const root = document.scrollingElement ?? document.documentElement;
     const maxTop = Math.max(0, root.scrollHeight - root.clientHeight);
+    const container = containerRef.current;
+    const cssXBefore = container
+      ? getComputedStyle(container).getPropertyValue("--arp-scroll-x").trim()
+      : "none";
+    const cssYBefore = container
+      ? getComputedStyle(container).getPropertyValue("--arp-scroll-y").trim()
+      : "none";
+    setTunerMinimized(false);
+    appendMobileTrace(
+      `auto-preview started; maxTop=${maxTop.toFixed(1)} rootH=${root.scrollHeight} clientH=${root.clientHeight} preview=${previewMode} min=0 cssX=${cssXBefore || "none"} cssY=${cssYBefore || "none"}`,
+    );
+    // #region agent log
+    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix-v10", hypothesisId: "H20_H22", location: "AudioReactiveBackground.tsx:runAutoPreview-start", message: "auto preview launched", data: { maxTop, rootScrollHeight: root.scrollHeight, rootClientHeight: root.clientHeight, previewModeBefore: previewMode, tunerMinimizedBefore: tunerMinimized, cssXBefore, cssYBefore }, timestamp: Date.now() }) }).catch(() => {});
+    // #endregion
+    setAutoPreviewRunning(true);
+    setPreviewMode("scroll");
     window.scrollTo({ top: 0, behavior: "smooth" });
     window.setTimeout(() => {
       window.scrollTo({ top: maxTop, behavior: "smooth" });
@@ -1156,13 +1185,23 @@ export function AudioReactiveBackground({
     appendMobileTrace(
       `finalize-ready profile=${selectedProfile} start=${profileTune.startVw.toFixed(2)} end=${profileTune.endVw.toFixed(2)}; starting autopreview`,
     );
+    appendMobileTrace(
+      `finalize-ready gate preview=${previewMode} min=${tunerMinimized ? 1 : 0} enabled=${scrollParallaxEnabled ? 1 : 0}`,
+    );
     // #region agent log
     fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix-v3", hypothesisId: "H12_H13", location: "AudioReactiveBackground.tsx:guidedFinalizeReady-d3e82a", message: "normalize-safe confirmed before autoplay", data: { selectedProfile, widthVw: profileTune.widthVw, startVw: profileTune.startVw, endVw: profileTune.endVw, objectPosY: profileTune.objectPosY }, timestamp: Date.now() }) }).catch(() => {});
     // #endregion
     setPendingGuidedFinalize(false);
     setTunerNotice("Normalize Safe applied. Auto preview started.");
     runAutoPreview();
-  }, [pendingGuidedFinalize, selectedProfile, tuneProfiles]);
+  }, [
+    pendingGuidedFinalize,
+    previewMode,
+    scrollParallaxEnabled,
+    selectedProfile,
+    tuneProfiles,
+    tunerMinimized,
+  ]);
 
   useEffect(() => {
     // #region agent log
