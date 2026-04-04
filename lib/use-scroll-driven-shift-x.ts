@@ -60,7 +60,6 @@ export function useScrollDrivenShiftX(
 ) {
   const tickingRef = useRef(false);
   const rafRef = useRef(0);
-  const parallaxLogBucketRef = useRef<number | null>(null);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -69,70 +68,6 @@ export function useScrollDrivenShiftX(
     }
 
     if (!enabled) {
-      // #region agent log
-      fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Debug-Session-Id": "901510",
-        },
-        body: JSON.stringify({
-          sessionId: "901510",
-          runId: "pre-fix",
-          hypothesisId: "H5",
-          location: "use-scroll-driven-shift-x.ts:enabled-off",
-          message: "scroll parallax hook disabled",
-          data: { enabled: false },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-      // #endregion
-      // #region agent log
-      fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Debug-Session-Id": "2431dd",
-        },
-        body: JSON.stringify({
-          sessionId: "2431dd",
-          runId: "pre-fix",
-          hypothesisId: "H3_H4",
-          location: "use-scroll-driven-shift-x.ts:disabled",
-          message: "scroll hook disabled for target",
-          data: {
-            enabled: false,
-            cssVarName,
-            cssVarNameY,
-          },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-      // #endregion
-      // #region agent log
-      fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Debug-Session-Id": "d3e82a",
-        },
-        body: JSON.stringify({
-          sessionId: "d3e82a",
-          runId: "pre-fix-v7",
-          hypothesisId: "H17",
-          location: "use-scroll-driven-shift-x.ts:disabled-behavior",
-          message: "disabled branch reset behavior",
-          data: {
-            resetOnDisable,
-            cssVarName,
-            cssVarNameY,
-            currentX: el ? getComputedStyle(el).getPropertyValue(cssVarName).trim() : null,
-            currentY: el ? getComputedStyle(el).getPropertyValue(cssVarNameY).trim() : null,
-          },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-      // #endregion
       if (resetOnDisable) {
         if (el) {
           el.style.setProperty(cssVarName, "0vw");
@@ -145,33 +80,6 @@ export function useScrollDrivenShiftX(
       }
       return;
     }
-
-    // #region agent log
-    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Debug-Session-Id": "901510",
-      },
-      body: JSON.stringify({
-        sessionId: "901510",
-        runId: "pre-fix",
-        hypothesisId: "H3",
-        location: "use-scroll-driven-shift-x.ts:effect-start",
-        message: "scroll parallax options",
-        data: {
-          rangeVw,
-          rangeVh,
-          shiftStartVw,
-          shiftEndVw,
-          shiftStartVh,
-          shiftEndVh,
-          mirrorVarToDocumentElement,
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
 
     const update = () => {
       tickingRef.current = false;
@@ -204,113 +112,6 @@ export function useScrollDrivenShiftX(
       const valueY = `${shiftVh}vh`;
       target.style.setProperty(cssVarName, value);
       target.style.setProperty(cssVarNameY, valueY);
-
-      // #region agent log
-      const bucket = Math.round(t * 20);
-      if (parallaxLogBucketRef.current !== bucket) {
-        parallaxLogBucketRef.current = bucket;
-        const cs = getComputedStyle(target);
-        fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Debug-Session-Id": "901510",
-          },
-          body: JSON.stringify({
-            sessionId: "901510",
-            runId: "pre-fix",
-            hypothesisId: "H1_H2_H4",
-            location: "use-scroll-driven-shift-x.ts:update",
-            message: "scroll parallax sample",
-            data: {
-              t,
-              scrollTop,
-              maxScroll,
-              rootClientHeight: root.clientHeight,
-              rootScrollHeight: root.scrollHeight,
-              useLinearY,
-              shiftVw,
-              shiftVh,
-              deltaVw: useLinear
-                ? (shiftEndVw ?? 0) - (shiftStartVw ?? 0)
-                : rangeVw,
-              deltaVh: useLinearY
-                ? (shiftEndVh ?? 0) - (shiftStartVh ?? 0)
-                : rangeVh,
-              cssVarX: cs.getPropertyValue(cssVarName).trim(),
-              cssVarY: cs.getPropertyValue(cssVarNameY).trim(),
-            },
-            timestamp: Date.now(),
-          }),
-        }).catch(() => {});
-        // #region agent log
-        fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Debug-Session-Id": "2431dd",
-          },
-          body: JSON.stringify({
-            sessionId: "2431dd",
-            runId: "pre-fix",
-            hypothesisId: "H3_H5",
-            location: "use-scroll-driven-shift-x.ts:update-sample",
-            message: "scroll parallax computed sample",
-            data: {
-              t,
-              tRaw,
-              scrollTop,
-              maxScroll,
-              distanceToBottom,
-              useLinear,
-              useLinearY,
-              snapToEndWithinPx,
-              shiftStartVw,
-              shiftEndVw,
-              shiftVw,
-              shiftVh,
-              cssVarX: cs.getPropertyValue(cssVarName).trim(),
-              cssVarY: cs.getPropertyValue(cssVarNameY).trim(),
-            },
-            timestamp: Date.now(),
-          }),
-        }).catch(() => {});
-        // #endregion
-        // #region agent log
-        fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "X-Debug-Session-Id": "d3e82a",
-          },
-          body: JSON.stringify({
-            sessionId: "d3e82a",
-            runId: "pre-fix",
-            hypothesisId: "H4",
-            location: "use-scroll-driven-shift-x.ts:update-bucket",
-            message: "scroll map sample for horizontal+vertical output",
-            data: {
-              t,
-              tRaw,
-              scrollTop,
-              maxScroll,
-              useLinear,
-              useLinearY,
-              shiftStartVw,
-              shiftEndVw,
-              shiftStartVh,
-              shiftEndVh,
-              shiftVw,
-              shiftVh,
-              cssVarX: cs.getPropertyValue(cssVarName).trim(),
-              cssVarY: cs.getPropertyValue(cssVarNameY).trim(),
-            },
-            timestamp: Date.now(),
-          }),
-        }).catch(() => {});
-        // #endregion
-      }
-      // #endregion
       if (mirrorVarToDocumentElement) {
         document.documentElement.style.setProperty(cssVarName, value);
         document.documentElement.style.setProperty(cssVarNameY, valueY);

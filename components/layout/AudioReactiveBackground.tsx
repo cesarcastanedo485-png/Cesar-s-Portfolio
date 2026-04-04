@@ -224,7 +224,6 @@ export function AudioReactiveBackground({
     minStartVw: 0,
     maxStartVw: 0,
   });
-  const forcedLogRef = useRef<string>("");
   const appendMobileTrace = (entry: string) => {
     setMobileDebugTrace((prev) => {
       const next = [...prev, `${new Date().toLocaleTimeString()} ${entry}`];
@@ -391,9 +390,6 @@ export function AudioReactiveBackground({
       return;
     }
     appendMobileTrace(`layer-select layer=${selectedParallaxLayer}`);
-    // #region agent log
-    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix-v3", hypothesisId: "H14_H15", location: "AudioReactiveBackground.tsx:layerSelect-d3e82a", message: "tuner parallax layer selection changed", data: { selectedParallaxLayer, selectedProfile, guidedMode }, timestamp: Date.now() }) }).catch(() => {});
-    // #endregion
   }, [guidedMode, selectedParallaxLayer, selectedProfile, tuneMode]);
 
   const localTuneActive = tuneMode || previewTuneMode;
@@ -463,113 +459,6 @@ export function AudioReactiveBackground({
         : `${safeActiveTune.endVw.toFixed(4)}vw`
       : undefined;
 
-  useEffect(() => {
-    if (!tuneMode || !guidedMode) {
-      return;
-    }
-    const key = `${guidedStep}|${previewMode}|${forcedScrollX ?? "scroll"}`;
-    if (forcedLogRef.current === key) {
-      return;
-    }
-    forcedLogRef.current = key;
-    const container = containerRef.current;
-    const baseImage = baseImageRef.current;
-    const computedX = container
-      ? getComputedStyle(container).getPropertyValue("--arp-scroll-x").trim()
-      : null;
-    const imageTransform = baseImage ? getComputedStyle(baseImage).transform : null;
-    const centerX = typeof window !== "undefined" ? Math.round(window.innerWidth / 2) : 0;
-    const centerY = typeof window !== "undefined" ? Math.round(window.innerHeight / 2) : 0;
-    const topEl =
-      typeof document !== "undefined"
-        ? document.elementFromPoint(centerX, centerY)
-        : null;
-    const topTag = topEl?.tagName?.toLowerCase() ?? "none";
-    const topClass = typeof topEl?.className === "string" ? topEl.className : "none";
-    const stack =
-      typeof document !== "undefined"
-        ? document
-            .elementsFromPoint(centerX, centerY)
-            .slice(0, 4)
-            .map((el) => {
-              const cls = typeof el.className === "string" ? el.className : "";
-              return `${el.tagName.toLowerCase()}:${cls || "none"}`;
-            })
-            .join(" > ")
-        : "none";
-    const imageRect = baseImage?.getBoundingClientRect();
-    const naturalW = baseImage?.naturalWidth ?? 0;
-    const naturalH = baseImage?.naturalHeight ?? 0;
-    const fitMode = tuneMode ? "contain" : "cover";
-    let intrinsicCropX = 0;
-    if (imageRect && naturalW > 0 && naturalH > 0) {
-      const scale =
-        fitMode === "cover"
-          ? Math.max(imageRect.width / naturalW, imageRect.height / naturalH)
-          : Math.min(imageRect.width / naturalW, imageRect.height / naturalH);
-      const renderedW = naturalW * scale;
-      intrinsicCropX = Math.max(0, renderedW - imageRect.width);
-    }
-    const safeWidth = Math.max(132, Math.min(WIDTH_VW_MAX, activeTune.widthVw));
-    const safeTravel = Math.max(0, safeWidth - 100);
-    const debugShowBase =
-      hasBaseImage &&
-      (selectedParallaxLayer === "all" || selectedParallaxLayer === "base");
-    const debugShowBeat =
-      hasBeatFlashImage &&
-      (selectedParallaxLayer === "all" || selectedParallaxLayer === "beatFlash");
-    const debugShowSmoke =
-      hasMushroomImage &&
-      (selectedParallaxLayer === "all" || selectedParallaxLayer === "smoke");
-    const debugShowRain =
-      hasRainVideo &&
-      (selectedParallaxLayer === "all" || selectedParallaxLayer === "rain");
-    const debugLayerLocked = guidedStep > 0;
-    appendMobileTrace(
-      `render-state step=${guidedStep} preview=${previewMode} forced=${forcedScrollX ?? "none"} cssX=${computedX ?? "none"} width=${activeTune.widthVw.toFixed(2)} safeTravel=${safeTravel.toFixed(2)} activeStart=${activeTune.startVw.toFixed(2)} activeEnd=${activeTune.endVw.toFixed(2)} safeStart=${safeActiveTune.startVw.toFixed(2)} safeEnd=${safeActiveTune.endVw.toFixed(2)} layer=${selectedParallaxLayer} lock=${debugLayerLocked ? 1 : 0} showBase=${debugShowBase ? 1 : 0} showBeat=${debugShowBeat ? 1 : 0} showSmoke=${debugShowSmoke ? 1 : 0} showRain=${debugShowRain ? 1 : 0} fit=${fitMode} cropX=${intrinsicCropX.toFixed(1)} src=${(baseImage?.currentSrc ?? imageSrc).split("/").slice(-1)[0] ?? "unknown"} op=${baseImage ? getComputedStyle(baseImage).opacity : "n/a"} vis=${baseImage ? getComputedStyle(baseImage).visibility : "n/a"} top=${topTag} topClass=${topClass || "none"} stack=${stack} transform=${imageTransform ?? "none"}`,
-    );
-    // #region agent log
-    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix-v5", hypothesisId: "H9", location: "AudioReactiveBackground.tsx:guidedRenderState", message: "guided render state snapshot", data: { guidedStep, previewMode, forcedScrollX: forcedScrollX ?? null, cssVarX: computedX, imageTransform, safeStart: safeActiveTune.startVw, safeEnd: safeActiveTune.endVw, selectedProfile }, timestamp: Date.now() }) }).catch(() => {});
-    // #endregion
-    // #region agent log
-    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix", hypothesisId: "H1_H2", location: "AudioReactiveBackground.tsx:guidedRenderState-d3e82a", message: "guided render force-vs-safe snapshot", data: { guidedStep, previewMode, selectedProfile, forcedScrollX: forcedScrollX ?? null, activeStart: activeTune.startVw, activeEnd: activeTune.endVw, safeStart: safeActiveTune.startVw, safeEnd: safeActiveTune.endVw, activeY: activeTune.objectPosY, safeY: safeActiveTune.objectPosY, cssVarX: computedX, imageTransform }, timestamp: Date.now() }) }).catch(() => {});
-    // #endregion
-  }, [
-    forcedScrollX,
-    guidedMode,
-    guidedStep,
-    previewMode,
-    safeActiveTune.endVw,
-    safeActiveTune.startVw,
-    selectedProfile,
-    selectedParallaxLayer,
-    hasBaseImage,
-    hasBeatFlashImage,
-    hasMushroomImage,
-    hasRainVideo,
-    tuneMode,
-  ]);
-
-  useEffect(() => {
-    if (!tuneMode || !guidedMode || typeof window === "undefined") {
-      return;
-    }
-    const frame = requestAnimationFrame(() => {
-      const centerX = Math.round(window.innerWidth / 2);
-      const centerY = Math.round(window.innerHeight / 2);
-      const topEl = document.elementFromPoint(centerX, centerY);
-      const topTag = topEl?.tagName?.toLowerCase() ?? "none";
-      const topClass =
-        typeof topEl?.className === "string" ? topEl.className : "";
-      appendMobileTrace(
-        `hit-test step=${guidedStep} preview=${previewMode} center=(${centerX},${centerY}) top=${topTag} class=${topClass || "none"} tunerMin=${tunerMinimized ? 1 : 0}`,
-      );
-      // #region agent log
-      fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix-v2", hypothesisId: "H9_H10_H11", location: "AudioReactiveBackground.tsx:guidedHitTest-d3e82a", message: "center-point top element while guided", data: { guidedStep, previewMode, centerX, centerY, topTag, topClass, tunerMinimized }, timestamp: Date.now() }) }).catch(() => {});
-      // #endregion
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [guidedMode, guidedStep, previewMode, tuneMode, tunerMinimized]);
 
   const onDragPointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
     if (!tuneMode || tunerMinimized || dragMode === "off") {
@@ -622,9 +511,6 @@ export function AudioReactiveBackground({
     appendMobileTrace(
       `down step=${guidedStep} mode=${dragMode} pid=${e.pointerId} primary=${e.isPrimary} type=${e.pointerType} x=${Math.round(e.clientX)} y=${Math.round(e.clientY)}`,
     );
-    // #region agent log
-    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix", hypothesisId: "H1_H2", location: "AudioReactiveBackground.tsx:onDragPointerDown", message: "pointer down in tuner overlay", data: { guidedMode, guidedStep, dragMode, pointerId: e.pointerId, clientX: e.clientX, clientY: e.clientY, selectedProfile, startVw: activeTune.startVw, endVw: activeTune.endVw, objectPosY: activeTune.objectPosY }, timestamp: Date.now() }) }).catch(() => {});
-    // #endregion
     e.currentTarget.setPointerCapture(e.pointerId);
     e.preventDefault();
   };
@@ -658,9 +544,6 @@ export function AudioReactiveBackground({
         appendMobileTrace(
           `init-guided-pointer step=${guidedStep} mode=${dragState.mode} pid=${e.pointerId} primary=${e.isPrimary} type=${e.pointerType}`,
         );
-        // #region agent log
-        fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-post-fix-v2", hypothesisId: "H2", location: "AudioReactiveBackground.tsx:onDragPointerMove-guidedInit", message: "guided pointer lazily initialized on move", data: { guidedStep, mode: dragState.mode, pointerId: e.pointerId, startVw: activeTune.startVw, endVw: activeTune.endVw, objectPosY: activeTune.objectPosY }, timestamp: Date.now() }) }).catch(() => {});
-        // #endregion
       } else if (dragState.pointerId !== e.pointerId) {
         appendMobileTrace(
           `ignore-secondary-pointer step=${guidedStep} mode=${dragState.mode} pid=${e.pointerId} active=${dragState.pointerId}`,
@@ -756,23 +639,6 @@ export function AudioReactiveBackground({
         appendMobileTrace(
           `guided-move step=${guidedStep} mode=${dragState.mode} pid=${e.pointerId} dX=${Math.round(deltaX)} dY=${Math.round(deltaY)}`,
         );
-        // #region agent log
-        fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix", hypothesisId: "H1_H3", location: "AudioReactiveBackground.tsx:onDragPointerMove-guidedBranch", message: "guided drag branch executed", data: { guidedStep, mode: dragState.mode, pointerId: e.pointerId, deltaX, deltaY, absoluteVw, deltaYPercent, nextStartVw: nextStart, nextEndVw: nextEnd, nextObjectPosY: nextY }, timestamp: Date.now() }) }).catch(() => {});
-        // #endregion
-      }
-      if (guidedMoveDebugRef.current.moveCount <= 5) {
-        appendMobileTrace(
-          `guided-move-raw step=${guidedStep} mode=${dragState.mode} pid=${e.pointerId} count=${guidedMoveDebugRef.current.moveCount} dx=${deltaX.toFixed(3)} dy=${deltaY.toFixed(3)} pressure=${e.pressure.toFixed(3)} buttons=${e.buttons}`,
-        );
-        appendMobileTrace(
-          `guided-apply step=${guidedStep} mode=${dragState.mode} start=${nextStart.toFixed(2)} end=${nextEnd.toFixed(2)} y=${nextY.toFixed(2)} safeStart=${safeStartPreview.toFixed(2)} safeEnd=${safeEndPreview.toFixed(2)} maxTravel=${maxTravelPreview.toFixed(2)}`,
-        );
-        // #region agent log
-        fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix-v4", hypothesisId: "H6_H8", location: "AudioReactiveBackground.tsx:onDragPointerMove-guidedRaw", message: "guided move raw+applied sample", data: { guidedStep, mode: dragState.mode, pointerId: e.pointerId, count: guidedMoveDebugRef.current.moveCount, deltaX, deltaY, pressure: e.pressure, buttons: e.buttons, width: e.width, height: e.height, nextStart, nextEnd, nextY, safeStartPreview, safeEndPreview, maxTravelPreview, widthVw: activeTune.widthVw }, timestamp: Date.now() }) }).catch(() => {});
-        // #endregion
-        // #region agent log
-        fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix", hypothesisId: "H2_H3_H5", location: "AudioReactiveBackground.tsx:onDragPointerMove-guidedRaw-d3e82a", message: "guided drag output and safety margin", data: { guidedStep, mode: dragState.mode, pointerId: e.pointerId, count: guidedMoveDebugRef.current.moveCount, deltaX, deltaY, nextStart, nextEnd, nextY, safeStartPreview, safeEndPreview, maxTravelPreview, exceedsSafeStart: Math.abs(nextStart - safeStartPreview) > 0.1, exceedsSafeEnd: Math.abs(nextEnd - safeEndPreview) > 0.1, widthVw: activeTune.widthVw }, timestamp: Date.now() }) }).catch(() => {});
-        // #endregion
       }
       setMarker({ x: e.clientX, y: e.clientY });
       e.preventDefault();
@@ -809,9 +675,6 @@ export function AudioReactiveBackground({
       appendMobileTrace(
         `guard-return step=${guidedStep} mode=${dragMode} eventPid=${e.pointerId} dragPid=${dragState?.pointerId ?? "none"}`,
       );
-      // #region agent log
-      fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix", hypothesisId: "H2", location: "AudioReactiveBackground.tsx:onDragPointerMove-guardReturn", message: "move ignored due to dragState mismatch", data: { guidedMode, guidedStep, dragMode, eventPointerId: e.pointerId, dragPointerId: dragState?.pointerId ?? null }, timestamp: Date.now() }) }).catch(() => {});
-      // #endregion
       return;
     }
     const xRatio = clamp(e.clientX / Math.max(1, window.innerWidth), 0, 1);
@@ -851,32 +714,6 @@ export function AudioReactiveBackground({
     appendMobileTrace(
       `pointer-up step=${guidedStep} mode=${dragMode} pid=${e.pointerId} hasCapture=${e.currentTarget.hasPointerCapture(e.pointerId)}`,
     );
-    if (typeof document !== "undefined" && typeof window !== "undefined") {
-      const samplePoints: Array<[string, number, number]> = [
-        ["low-mid", Math.round(window.innerWidth * 0.5), Math.round(window.innerHeight * 0.72)],
-        ["low-left", Math.round(window.innerWidth * 0.22), Math.round(window.innerHeight * 0.72)],
-        ["low-right", Math.round(window.innerWidth * 0.78), Math.round(window.innerHeight * 0.72)],
-      ];
-      const sampledStacks = samplePoints
-        .map(([label, x, y]) => {
-          const stack = document
-            .elementsFromPoint(x, y)
-            .slice(0, 8)
-            .map((el) => {
-              const cls = typeof el.className === "string" ? el.className : "";
-              return `${el.tagName.toLowerCase()}:${cls || "none"}`;
-            })
-            .join(" > ");
-          return `${label}@(${x},${y})=${stack || "none"}`;
-        })
-        .join(" || ");
-      appendMobileTrace(
-        `post-up-stack step=${guidedStep} mode=${dragMode} preview=${previewMode} ${sampledStacks}`,
-      );
-    }
-    // #region agent log
-    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix-v3", hypothesisId: "H6_H7", location: "AudioReactiveBackground.tsx:onDragPointerUp", message: "pointer up/cancel in tuner drag overlay", data: { guidedStep, dragMode, pointerId: e.pointerId, hadCapture: e.currentTarget.hasPointerCapture(e.pointerId) }, timestamp: Date.now() }) }).catch(() => {});
-    // #endregion
     pointerCacheRef.current.delete(e.pointerId);
     if (pointerCacheRef.current.size < 2) {
       pinchStateRef.current = null;
@@ -901,14 +738,6 @@ export function AudioReactiveBackground({
 
   const scrollParallaxEnabled =
     hydrated && (!tuneMode || previewMode === "scroll");
-  useEffect(() => {
-    appendMobileTrace(
-      `scroll-gate tune=${tuneMode ? 1 : 0} preview=${previewMode} min=${tunerMinimized ? 1 : 0} auto=${autoPreviewRunning ? 1 : 0} enabled=${scrollParallaxEnabled ? 1 : 0}`,
-    );
-    // #region agent log
-    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix-v10", hypothesisId: "H20_H21", location: "AudioReactiveBackground.tsx:scrollParallaxGate", message: "parallax enable gate snapshot", data: { tuneMode, previewMode, tunerMinimized, autoPreviewRunning, scrollParallaxEnabled }, timestamp: Date.now() }) }).catch(() => {});
-    // #endregion
-  }, [autoPreviewRunning, previewMode, scrollParallaxEnabled, tuneMode, tunerMinimized]);
   const panoramaMinWidthVw = narrowViewport
     ? mobileWidthVw
     : desktopWidthVw;
@@ -1066,9 +895,6 @@ export function AudioReactiveBackground({
     setSelectedParallaxLayer(layer);
     setGuidedLayerPickerOpen(false);
     appendMobileTrace(`guided-layer-picked layer=${layer}`);
-    // #region agent log
-    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix-v9", hypothesisId: "H19", location: "AudioReactiveBackground.tsx:beginGuided-layerPick", message: "guided setup started with explicit layer pick", data: { layer, selectedProfile }, timestamp: Date.now() }) }).catch(() => {});
-    // #endregion
     if (selectedProfile === "mobile") {
       setTuneProfiles((s) => ({
         ...s,
@@ -1099,12 +925,6 @@ export function AudioReactiveBackground({
     appendMobileTrace(
       `advance from=${guidedStep} to=${next >= guidedSteps.length ? "finalize" : next}`,
     );
-    // #region agent log
-    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix", hypothesisId: "H4_H5", location: "AudioReactiveBackground.tsx:advanceGuided-before", message: "advance guided requested", data: { guidedStep, next, totalSteps: guidedSteps.length, dragMode, previewMode, tunerMinimized, selectedProfile, startVw: activeTune.startVw, endVw: activeTune.endVw, objectPosY: activeTune.objectPosY }, timestamp: Date.now() }) }).catch(() => {});
-    // #endregion
-    // #region agent log
-    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix", hypothesisId: "H1_H3", location: "AudioReactiveBackground.tsx:advanceGuided-before-d3e82a", message: "guided step advance state", data: { guidedStep, next, dragMode, previewMode, selectedProfile, activeStart: activeTune.startVw, activeEnd: activeTune.endVw, safeStart: safeActiveTune.startVw, safeEnd: safeActiveTune.endVw, activeY: activeTune.objectPosY, safeY: safeActiveTune.objectPosY }, timestamp: Date.now() }) }).catch(() => {});
-    // #endregion
     if (next >= guidedSteps.length) {
       applyNormalizeSafe();
       setPendingGuidedFinalize(true);
@@ -1117,9 +937,6 @@ export function AudioReactiveBackground({
       appendMobileTrace(
         "finalize normalize queued; waiting before autopreview (tuner kept open)",
       );
-      // #region agent log
-      fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-post-fix", hypothesisId: "H5", location: "AudioReactiveBackground.tsx:advanceGuided-finalize", message: "guided finalize queued normalize before autoplay", data: { selectedProfile, pendingGuidedFinalize: true, tunerMinimized: true }, timestamp: Date.now() }) }).catch(() => {});
-      // #endregion
       return;
     }
     setGuidedStep(next);
@@ -1149,9 +966,6 @@ export function AudioReactiveBackground({
     appendMobileTrace(
       `auto-preview started; maxTop=${maxTop.toFixed(1)} rootH=${root.scrollHeight} clientH=${root.clientHeight} preview=${previewMode} min=1 cssX=${cssXBefore || "none"} cssY=${cssYBefore || "none"} reopenGuided=${options?.reopenGuidedOnFinish ? 1 : 0}`,
     );
-    // #region agent log
-    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix-v10", hypothesisId: "H20_H22", location: "AudioReactiveBackground.tsx:runAutoPreview-start", message: "auto preview launched", data: { maxTop, rootScrollHeight: root.scrollHeight, rootClientHeight: root.clientHeight, previewModeBefore: previewMode, tunerMinimizedBefore: tunerMinimized, cssXBefore, cssYBefore }, timestamp: Date.now() }) }).catch(() => {});
-    // #endregion
     setAutoPreviewRunning(true);
     setPreviewMode("scroll");
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1193,12 +1007,6 @@ export function AudioReactiveBackground({
     appendMobileTrace(
       `finalize-ready profile=${selectedProfile} start=${profileTune.startVw.toFixed(2)} end=${profileTune.endVw.toFixed(2)}; starting autopreview`,
     );
-    appendMobileTrace(
-      `finalize-ready gate preview=${previewMode} min=${tunerMinimized ? 1 : 0} enabled=${scrollParallaxEnabled ? 1 : 0}`,
-    );
-    // #region agent log
-    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix-v3", hypothesisId: "H12_H13", location: "AudioReactiveBackground.tsx:guidedFinalizeReady-d3e82a", message: "normalize-safe confirmed before autoplay", data: { selectedProfile, widthVw: profileTune.widthVw, startVw: profileTune.startVw, endVw: profileTune.endVw, objectPosY: profileTune.objectPosY }, timestamp: Date.now() }) }).catch(() => {});
-    // #endregion
     setPendingGuidedFinalize(false);
     setTunerNotice("Normalize Safe applied. Auto preview started.");
     runAutoPreview({ reopenGuidedOnFinish: true });
@@ -1211,123 +1019,6 @@ export function AudioReactiveBackground({
     tunerMinimized,
   ]);
 
-  useEffect(() => {
-    // #region agent log
-    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Debug-Session-Id": "2431dd",
-      },
-      body: JSON.stringify({
-        sessionId: "2431dd",
-        runId: "pre-fix",
-        hypothesisId: "H2_H3_H4",
-        location: "AudioReactiveBackground.tsx:layer-snapshot",
-        message: "audio reactive layer config snapshot",
-        data: {
-          hydrated,
-          narrowViewport,
-          playing,
-          hasBaseImage,
-          hasBeatFlashImage,
-          hasMushroomImage,
-          hasRainVideo,
-          baseImageFailed,
-          beatFlashImageFailed,
-          mushroomImageFailed,
-          rainVideoFailed,
-          panoramaMinWidthVw,
-          panoramaWidth,
-          mobileShiftStartVw: MOBILE_ARP_SHIFT_START_VW,
-          mobileShiftEndVw: MOBILE_ARP_SHIFT_END_VW,
-          flashGain,
-          smokeOverlayWidth,
-          objectPosition,
-          mobileObjectFit,
-          mobilePulseScale,
-          selectedProfile,
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
-  }, [
-    baseImageFailed,
-    beatFlashImageFailed,
-    flashGain,
-    hasBaseImage,
-    hasBeatFlashImage,
-    hasMushroomImage,
-    hasRainVideo,
-    hydrated,
-    mushroomImageFailed,
-    narrowViewport,
-    panoramaMinWidthVw,
-    panoramaWidth,
-    playing,
-    rainVideoFailed,
-    smokeOverlayWidth,
-    objectPosition,
-    mobileObjectFit,
-    mobilePulseScale,
-    selectedProfile,
-  ]);
-
-  useEffect(() => {
-    if (!hydrated || !narrowViewport || !hasBaseImage) {
-      return;
-    }
-    const frame = requestAnimationFrame(() => {
-      const container = containerRef.current;
-      const baseImage = baseImageRef.current;
-      if (!container || !baseImage) {
-        return;
-      }
-      const containerRect = container.getBoundingClientRect();
-      const imageRect = baseImage.getBoundingClientRect();
-      const computedImage = window.getComputedStyle(baseImage);
-      const computedContainer = window.getComputedStyle(container);
-      // #region agent log
-      fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "X-Debug-Session-Id": "2431dd",
-        },
-        body: JSON.stringify({
-          sessionId: "2431dd",
-          runId: "pre-fix",
-          hypothesisId: "H6_H7_H8",
-          location: "AudioReactiveBackground.tsx:mobile-frame-metrics",
-          message: "mobile frame and crop metrics",
-          data: {
-            playing,
-            panoramaWidth,
-            viewportWidth: window.innerWidth,
-            viewportHeight: window.innerHeight,
-            visualViewportHeight: window.visualViewport?.height ?? null,
-            containerHeight: containerRect.height,
-            containerWidth: containerRect.width,
-            imageWidth: imageRect.width,
-            imageHeight: imageRect.height,
-            imageTop: imageRect.top,
-            imageBottom: imageRect.bottom,
-            objectPosition: computedImage.objectPosition,
-            objectFit: computedImage.objectFit,
-            transform: computedImage.transform,
-            arpScrollX: computedContainer.getPropertyValue("--arp-scroll-x").trim(),
-            arpPulse: computedContainer.getPropertyValue("--arp-pulse").trim(),
-            naturalWidth: baseImage.naturalWidth,
-            naturalHeight: baseImage.naturalHeight,
-          },
-          timestamp: Date.now(),
-        }),
-      }).catch(() => {});
-      // #endregion
-    });
-    return () => cancelAnimationFrame(frame);
-  }, [hasBaseImage, hydrated, narrowViewport, panoramaWidth, playing]);
 
   const rainOpacityStyle: CSSProperties = {
     opacity: tuneMode
@@ -1366,14 +1057,6 @@ export function AudioReactiveBackground({
     hasRainVideo && (!tuneMode ? showCinematicFx : isLayerSelected("rain"));
   const layerSelectLocked = guidedMode && guidedStep > 0;
 
-  useEffect(() => {
-    if (!tuneMode || !guidedMode) {
-      return;
-    }
-    // #region agent log
-    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix-v4", hypothesisId: "H2_H4", location: "AudioReactiveBackground.tsx:guidedLayerSnapshot-d3e82a", message: "guided layer lock + visibility snapshot", data: { guidedStep, selectedParallaxLayer, layerSelectLocked, showBaseLayer, showBeatFlashLayer, showSmokeLayer, showRainLayer }, timestamp: Date.now() }) }).catch(() => {});
-    // #endregion
-  }, [guidedMode, guidedStep, layerSelectLocked, selectedParallaxLayer, showBaseLayer, showBeatFlashLayer, showSmokeLayer, showRainLayer, tuneMode]);
 
   const rainPortalLayer = showRainLayer ? (
       <div
@@ -1861,9 +1544,6 @@ export function AudioReactiveBackground({
                 setGuidedLayerPickerOpen(true);
                 setTunerNotice("Pick a layer to start guided setup.");
                 appendMobileTrace("guided-layer-picker opened");
-                // #region agent log
-                fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix-v9", hypothesisId: "H19", location: "AudioReactiveBackground.tsx:guidedLayerPicker-open", message: "guided layer picker opened", data: { selectedLayerBeforeOpen: selectedParallaxLayer }, timestamp: Date.now() }) }).catch(() => {});
-                // #endregion
               }}
             >
               Start Guided Setup
