@@ -175,6 +175,7 @@ export function AudioReactiveBackground({
   const [selectedProfile, setSelectedProfile] = useState<TuneProfileName>("mobile");
   const [selectedParallaxLayer, setSelectedParallaxLayer] =
     useState<ParallaxLayerName>("base");
+  const [guidedLayerPickerOpen, setGuidedLayerPickerOpen] = useState(false);
   const [pendingGuidedFinalize, setPendingGuidedFinalize] = useState(false);
   const [tuneProfiles, setTuneProfiles] = useState<TuneProfiles>({
     mobile: seededMobileTune,
@@ -1044,8 +1045,13 @@ export function AudioReactiveBackground({
     }));
   };
 
-  const beginGuided = () => {
-    setSelectedParallaxLayer("base");
+  const beginGuided = (layer: Exclude<ParallaxLayerName, "all">) => {
+    setSelectedParallaxLayer(layer);
+    setGuidedLayerPickerOpen(false);
+    appendMobileTrace(`guided-layer-picked layer=${layer}`);
+    // #region agent log
+    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix-v9", hypothesisId: "H19", location: "AudioReactiveBackground.tsx:beginGuided-layerPick", message: "guided setup started with explicit layer pick", data: { layer, selectedProfile }, timestamp: Date.now() }) }).catch(() => {});
+    // #endregion
     if (selectedProfile === "mobile") {
       setTuneProfiles((s) => ({
         ...s,
@@ -1570,28 +1576,42 @@ export function AudioReactiveBackground({
         />
       ) : null}
 
+      {tuneMode && !tunerMinimized && !guidedMode && guidedLayerPickerOpen ? (
+        <div className="fixed inset-0 z-[9104] flex items-center justify-center bg-black/85 p-4">
+          <div className="w-full max-w-sm rounded-xl border border-cyan-300/25 bg-black/95 p-4 text-white shadow-2xl">
+            <p className="text-sm font-semibold text-cyan-100">Choose Guided Layer</p>
+            <p className="mt-1 text-[11px] text-white/70">
+              Pick one layer to edit. Other layers will be hidden during guided setup.
+            </p>
+            <div className="mt-3 grid grid-cols-1 gap-2">
+              <button type="button" className="rounded-md bg-cyan-600 px-3 py-2 text-left text-sm font-semibold text-white transition hover:bg-cyan-500" onClick={() => beginGuided("base")}>Background Layer</button>
+              <button type="button" className="rounded-md border border-white/20 bg-white/10 px-3 py-2 text-left text-sm text-white/95 transition hover:bg-white/20" onClick={() => beginGuided("beatFlash")}>Beat Flash Layer</button>
+              <button type="button" className="rounded-md border border-white/20 bg-white/10 px-3 py-2 text-left text-sm text-white/95 transition hover:bg-white/20" onClick={() => beginGuided("smoke")}>Smoke Layer</button>
+              <button type="button" className="rounded-md border border-white/20 bg-white/10 px-3 py-2 text-left text-sm text-white/95 transition hover:bg-white/20" onClick={() => beginGuided("rain")}>Rain Layer</button>
+            </div>
+            <button
+              type="button"
+              className="mt-3 w-full rounded-md border border-white/20 bg-white/10 px-3 py-2 text-sm text-white/90 transition hover:bg-white/20"
+              onClick={() => {
+                setGuidedLayerPickerOpen(false);
+                setTunerNotice("Guided setup canceled.");
+                appendMobileTrace("guided-layer-picker canceled");
+              }}
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : null}
+
       {tuneMode && !tunerMinimized && guidedMode ? (
         <div className="fixed left-2 right-2 top-2 z-[9102] rounded-xl border border-cyan-300/20 bg-black/85 p-3 text-xs text-white shadow-2xl backdrop-blur">
           <p className="text-sm font-semibold text-cyan-100">
             Step {guidedStep + 1}/{guidedSteps.length}: {currentGuidedStep?.label}
           </p>
-          <label className="mt-2 block text-[11px] font-semibold text-cyan-100">
-            Parallax Select
-            <select
-              className="mt-1 w-full rounded-md border border-white/25 bg-black/60 px-2 py-1.5 text-xs text-white outline-none transition focus:border-cyan-300/60"
-              value={selectedParallaxLayer}
-              disabled={layerSelectLocked}
-              onChange={(e) =>
-                setSelectedParallaxLayer(e.target.value as ParallaxLayerName)
-              }
-            >
-              <option value="base">Background Layer</option>
-              <option value="beatFlash">Beat Flash Layer</option>
-              <option value="smoke">Smoke Layer</option>
-              <option value="rain">Rain Layer</option>
-              <option value="all">All Layers</option>
-            </select>
-          </label>
+          <p className="mt-2 text-[11px] text-cyan-100">
+            Guided layer is locked for this run.
+          </p>
           <p className="mt-1 text-[10px] text-white/60">
             Editing layer:{" "}
             {selectedParallaxLayer === "base"
@@ -1604,11 +1624,6 @@ export function AudioReactiveBackground({
                     ? "Rain"
                     : "All Layers"}
           </p>
-          {layerSelectLocked ? (
-            <p className="mt-1 text-[10px] text-amber-200/90">
-              Layer selection locked after Step 1.
-            </p>
-          ) : null}
           <p className="mt-1 text-[11px] text-white/70">
             {currentGuidedStep?.help}
           </p>
@@ -1763,7 +1778,14 @@ export function AudioReactiveBackground({
             <button
               type="button"
               className="w-full rounded-md bg-cyan-600 px-3 py-2 text-sm font-semibold text-white transition hover:bg-cyan-500"
-              onClick={beginGuided}
+              onClick={() => {
+                setGuidedLayerPickerOpen(true);
+                setTunerNotice("Pick a layer to start guided setup.");
+                appendMobileTrace("guided-layer-picker opened");
+                // #region agent log
+                fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "d3e82a" }, body: JSON.stringify({ sessionId: "d3e82a", runId: "pre-fix-v9", hypothesisId: "H19", location: "AudioReactiveBackground.tsx:guidedLayerPicker-open", message: "guided layer picker opened", data: { selectedLayerBeforeOpen: selectedParallaxLayer }, timestamp: Date.now() }) }).catch(() => {});
+                // #endregion
+              }}
             >
               Start Guided Setup
             </button>
