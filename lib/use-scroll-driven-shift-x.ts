@@ -33,6 +33,8 @@ type Options = {
    * Useful on mobile browsers where dynamic URL bars prevent t from reaching 1.0.
    */
   snapToEndWithinPx?: number;
+  /** When disabled, keep last CSS vars instead of forcing 0. */
+  resetOnDisable?: boolean;
 };
 
 /**
@@ -51,6 +53,7 @@ export function useScrollDrivenShiftX(
     cssVarNameY = "--arp-scroll-y",
     mirrorVarToDocumentElement = false,
     snapToEndWithinPx = 0,
+    resetOnDisable = true,
     shiftStartVh,
     shiftEndVh,
   }: Options,
@@ -106,13 +109,39 @@ export function useScrollDrivenShiftX(
         }),
       }).catch(() => {});
       // #endregion
-      if (el) {
-        el.style.setProperty(cssVarName, "0vw");
-        el.style.setProperty(cssVarNameY, "0vh");
-      }
-      if (mirrorVarToDocumentElement) {
-        document.documentElement.style.removeProperty(cssVarName);
-        document.documentElement.style.removeProperty(cssVarNameY);
+      // #region agent log
+      fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Debug-Session-Id": "d3e82a",
+        },
+        body: JSON.stringify({
+          sessionId: "d3e82a",
+          runId: "pre-fix-v7",
+          hypothesisId: "H17",
+          location: "use-scroll-driven-shift-x.ts:disabled-behavior",
+          message: "disabled branch reset behavior",
+          data: {
+            resetOnDisable,
+            cssVarName,
+            cssVarNameY,
+            currentX: el ? getComputedStyle(el).getPropertyValue(cssVarName).trim() : null,
+            currentY: el ? getComputedStyle(el).getPropertyValue(cssVarNameY).trim() : null,
+          },
+          timestamp: Date.now(),
+        }),
+      }).catch(() => {});
+      // #endregion
+      if (resetOnDisable) {
+        if (el) {
+          el.style.setProperty(cssVarName, "0vw");
+          el.style.setProperty(cssVarNameY, "0vh");
+        }
+        if (mirrorVarToDocumentElement) {
+          document.documentElement.style.removeProperty(cssVarName);
+          document.documentElement.style.removeProperty(cssVarNameY);
+        }
       }
       return;
     }
@@ -304,11 +333,11 @@ export function useScrollDrivenShiftX(
       window.removeEventListener("scroll", onScrollOrResize);
       window.removeEventListener("resize", onScrollOrResize);
       cancelAnimationFrame(rafRef.current);
-      if (containerRef.current) {
+      if (resetOnDisable && containerRef.current) {
         containerRef.current.style.setProperty(cssVarName, "0vw");
         containerRef.current.style.setProperty(cssVarNameY, "0vh");
       }
-      if (mirrorVarToDocumentElement) {
+      if (resetOnDisable && mirrorVarToDocumentElement) {
         document.documentElement.style.removeProperty(cssVarName);
         document.documentElement.style.removeProperty(cssVarNameY);
       }
@@ -319,6 +348,7 @@ export function useScrollDrivenShiftX(
     cssVarNameY,
     enabled,
     mirrorVarToDocumentElement,
+    resetOnDisable,
     snapToEndWithinPx,
     rangeVh,
     rangeVw,

@@ -900,6 +900,7 @@ export function AudioReactiveBackground({
   const panoramaWidth = `${panoramaMinWidthVw}vw`;
   useScrollDrivenShiftX(containerRef, {
     enabled: scrollParallaxEnabled,
+    resetOnDisable: !(tuneMode && previewMode !== "scroll"),
     mirrorVarToDocumentElement: hasRainVideo,
     ...(narrowViewport
       ? {
