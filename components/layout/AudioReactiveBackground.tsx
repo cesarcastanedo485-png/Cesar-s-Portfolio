@@ -460,6 +460,14 @@ export function AudioReactiveBackground({
       ? getComputedStyle(container).getPropertyValue("--arp-scroll-x").trim()
       : null;
     const imageTransform = baseImage ? getComputedStyle(baseImage).transform : null;
+    const centerX = typeof window !== "undefined" ? Math.round(window.innerWidth / 2) : 0;
+    const centerY = typeof window !== "undefined" ? Math.round(window.innerHeight / 2) : 0;
+    const topEl =
+      typeof document !== "undefined"
+        ? document.elementFromPoint(centerX, centerY)
+        : null;
+    const topTag = topEl?.tagName?.toLowerCase() ?? "none";
+    const topClass = typeof topEl?.className === "string" ? topEl.className : "none";
     const imageRect = baseImage?.getBoundingClientRect();
     const naturalW = baseImage?.naturalWidth ?? 0;
     const naturalH = baseImage?.naturalHeight ?? 0;
@@ -476,7 +484,7 @@ export function AudioReactiveBackground({
     const safeWidth = Math.max(132, Math.min(WIDTH_VW_MAX, activeTune.widthVw));
     const safeTravel = Math.max(0, safeWidth - 100);
     appendMobileTrace(
-      `render-state step=${guidedStep} preview=${previewMode} forced=${forcedScrollX ?? "none"} cssX=${computedX ?? "none"} width=${activeTune.widthVw.toFixed(2)} safeTravel=${safeTravel.toFixed(2)} activeStart=${activeTune.startVw.toFixed(2)} activeEnd=${activeTune.endVw.toFixed(2)} safeStart=${safeActiveTune.startVw.toFixed(2)} safeEnd=${safeActiveTune.endVw.toFixed(2)} fit=${fitMode} cropX=${intrinsicCropX.toFixed(1)} src=${(baseImage?.currentSrc ?? imageSrc).split("/").slice(-1)[0] ?? "unknown"} op=${baseImage ? getComputedStyle(baseImage).opacity : "n/a"} vis=${baseImage ? getComputedStyle(baseImage).visibility : "n/a"} transform=${imageTransform ?? "none"}`,
+      `render-state step=${guidedStep} preview=${previewMode} forced=${forcedScrollX ?? "none"} cssX=${computedX ?? "none"} width=${activeTune.widthVw.toFixed(2)} safeTravel=${safeTravel.toFixed(2)} activeStart=${activeTune.startVw.toFixed(2)} activeEnd=${activeTune.endVw.toFixed(2)} safeStart=${safeActiveTune.startVw.toFixed(2)} safeEnd=${safeActiveTune.endVw.toFixed(2)} fit=${fitMode} cropX=${intrinsicCropX.toFixed(1)} src=${(baseImage?.currentSrc ?? imageSrc).split("/").slice(-1)[0] ?? "unknown"} op=${baseImage ? getComputedStyle(baseImage).opacity : "n/a"} vis=${baseImage ? getComputedStyle(baseImage).visibility : "n/a"} top=${topTag} topClass=${topClass || "none"} transform=${imageTransform ?? "none"}`,
     );
     // #region agent log
     fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", { method: "POST", headers: { "Content-Type": "application/json", "X-Debug-Session-Id": "2431dd" }, body: JSON.stringify({ sessionId: "2431dd", runId: "guided-debug-pre-fix-v5", hypothesisId: "H9", location: "AudioReactiveBackground.tsx:guidedRenderState", message: "guided render state snapshot", data: { guidedStep, previewMode, forcedScrollX: forcedScrollX ?? null, cssVarX: computedX, imageTransform, safeStart: safeActiveTune.startVw, safeEnd: safeActiveTune.endVw, selectedProfile }, timestamp: Date.now() }) }).catch(() => {});
@@ -1193,7 +1201,8 @@ export function AudioReactiveBackground({
       : {}),
   };
 
-  const rainPortalLayer = hasRainVideo ? (
+  const showCinematicFx = !tuneMode;
+  const rainPortalLayer = showCinematicFx && hasRainVideo ? (
       <div
         className="portfolio-rain-overlay pointer-events-none fixed inset-0 z-[520] min-h-[100svh] min-h-[100dvh] overflow-hidden"
         aria-hidden
@@ -1256,12 +1265,13 @@ export function AudioReactiveBackground({
                   objectFit: mobileObjectFit,
                   transform:
                     `translate3d(${baseScrollX}, 0, 0) scale(calc(1 + var(--arp-pulse, 0) * ${mobilePulseScale} * var(--arp-visual-mul, 1)))`,
-                  filter:
-                    "brightness(calc(0.9 + var(--arp-pulse, 0) * 0.22 * var(--arp-visual-mul, 1))) contrast(calc(1 + var(--arp-pulse, 0) * 0.09 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.26 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 9deg))",
+                  filter: showCinematicFx
+                    ? "brightness(calc(0.9 + var(--arp-pulse, 0) * 0.22 * var(--arp-visual-mul, 1))) contrast(calc(1 + var(--arp-pulse, 0) * 0.09 * var(--arp-visual-mul, 1))) saturate(calc(1 + var(--arp-pulse, 0) * 0.26 * var(--arp-visual-mul, 1))) hue-rotate(calc(var(--arp-pulse-spike, 0) * 9deg))"
+                    : "none",
                 }}
                 onError={() => setBaseImageFailed(true)}
               />
-              {hasBeatFlashImage ? (
+              {showCinematicFx && hasBeatFlashImage ? (
                 <img
                   src={(beatFlashImageSrc || imageSrc).trim()}
                   alt=""
@@ -1284,15 +1294,18 @@ export function AudioReactiveBackground({
                   onError={() => setBeatFlashImageFailed(true)}
                 />
               ) : null}
-              <div
+              {showCinematicFx ? (
+                <div
                 aria-hidden
                 className="pointer-events-none absolute inset-0"
                 style={{
                   background:
                     "linear-gradient(180deg, rgba(8,11,16,0.2) 0%, rgba(10,14,19,0.26) 52%, rgba(8,11,16,0.22) 100%)",
                 }}
-              />
-              <div
+                />
+              ) : null}
+              {showCinematicFx ? (
+                <div
                 aria-hidden
                 className="pointer-events-none absolute inset-0"
                 style={{
@@ -1308,8 +1321,10 @@ export function AudioReactiveBackground({
                   background:
                     "linear-gradient(180deg, rgba(8,11,16,0.56) 0%, rgba(10,14,19,0.63) 52%, rgba(8,11,16,0.56) 100%)",
                 }}
-              />
-              <div
+                />
+              ) : null}
+              {showCinematicFx ? (
+                <div
                 aria-hidden
                 className="pointer-events-none absolute inset-0 mix-blend-screen"
                 style={{
@@ -1325,8 +1340,9 @@ export function AudioReactiveBackground({
                   backgroundImage:
                     "radial-gradient(ellipse 76% 54% at 52% 50%, rgba(255, 84, 192, 0.72) 0%, rgba(232, 121, 249, 0.48) 32%, rgba(168, 85, 247, 0.3) 56%, rgba(125, 64, 196, 0.12) 72%, transparent 82%), radial-gradient(ellipse 44% 34% at 58% 54%, rgba(255, 194, 232, 0.42) 0%, transparent 68%)",
                 }}
-              />
-              {hasMushroomImage ? (
+                />
+              ) : null}
+              {showCinematicFx && hasMushroomImage ? (
                 <div className="portfolio-smoke-parallax pointer-events-none absolute inset-0">
                   {/* eslint-disable-next-line @next/next/no-img-element -- bottom smoke parallax sits above dark plate, below rain/text chrome */}
                   <img
