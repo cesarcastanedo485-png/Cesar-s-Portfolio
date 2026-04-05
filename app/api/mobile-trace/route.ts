@@ -6,46 +6,6 @@ import { Redis } from "@upstash/redis";
 const MAX_TUNE_JSON_CHARS = 120_000;
 /** Seconds — trace payloads expire from KV to limit retention. */
 const KV_TTL_SECONDS = 86_400;
-const WEBHOOK_TIMEOUT_MS = 12_000;
-
-/**
- * Optional: set MOBILE_TRACE_WEBHOOK_URL in Vercel to POST the same JSON payload
- * to your automation (Zapier, n8n, Make, a small relay, etc.). Cursor has no ingest URL
- * for arbitrary sites; this is how you "send it somewhere" without pasting.
- */
-async function forwardTraceWebhook(store: MobileTraceStore): Promise<boolean> {
-  const url = process.env.MOBILE_TRACE_WEBHOOK_URL?.trim();
-  if (!url) {
-    return false;
-  }
-  const secret = process.env.MOBILE_TRACE_WEBHOOK_SECRET?.trim();
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    "User-Agent": "cesars-portfolio-mobile-trace/1",
-  };
-  if (secret) {
-    headers["X-Mobile-Trace-Secret"] = secret;
-  }
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), WEBHOOK_TIMEOUT_MS);
-  try {
-    const res = await fetch(url, {
-      method: "POST",
-      headers,
-      body: JSON.stringify({
-        type: "mobile_parallax_trace",
-        version: 1,
-        ...store,
-      }),
-      signal: controller.signal,
-    });
-    return res.ok;
-  } catch {
-    return false;
-  } finally {
-    clearTimeout(timer);
-  }
-}
 
 type TracePayload = {
   trace?: string[];
@@ -151,9 +111,6 @@ export async function POST(request: Request) {
       }
     }
 
-    const webhookConfigured = Boolean(process.env.MOBILE_TRACE_WEBHOOK_URL?.trim());
-    const webhookForwarded = webhookConfigured ? await forwardTraceWebhook(store) : false;
-
     // #region agent log
     try {
       await appendFile(
@@ -169,8 +126,6 @@ export async function POST(request: Request) {
             traceCount: trace.length,
             hasTune: tune !== undefined,
             persistedToKv,
-            webhookConfigured,
-            webhookForwarded,
             traceTail: trace.slice(-6),
             route: body.context?.route ?? null,
             userAgent: body.context?.userAgent
@@ -191,8 +146,6 @@ export async function POST(request: Request) {
       ok: true,
       ...store,
       persistedToKv,
-      webhookConfigured,
-      webhookForwarded: webhookConfigured ? webhookForwarded : null,
     });
   } catch {
     return NextResponse.json({ ok: false, error: "invalid payload" }, { status: 400 });
