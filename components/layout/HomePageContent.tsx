@@ -29,7 +29,6 @@ import { useScrollDrivenShiftX } from "@/lib/use-scroll-driven-shift-x";
 import { PARALLAX_EDITOR_DRAFT_KEY, isEditorPreviewEnabled } from "@/lib/parallax-editor";
 
 export function HomePageContent() {
-  const [arpTuneIsolation, setArpTuneIsolation] = useState(false);
   const [previewLayerOverrides, setPreviewLayerOverrides] = useState<{
     baseImageSrc?: string;
     beatFlashImageSrc?: string;
@@ -111,25 +110,11 @@ export function HomePageContent() {
     previewLayerOverrides?.foregroundSmokeIntensity ??
     foregroundSmoke?.intensity ??
     "default";
-  const isolateForArpTune = useAudioReactive && Boolean(arAudio) && arpTuneIsolation;
   const showFixedBlackBackdrop =
     !isMatrixMode &&
     !bgVideoSrc?.trim() &&
     !useAudioReactive &&
     !showFallbackWonderlandBackground;
-
-  useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
-    }
-    const syncArpTuneIsolation = () => {
-      const tuneEnabled = new URLSearchParams(window.location.search).get("arpTune") === "1";
-      setArpTuneIsolation(tuneEnabled);
-    };
-    syncArpTuneIsolation();
-    window.addEventListener("popstate", syncArpTuneIsolation);
-    return () => window.removeEventListener("popstate", syncArpTuneIsolation);
-  }, []);
 
   useEffect(() => {
     if (typeof window === "undefined" || !isEditorPreviewEnabled()) {
@@ -196,43 +181,6 @@ export function HomePageContent() {
     useAudioReactive,
   ]);
 
-  useEffect(() => {
-    // #region agent log
-    fetch("http://127.0.0.1:7531/ingest/a2f6d748-df85-4288-afaf-dcecbfdaa24b", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-Debug-Session-Id": "d3e82a",
-      },
-      body: JSON.stringify({
-        sessionId: "d3e82a",
-        runId: "pre-fix-v5",
-        hypothesisId: "H3_H4",
-        location: "HomePageContent.tsx:arpTuneIsolation",
-        message: "home page non-editor layers isolation snapshot",
-        data: {
-          arpTuneIsolation,
-          isolateForArpTune,
-          useAudioReactive,
-          hasArAudio: Boolean(arAudio),
-          atmosphereLayerOn,
-          foregroundSmokeEnabled,
-          showWonderlandAtmosphereStub,
-        },
-        timestamp: Date.now(),
-      }),
-    }).catch(() => {});
-    // #endregion
-  }, [
-    arAudio,
-    arpTuneIsolation,
-    atmosphereLayerOn,
-    foregroundSmokeEnabled,
-    isolateForArpTune,
-    showWonderlandAtmosphereStub,
-    useAudioReactive,
-  ]);
-
   return (
     <div className="relative min-h-screen">
       {isMatrixMode ? (
@@ -279,13 +227,13 @@ export function HomePageContent() {
           posterSrc={site.backgroundVideo?.poster}
         />
       )}
-      {!isolateForArpTune && showFixedBlackBackdrop ? (
+      {showFixedBlackBackdrop ? (
         <div
           className="pointer-events-none fixed inset-0 z-0 bg-black"
           aria-hidden
         />
       ) : null}
-      {!isolateForArpTune && showFallbackWonderlandBackground ? (
+      {showFallbackWonderlandBackground ? (
         <div
           ref={fallbackBgRef}
           className="pointer-events-none fixed inset-0 z-0 overflow-hidden [--fallback-scroll-x:0vw]"
@@ -305,8 +253,7 @@ export function HomePageContent() {
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_44%_at_50%_56%,rgba(99,102,241,0.26)_0%,rgba(59,130,246,0.12)_38%,transparent_74%)]" />
         </div>
       ) : null}
-      {!isolateForArpTune ? (
-        <>
+      <>
           <BackgroundAtmosphere
             enabled={atmosphereLayerOn}
             matrixCalm={isMatrixMode}
@@ -346,8 +293,7 @@ export function HomePageContent() {
             </main>
             <Footer />
           </div>
-        </>
-      ) : null}
+      </>
     </div>
   );
 }

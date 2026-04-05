@@ -230,8 +230,38 @@ export function AudioReactiveBackground({
       return next.length > 120 ? next.slice(next.length - 120) : next;
     });
   };
+  const hasStoredTuneSnapshot = () => {
+    if (typeof window === "undefined") {
+      return false;
+    }
+    try {
+      return Boolean(window.localStorage.getItem(ARP_TUNE_STORAGE_KEY)?.trim());
+    } catch {
+      return false;
+    }
+  };
   const sendTraceToServer = async () => {
-    if (!mobileDebugTrace.length || sendingTrace) {
+    if (sendingTrace) {
+      return;
+    }
+    let tunePayload: unknown = undefined;
+    try {
+      const raw = window.localStorage.getItem(ARP_TUNE_STORAGE_KEY);
+      if (raw?.trim()) {
+        tunePayload = JSON.parse(raw) as unknown;
+      }
+    } catch {
+      tunePayload = undefined;
+    }
+    const traceLines =
+      mobileDebugTrace.length > 0
+        ? mobileDebugTrace
+        : tunePayload !== undefined
+          ? [
+              `${new Date().toLocaleTimeString()} (no trace lines; tune snapshot only)`,
+            ]
+          : [];
+    if (!traceLines.length) {
       return;
     }
     setSendingTrace(true);
@@ -240,7 +270,8 @@ export function AudioReactiveBackground({
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          trace: mobileDebugTrace,
+          trace: traceLines,
+          ...(tunePayload !== undefined ? { tune: tunePayload } : {}),
           context: {
             route: typeof window !== "undefined" ? window.location.href : "",
             userAgent: typeof navigator !== "undefined" ? navigator.userAgent : "",
@@ -248,9 +279,31 @@ export function AudioReactiveBackground({
           },
         }),
       });
-      const data = (await res.json()) as { ok?: boolean; id?: string };
+      const data = (await res.json()) as {
+        ok?: boolean;
+        id?: string;
+        trace?: string[];
+        tune?: unknown;
+        context?: unknown;
+        receivedAt?: number;
+        persistedToKv?: boolean;
+      };
       if (res.ok && data.ok) {
-        setTunerNotice(`Trace sent. Share ID: ${data.id ?? "unknown"}`);
+        const report = JSON.stringify(data, null, 2);
+        try {
+          if (typeof navigator !== "undefined" && navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(report);
+          }
+        } catch {
+          /* clipboard may fail on some mobile contexts */
+        }
+        const lines = data.trace?.length ?? 0;
+        const kv = data.persistedToKv
+          ? " Server kept a copy 24h (use GET ?id=… with Upstash)."
+          : "";
+        setTunerNotice(
+          `Full report copied to clipboard (${lines} trace lines). ID: ${data.id ?? "unknown"}.${kv}`,
+        );
       } else {
         setTunerNotice("Trace send failed.");
       }
@@ -1090,7 +1143,7 @@ export function AudioReactiveBackground({
       {/* Visual layers only: stacking context stays behind page content */}
       <div
         ref={containerRef}
-        className={`audio-reactive-bg-root pointer-events-none fixed inset-x-0 top-0 bottom-0 ${tuneMode ? "z-[9000]" : "z-0"} min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-visual-mul:0.96] md:[--arp-visual-mul:1]`}
+        className="audio-reactive-bg-root pointer-events-none fixed inset-x-0 top-0 bottom-0 z-0 min-h-[100svh] min-h-[100dvh] overflow-hidden [--arp-visual-mul:0.96] md:[--arp-visual-mul:1]"
         style={
           forcedScrollX
             ? ({
@@ -1430,7 +1483,10 @@ export function AudioReactiveBackground({
                   type="button"
                   className="rounded-md bg-cyan-600 px-2 py-1 text-[10px] font-semibold text-white transition hover:bg-cyan-500 disabled:opacity-60"
                   onClick={() => void sendTraceToServer()}
-                  disabled={sendingTrace || mobileDebugTrace.length === 0}
+                  disabled={
+                    sendingTrace ||
+                    (mobileDebugTrace.length === 0 && !hasStoredTuneSnapshot())
+                  }
                 >
                   {sendingTrace ? "Sending..." : "Send Trace"}
                 </button>
