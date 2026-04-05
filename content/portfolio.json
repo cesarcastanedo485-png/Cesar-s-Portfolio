@@ -29,9 +29,9 @@
         "startVw": 14.345703125,
         "endVw": 230.166015625,
         "objectPosX": 2,
-        "objectPosY": 8.69453198982008,
+        "objectPosY": 3.5,
         "snapToEndWithinPx": 220,
-        "pulseScale": 0
+        "pulseScale": 0.1
       },
       "desktopTune": {
         "widthVw": 132,
@@ -44,7 +44,7 @@
       }
     },
     "foregroundSmoke": {
-      "enabled": false,
+      "enabled": true,
       "intensity": "default",
       "inMatrixMode": false,
       "debugBlatantCenter": false
