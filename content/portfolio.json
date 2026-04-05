@@ -23,7 +23,25 @@
       "rainVideoLumaThreshold": 0.32,
       "rainVideoLumaSoften": 0.08,
       "rainVideoLumaCeiling": 1,
-      "rainVideoLumaCeilingSoften": 0.05
+      "rainVideoLumaCeilingSoften": 0.05,
+      "mobileTune": {
+        "widthVw": 360,
+        "startVw": 14.345703125,
+        "endVw": 230.166015625,
+        "objectPosX": 2,
+        "objectPosY": 8.69453198982008,
+        "snapToEndWithinPx": 220,
+        "pulseScale": 0
+      },
+      "desktopTune": {
+        "widthVw": 132,
+        "startVw": 0,
+        "endVw": -32,
+        "objectPosX": 0,
+        "objectPosY": 0,
+        "snapToEndWithinPx": 0,
+        "pulseScale": 0.1
+      }
     },
     "foregroundSmoke": {
       "enabled": false,
@@ -258,7 +276,10 @@
         "demoEnabled": true,
         "demoSlug": "cyoa-pilot",
         "demoTitle": "CYOA mini demo (Godot Web)",
-        "demoNotes": "Pilot scene: click a choice to branch. Replace files in public/demos/cyoa-pilot/ with your Godot Web export.",
+        "demoUrl": "https://tiktok-adventure.wonderbuildstudio.com",
+        "demoNotes": "Live TikTok Adventure build for stream voting. Use Launch demo to play in-card, or Open new tab for full screen.",
+        "demoFallbackHref": "https://tiktok-adventure.wonderbuildstudio.com",
+        "demoDefaultOpen": false,
         "iconSrc": "/games/choose-your-destiny.svg",
         "iconAlt": "Choose Your Destiny — rainy neon city, branching arrows, synthwave title",
         "sourceAvailable": false,
