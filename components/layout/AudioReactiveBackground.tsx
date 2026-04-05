@@ -287,6 +287,8 @@ export function AudioReactiveBackground({
         context?: unknown;
         receivedAt?: number;
         persistedToKv?: boolean;
+        webhookConfigured?: boolean;
+        webhookForwarded?: boolean | null;
       };
       if (res.ok && data.ok) {
         const report = JSON.stringify(data, null, 2);
@@ -301,8 +303,14 @@ export function AudioReactiveBackground({
         const kv = data.persistedToKv
           ? " Server kept a copy 24h (use GET ?id=… with Upstash)."
           : "";
+        const hook =
+          data.webhookConfigured === true
+            ? data.webhookForwarded
+              ? " Also POSTed to your MOBILE_TRACE_WEBHOOK_URL (Zapier/n8n/etc.)."
+              : " Webhook URL is set but forward failed — check Vercel logs."
+            : "";
         setTunerNotice(
-          `Full report copied to clipboard (${lines} trace lines). ID: ${data.id ?? "unknown"}.${kv}`,
+          `Full report copied to clipboard (${lines} trace lines). ID: ${data.id ?? "unknown"}.${kv}${hook}`,
         );
       } else {
         setTunerNotice("Trace send failed.");
