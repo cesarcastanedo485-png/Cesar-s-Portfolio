@@ -35,8 +35,8 @@
       },
       "desktopTune": {
         "widthVw": 132,
-        "startVw": -32,
-        "endVw": 0,
+        "startVw": 0,
+        "endVw": -32,
         "objectPosX": 2,
         "objectPosY": 3.5,
         "snapToEndWithinPx": 0,
