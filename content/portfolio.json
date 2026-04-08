@@ -34,11 +34,11 @@
         "pulseScale": 0.1
       },
       "desktopTune": {
-        "widthVw": 132,
+        "widthVw": 140,
         "startVw": 0,
-        "endVw": -32,
+        "endVw": -40,
         "objectPosX": 2,
-        "objectPosY": 3.5,
+        "objectPosY": 6.5,
         "snapToEndWithinPx": 0,
         "pulseScale": 0.1
       }
